@@ -21,17 +21,23 @@ public class ShooterTesting extends LinearOpMode {
 
   @Override
   public void runOpMode() {
-    telemetry.setAutoClear(false);
-    Telemetry.Item statusItem = telemetry.addData("Status", "Initializing...");
+    telemetry.addData("Status", "Initializing...");
     telemetry.update();
     //IMPORTANT \/
     shooter1 = hardwareMap.get(DcMotorEx.class, "SHOOTER_1");
     shooter2 = hardwareMap.get(DcMotorEx.class, "SHOOTER_2");
     shooter3 = hardwareMap.get(DcMotorEx.class, "SHOOTER_3");
+    shooter1.setMode(DcMotorEx.RunMode.RUN_USING_ENCODER);
+    shooter2.setMode(DcMotorEx.RunMode.RUN_USING_ENCODER);
+    shooter3.setMode(DcMotorEx.RunMode.RUN_USING_ENCODER);
+    shooter1.setZeroPowerBehavior(DcMotorEx.ZeroPowerBehavior.FLOAT);
+    shooter2.setZeroPowerBehavior(DcMotorEx.ZeroPowerBehavior.FLOAT);
+    shooter3.setZeroPowerBehavior(DcMotorEx.ZeroPowerBehavior.FLOAT);
     //IMPORTANT /\
-    statusItem.setValue("Initialized!");
+    telemetry.addData("Status", "Initialized!");
     telemetry.update();
     waitForStart(); //IMPORTANT
+    telemetry.addData("Status", "Running - Press A for Full Power, B for Half Power, Nothing to Stop");
     telemetry.update();
     while (opModeIsActive()) { //IMPORTANT
       if (gamepad1.a) {
