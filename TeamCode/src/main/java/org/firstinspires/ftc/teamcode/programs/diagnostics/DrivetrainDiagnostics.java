@@ -28,7 +28,7 @@ public class DrivetrainDiagnostics extends LinearOpMode {
     Telemetry.Item frontLeftItem = telemetry.addData("Front Left", "Waiting...");
     Telemetry.Item frontRightItem = telemetry.addData("Front Right", "Waiting...");
     Telemetry.Item rearLeftItem = telemetry.addData("Rear Left", "Waiting...");
-    Telemetry.Item rearRightITem = telemetry.addData("Rear Right", "Waiting...");
+    Telemetry.Item rearRightItem = telemetry.addData("Rear Right", "Waiting...");
     telemetry.update();
     frontLeft = hardwareMap.get(DcMotorEx.class, "DRIVE_FRONT_LEFT");
     frontRight = hardwareMap.get(DcMotorEx.class, "DRIVE_FRONT_RIGHT");
@@ -41,7 +41,7 @@ public class DrivetrainDiagnostics extends LinearOpMode {
     evaluateMotor(frontLeft, frontLeftItem);
     evaluateMotor(frontRight, frontRightItem);
     evaluateMotor(rearLeft, rearLeftItem);
-    evaluateMotor(rearRight, rearRightITem);
+    evaluateMotor(rearRight, rearRightItem);
     resetMotors();
     statusItem.setValue("Done, See Below For Test Results");
     telemetry.update();
