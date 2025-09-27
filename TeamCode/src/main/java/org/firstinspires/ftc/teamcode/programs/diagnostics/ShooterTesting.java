@@ -12,7 +12,7 @@ public class ShooterTesting extends LinearOpMode {
   public DcMotorEx shooter2 = null;
   public DcMotorEx shooter3 = null;
 
-  public final int POWER = 1;
+  public double POWER = 0;
   /*
   Pseudo code:
     turn on one motor, check which motor reports moving more than a certain velocity
@@ -23,19 +23,24 @@ public class ShooterTesting extends LinearOpMode {
   public void runOpMode() {
     telemetry.setAutoClear(false);
     Telemetry.Item statusItem = telemetry.addData("Status", "Initializing...");
-    Telemetry.Item frontLeftItem = telemetry.addData("Front Left", "Waiting...");
-    Telemetry.Item frontRightItem = telemetry.addData("Front Right", "Waiting...");
-    Telemetry.Item rearLeftItem = telemetry.addData("Rear Left", "Waiting...");
-    Telemetry.Item rearRightItem = telemetry.addData("Rear Right", "Waiting...");
     telemetry.update();
+    //IMPORTANT \/
     shooter1 = hardwareMap.get(DcMotorEx.class, "SHOOTER_1");
     shooter2 = hardwareMap.get(DcMotorEx.class, "SHOOTER_2");
     shooter3 = hardwareMap.get(DcMotorEx.class, "SHOOTER_3");
-    statusItem.setValue("Initialized -  Raise Robot Off The Ground, Then Hit Start");
+    //IMPORTANT /\
+    statusItem.setValue("Initialized!");
     telemetry.update();
-    waitForStart();
+    waitForStart(); //IMPORTANT
     telemetry.update();
-    while (opModeIsActive()) {
+    while (opModeIsActive()) { //IMPORTANT
+      if (gamepad1.a) {
+        POWER = 1;
+      } else if (gamepad1.b) {
+        POWER = 0.5;
+      } else {
+        POWER = 0;
+      }
       shooter1.setPower(POWER);
       shooter2.setPower(POWER);
       shooter3.setPower(POWER);
