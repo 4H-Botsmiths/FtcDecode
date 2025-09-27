@@ -48,7 +48,6 @@ public class ShooterTesting extends LinearOpMode {
       telemetry.addData("Shooter 2 Velocity", shooter2.getVelocity());
       telemetry.addData("Shooter 3 Velocity", shooter3.getVelocity());
       telemetry.update();
-      sleep(100);
     }
   }
 }
