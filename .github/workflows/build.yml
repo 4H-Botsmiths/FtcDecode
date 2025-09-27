@@ -1,0 +1,64 @@
+name: build
+
+env:
+  MAJOR_VERSION: 1
+  MINOR_VERSION: 0
+
+on:
+  push:
+    branches:
+      - main
+      - beta
+
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    
+    outputs:
+      buildnumber: ${{ steps.buildnumber.outputs.buildnumber }}
+
+    steps:
+    - uses: actions/checkout@v4
+
+    - name: Set up JDK 17
+      uses: actions/setup-java@v4
+      with:
+        distribution: 'microsoft'
+        java-version: '17'
+
+    - name: Cache Gradle packages
+      uses: actions/cache@v4
+      with:
+        path: |
+          ~/.gradle/caches
+          ~/.gradle/wrapper
+        key: ${{ runner.os }}-gradle-${{ hashFiles('**/*.gradle*', '**/gradle-wrapper.properties') }}
+        restore-keys: |
+          ${{ runner.os }}-gradle-
+
+    - name: Set BUILDNUMBER output
+      id: buildnumber
+      run: |
+        YEARMONTH=$(date +'%y%m')
+        BUILDNUMBER="${{ env.MAJOR_VERSION }}.${{ env.MINOR_VERSION }}.${YEARMONTH}.${{ github.run_number }}"
+        echo "Build number is: $BUILDNUMBER"
+        echo "BUILDNUMBER=$BUILDNUMBER" >> "$GITHUB_OUTPUT"
+
+    - name: Log output
+      run: |
+        echo "Build number is: ${{ steps.buildnumber.outputs.buildnumber }}"
+   
+    - name: Build with Gradle
+      run: ./gradlew assembleRelease -PbuildNumber=${{ steps.buildnumber.outputs.buildnumber }}
+
+    - name: Move apk to root and rename it
+      run: |
+        mv **/build/outputs/apk/release/TeamCode-release.apk ${{ steps.buildnumber.outputs.buildnumber }}.apk
+
+    - name: Pubish apk as an artifact
+      uses: actions/upload-artifact@v4
+      with:
+        name: ${{ steps.buildnumber.outputs.buildnumber }}
+        path: |
+          ./${{ steps.buildnumber.outputs.buildnumber }}.apk
