@@ -16,14 +16,14 @@ public class Robot {
 
   public Robot(HardwareMap hardwareMap) {
     // Initialize hardware here
-    this.leftShooter = new Motor(hardwareMap.get(DcMotorEx.class, "MOTOR_0"),
-        new Lights(leftShooterGreen, leftShooterRed));
     this.leftShooterRed = hardwareMap.get(LED.class, "DIGITAL_0");
     this.leftShooterGreen = hardwareMap.get(LED.class, "DIGITAL_1");
+    this.leftShooter = new Motor(hardwareMap.get(DcMotorEx.class, "MOTOR_0"),
+        new Lights(leftShooterGreen, leftShooterRed));
+    this.rightShooterRed = hardwareMap.get(LED.class, "DIGITAL_2");
+    this.rightShooterGreen = hardwareMap.get(LED.class, "DIGITAL_3");
     this.rightShooter = new Motor(hardwareMap.get(DcMotorEx.class, "MOTOR_1"),
         new Lights(rightShooterGreen, rightShooterRed));
     this.rightShooter.setDirection(DcMotorSimple.Direction.REVERSE);
-    this.rightShooterRed = hardwareMap.get(LED.class, "DIGITAL_2");
-    this.rightShooterGreen = hardwareMap.get(LED.class, "DIGITAL_3");
   }
 }
