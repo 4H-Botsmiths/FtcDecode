@@ -1,11 +1,11 @@
 package org.firstinspires.ftc.teamcode.programs.diagnostics;
 
-import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
+import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.hardware.DcMotorEx;
 import org.firstinspires.ftc.robotcore.external.Telemetry;
 
-@Autonomous(name = "Shooter Testing", group = "Diagnostics")
+@TeleOp(name = "Shooter Testing", group = "Diagnostics")
 public class ShooterTesting extends LinearOpMode {
 
   public DcMotorEx shooter1 = null;
