@@ -27,19 +27,46 @@ jobs:
             const headRef = pr.head.ref;
             const headSha = pr.head.sha;
 
-            const runs = await github.paginate(github.rest.actions.listWorkflowRunsForWorkflow, {
+            // Fetch recent runs for build workflow; don't over-filter in the API call to avoid missing PR runs.
+            let runs = await github.paginate(github.rest.actions.listWorkflowRunsForWorkflow, {
               owner,
               repo,
               workflow_id: 'build.yml',
-              event: 'pull_request',
-              branch: headRef,
               status: 'completed',
               per_page: 100
             });
 
-            let match = runs.find(r => r.head_sha === headSha && r.conclusion === 'success');
+            core.info(`Found ${runs.length} completed runs for build.yml`);
+
+            // Prefer exact head SHA match for this PR
+            let match = runs.find(r => r.head_sha === headSha && r.conclusion === 'success' && r.event === 'pull_request');
             if (!match) {
-              match = runs.find(r => r.conclusion === 'success' && r.pull_requests?.some(p => p.number === pr.number));
+              // Fallback: any successful PR run associated with this PR number
+              match = runs.find(r => r.conclusion === 'success' && r.event === 'pull_request' && Array.isArray(r.pull_requests) && r.pull_requests.some(p => p.number === pr.number));
+            }
+            if (!match) {
+              // Last resort: successful run on the same head branch (useful if GitHub API didn't populate pull_requests array)
+              match = runs.find(r => r.conclusion === 'success' && r.head_branch === headRef && r.event === 'pull_request');
+            }
+            if (!match) {
+              // Fallback: search across the whole repository for runs of the build workflow by name/path
+              const allRuns = await github.paginate(github.rest.actions.listWorkflowRunsForRepo, {
+                owner,
+                repo,
+                event: 'pull_request',
+                status: 'completed',
+                per_page: 100
+              });
+              core.info(`Repo-wide completed PR runs: ${allRuns.length}`);
+              const buildRuns = allRuns.filter(r => r.name === 'build' || (typeof r.path === 'string' && r.path.endsWith('/build.yml')));
+              core.info(`Repo-wide build runs: ${buildRuns.length}`);
+              match = buildRuns.find(r => r.head_sha === headSha && r.conclusion === 'success');
+              if (!match) {
+                match = buildRuns.find(r => r.conclusion === 'success' && Array.isArray(r.pull_requests) && r.pull_requests.some(p => p.number === pr.number));
+              }
+              if (!match) {
+                match = buildRuns.find(r => r.conclusion === 'success' && r.head_branch === headRef);
+              }
             }
             if (!match) {
               core.setFailed(`No successful 'build' workflow run found for branch ${headRef} (PR #${pr.number}).`);
@@ -53,5 +80,6 @@ jobs:
     if: needs.find-run.result == 'success'
     uses: ./.github/workflows/deploy.yml
     with:
-      branch: ${{ github.event.pull_request.head.ref }}
+      # Deploy to the target environment (the PR base branch)
+      branch: ${{ github.event.pull_request.base.ref }}
       runid: ${{ needs.find-run.outputs.runid }}
