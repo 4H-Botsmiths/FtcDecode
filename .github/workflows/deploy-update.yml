@@ -1,4 +1,4 @@
-name: deploy to common
+name: Deploy Update
 
 on:
   pull_request:
@@ -10,7 +10,7 @@ permissions:
 
 jobs:
   find-run:
-    if: github.event.pull_request.merged == true && startsWith(github.event.pull_request.head.ref, 'robot/')
+    if: github.event.pull_request.merged == true && startsWith(github.event.pull_request.base.ref, 'robot/')
     runs-on: ubuntu-latest
     outputs:
       runid: ${{ steps.find.outputs.runid }}
