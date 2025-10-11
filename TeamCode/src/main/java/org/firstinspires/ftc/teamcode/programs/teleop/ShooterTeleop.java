@@ -38,6 +38,7 @@ public class ShooterTeleop extends OpMode {
   @Override
   public void init() {
     telemetry.addData("Status", "Initializing");
+    telemetry.update();
     this.robot = new Robot(hardwareMap);
     // Tell the driver that initialization is complete.
     telemetry.addData("Status", "Initialized");
@@ -67,8 +68,14 @@ public class ShooterTeleop extends OpMode {
       robot.leftShooter.setSpeed(1);
       robot.rightShooter.setSpeed(1);
     } else if (gamepad1.b) {
+      robot.leftShooter.setSpeed(0.75);
+      robot.rightShooter.setSpeed(0.75);
+    } else if (gamepad1.y) {
       robot.leftShooter.setSpeed(0.5);
       robot.rightShooter.setSpeed(0.5);
+    } else if (gamepad1.x) {
+      robot.leftShooter.setSpeed(0.25);
+      robot.rightShooter.setSpeed(0.25);
     } else {
       robot.leftShooter.setSpeed(0);
       robot.rightShooter.setSpeed(0);
@@ -77,6 +84,14 @@ public class ShooterTeleop extends OpMode {
     telemetry.addData("Right Shooter Velocity", robot.rightShooter.getVelocity());
     telemetry.addData("Left Shooter RPM", robot.leftShooter.getRPM());
     telemetry.addData("Right Shooter RPM", robot.rightShooter.getRPM());
+    telemetry.addData("Left Shooter Ticks Per Rotation",
+        robot.leftShooter.asDcMotorEx().getMotorType().getTicksPerRev());
+    telemetry.addData("Right Shooter Ticks Per Rotation",
+        robot.rightShooter.asDcMotorEx().getMotorType().getTicksPerRev());
+    telemetry.addData("Left Shooter Max RPM",
+        robot.leftShooter.asDcMotorEx().getMotorType().getMaxRPM());
+    telemetry.addData("Right Shooter Max RPM",
+        robot.rightShooter.asDcMotorEx().getMotorType().getMaxRPM());
     telemetry.update();
   }
 
