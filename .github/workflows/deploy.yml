@@ -11,6 +11,14 @@ on:
         required: true
         type: string
         description: 'The runid of the triggering workflow'
+  workflow_dispatch: 
+    inputs:
+      branch:
+        description: 'The branch being deployed'
+        required: true
+      runid:
+        description: 'The runid of the triggering workflow'
+        required: true
 
 permissions:
     actions: read   # Allows read access to artifacts and other workflow resources
@@ -19,12 +27,11 @@ permissions:
 jobs:
   deploy:
     runs-on: self-hosted
-    environment: ${{ inputs.branch}}
+    environment: ${{ inputs.branch }}
     steps:
       - name: Deploy to ${{ inputs.branch }}
         run: |
           echo "Deploying to ${{ inputs.branch }} environment using the artifact generated from workflow run ${{ inputs.runid }} of branch ${{ inputs.branch }}"
-
       - name: Delete all files in working directory verbosely
         run: rm -vrf ./*
 

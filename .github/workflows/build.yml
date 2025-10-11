@@ -6,8 +6,8 @@ env:
 
 on:
   push:
-    branches:
-      - robot/*
+  pull_request: 
+  workflow_dispatch: 
 
 jobs:
   build:
@@ -60,10 +60,3 @@ jobs:
         name: ${{ steps.buildnumber.outputs.buildnumber }}
         path: |
           ./${{ steps.buildnumber.outputs.buildnumber }}.apk
-
-  deploy:
-    needs: build
-    uses: ./.github/workflows/deploy.yml
-    with:
-      branch: ${{ github.ref_name }}
-      runid: ${{ needs.build.outputs.buildnumber }}

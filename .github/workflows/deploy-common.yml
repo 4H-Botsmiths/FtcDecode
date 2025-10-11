@@ -1,0 +1,21 @@
+name: deploy to common
+
+on:
+  workflow_run:
+    workflows: ["build"]
+    branches:
+      - robot/*
+    types:
+      - completed
+
+permissions:
+  actions: read   # Allows read access to artifacts and other workflow resources
+  contents: read 
+  
+jobs:
+  deploy:
+    if: github.event.workflow_run.conclusion == 'success'
+    uses: ./.github/workflows/deploy.yml
+    with:
+      branch: ${{ github.event.workflow_run.head_branch }}
+      runid: ${{ github.event.workflow_run.id }}
