@@ -1,0 +1,76 @@
+name: deploy
+
+on:
+  workflow_call:
+    inputs:
+      branch:
+        required: true
+        type: string
+        description: 'The branch being deployed'
+      runid:
+        required: true
+        type: string
+        description: 'The runid of the triggering workflow'
+
+permissions:
+    actions: read   # Allows read access to artifacts and other workflow resources
+    contents: read 
+
+jobs:
+  deploy:
+    runs-on: self-hosted
+    environment: ${{ inputs.branch}}
+    steps:
+      - name: Deploy to ${{ inputs.branch }}
+        run: |
+          echo "Deploying to ${{ inputs.branch }} environment using the artifact generated from workflow run ${{ inputs.runid }} of branch ${{ inputs.branch }}"
+
+      - name: Delete all files in working directory verbosely
+        run: rm -vrf ./*
+
+      - name: Download build artifacts
+        id: buildartifacts
+        uses: actions/download-artifact@v4
+        with:
+          github-token: ${{ github.token }}
+          repository: ${{ github.repository }}
+          run-id: ${{ inputs.runid }}
+
+      - name: Log download path
+        run: |
+          echo "Download path is: ${{ steps.buildartifacts.outputs.download-path }}"
+
+      - name: Log all files in working directory
+        run: ls -R ./
+
+      - name: Read the buildnumber from the only folder in the download-path
+        id: buildnumber
+        run: |
+          BUILDNUMBER=$(ls ${{ steps.buildartifacts.outputs.download-path }})
+          echo "Build number is: $BUILDNUMBER"
+          echo "BUILDNUMBER=$BUILDNUMBER" >> "$GITHUB_OUTPUT"
+
+      - name: Log build number
+        run: |
+          echo "Build number is: ${{ steps.buildnumber.outputs.buildnumber }}"
+
+      # Wake up the adb sever if it is not already running
+      - name: Start adb server
+        run: adb start-server
+
+      # Listing devices helps with debugging if the device is not detected  
+      - name: List devices
+        run: adb devices 
+
+      # Run adb commands to uninstall the previous APK
+      - name: Uninstall Previous APK
+        continue-on-error: true # just incase the app is not installed
+        run: adb -s ${{ vars.CONTROL_HUB_USB_SERIAL }} uninstall com.qualcomm.ftcrobotcontroller
+
+      # Run adb commands to install the new APK
+      - name: Install New APK
+        run: adb -s ${{ vars.CONTROL_HUB_USB_SERIAL }} install "./${{ steps.buildnumber.outputs.buildnumber }}/${{ steps.buildnumber.outputs.buildnumber }}.apk"
+      
+      # Run adb commands to start the new APK
+      - name: Run APK
+        run: adb shell am start -n com.qualcomm.ftcrobotcontroller/org.firstinspires.ftc.robotcontroller.internal.FtcRobotControllerActivity
