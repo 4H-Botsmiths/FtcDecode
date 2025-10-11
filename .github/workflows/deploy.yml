@@ -3,19 +3,12 @@ name: deploy
 on:
   workflow_call:
     inputs:
-      branch:
-        required: true
-        type: string
-        description: 'The branch being deployed'
       runid:
         required: true
         type: string
         description: 'The runid of the triggering workflow'
   workflow_dispatch: 
     inputs:
-      branch:
-        description: 'The branch being deployed'
-        required: true
       runid:
         description: 'The runid of the triggering workflow'
         required: true
@@ -27,11 +20,10 @@ permissions:
 jobs:
   deploy:
     runs-on: self-hosted
-    environment: ${{ inputs.branch }}
     steps:
-      - name: Deploy to ${{ inputs.branch }}
+      - name: Deploy
         run: |
-          echo "Deploying to ${{ inputs.branch }} environment using the artifact generated from workflow run ${{ inputs.runid }} of branch ${{ inputs.branch }}"
+          echo "Deploying using the artifact generated from workflow run ${{ inputs.runid }} of branch"
       - name: Delete all files in working directory verbosely
         run: rm -vrf ./*
 
@@ -72,11 +64,11 @@ jobs:
       # Run adb commands to uninstall the previous APK
       - name: Uninstall Previous APK
         continue-on-error: true # just incase the app is not installed
-        run: adb -s ${{ vars.CONTROL_HUB_USB_SERIAL }} uninstall com.qualcomm.ftcrobotcontroller
+        run: adb uninstall com.qualcomm.ftcrobotcontroller
 
       # Run adb commands to install the new APK
       - name: Install New APK
-        run: adb -s ${{ vars.CONTROL_HUB_USB_SERIAL }} install "./${{ steps.buildnumber.outputs.buildnumber }}/${{ steps.buildnumber.outputs.buildnumber }}.apk"
+        run: adb install "./${{ steps.buildnumber.outputs.buildnumber }}/${{ steps.buildnumber.outputs.buildnumber }}.apk"
       
       # Run adb commands to start the new APK
       - name: Run APK
