@@ -14,6 +14,8 @@ public class Robot {
   private final LED rightShooterRed;
   private final LED rightShooterGreen;
 
+  public final Motor intake;
+
   public Robot(HardwareMap hardwareMap) {
     // Initialize hardware here
     this.leftShooterRed = hardwareMap.get(LED.class, "DIGITAL_0");
@@ -25,5 +27,8 @@ public class Robot {
     this.rightShooter = new Motor(hardwareMap.get(DcMotorEx.class, "MOTOR_1"),
         new Lights(rightShooterGreen, rightShooterRed));
     this.rightShooter.setDirection(DcMotorSimple.Direction.REVERSE);
+
+    this.intake = new Motor(hardwareMap.get(DcMotorEx.class, "MOTOR_2"));
+    this.intake.setMode(DcMotorEx.RunMode.RUN_WITHOUT_ENCODER);
   }
 }
