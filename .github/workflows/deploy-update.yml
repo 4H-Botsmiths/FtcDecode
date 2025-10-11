@@ -15,6 +15,11 @@ jobs:
     outputs:
       runid: ${{ steps.find.outputs.runid }}
     steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          sparse-checkout: README.md
+
       - name: Find last successful build run
         id: find
         env:
