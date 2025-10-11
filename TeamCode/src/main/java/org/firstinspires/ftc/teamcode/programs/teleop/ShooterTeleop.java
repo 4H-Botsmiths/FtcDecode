@@ -72,16 +72,17 @@ public class ShooterTeleop extends OpMode {
    */
   @Override
   public void loop() {
-    if (gamepad1.a) {
-      robot.leftShooter.setSpeed(1);
-      robot.rightShooter.setSpeed(1);
-    } else if (gamepad1.b) {
+    // y=1.0, x=0.75, b=0.5, a=0.25
+    if (gamepad1.y) {
+      robot.leftShooter.setSpeed(1.0);
+      robot.rightShooter.setSpeed(1.0);
+    } else if (gamepad1.x) {
       robot.leftShooter.setSpeed(0.75);
       robot.rightShooter.setSpeed(0.75);
-    } else if (gamepad1.y) {
+    } else if (gamepad1.b) {
       robot.leftShooter.setSpeed(0.5);
       robot.rightShooter.setSpeed(0.5);
-    } else if (gamepad1.x) {
+    } else if (gamepad1.a) {
       robot.leftShooter.setSpeed(0.25);
       robot.rightShooter.setSpeed(0.25);
     } else {
