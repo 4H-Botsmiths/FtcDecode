@@ -65,10 +65,9 @@ import java.util.List;
  * Remove or comment out the @Disabled line to add this OpMode to the Driver Station OpMode list.
  */
 @TeleOp(name = "Concept: AprilTag Localization", group = "Concept")
-@Disabled
 public class ConceptAprilTagLocalization extends LinearOpMode {
 
-    private static final boolean USE_WEBCAM = true;  // true for webcam, false for phone camera
+    private static final boolean USE_WEBCAM = true; // true for webcam, false for phone camera
 
     /**
      * Variables to store the position and orientation of the camera on the robot. Setting these
@@ -141,7 +140,7 @@ public class ConceptAprilTagLocalization extends LinearOpMode {
         // Save more CPU resources when camera is no longer needed.
         visionPortal.close();
 
-    }   // end method runOpMode()
+    } // end method runOpMode()
 
     /**
      * Initialize the AprilTag processor.
@@ -210,7 +209,7 @@ public class ConceptAprilTagLocalization extends LinearOpMode {
         // Disable or re-enable the aprilTag processor at any time.
         //visionPortal.setProcessorEnabled(aprilTag, true);
 
-    }   // end method initAprilTag()
+    } // end method initAprilTag()
 
     /**
      * Add telemetry about AprilTag detections.
@@ -237,14 +236,15 @@ public class ConceptAprilTagLocalization extends LinearOpMode {
                 }
             } else {
                 telemetry.addLine(String.format("\n==== (ID %d) Unknown", detection.id));
-                telemetry.addLine(String.format("Center %6.0f %6.0f   (pixels)", detection.center.x, detection.center.y));
+                telemetry.addLine(
+                        String.format("Center %6.0f %6.0f   (pixels)", detection.center.x, detection.center.y));
             }
-        }   // end for() loop
+        } // end for() loop
 
         // Add "key" information to telemetry
         telemetry.addLine("\nkey:\nXYZ = X (Right), Y (Forward), Z (Up) dist.");
         telemetry.addLine("PRY = Pitch, Roll & Yaw (XYZ Rotation)");
 
-    }   // end method telemetryAprilTag()
+    } // end method telemetryAprilTag()
 
-}   // end class
+} // end class
