@@ -33,6 +33,7 @@ public class ShooterTesting extends LinearOpMode {
     shooter1.setZeroPowerBehavior(DcMotorEx.ZeroPowerBehavior.FLOAT);
     shooter2.setZeroPowerBehavior(DcMotorEx.ZeroPowerBehavior.FLOAT);
     shooter3.setZeroPowerBehavior(DcMotorEx.ZeroPowerBehavior.FLOAT);
+    shooter1.setDirection(DcMotorEx.Direction.REVERSE);
     //IMPORTANT /\
     telemetry.addData("Status", "Initialized!");
     telemetry.update();
