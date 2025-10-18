@@ -4,6 +4,7 @@ import com.qualcomm.robotcore.hardware.DcMotorEx;
 import com.qualcomm.robotcore.hardware.DcMotorSimple;
 import com.qualcomm.robotcore.hardware.HardwareMap;
 import com.qualcomm.robotcore.hardware.LED;
+import com.qualcomm.robotcore.util.Range;
 
 public class Robot {
 
@@ -45,7 +46,7 @@ public class Robot {
     this.intake.setMode(DcMotorEx.RunMode.RUN_WITHOUT_ENCODER);
   }
 
-  public final int DRIVE_MAX_RPM = 300;
+  public static final int DRIVE_MAX_RPM = 300;
 
   public void drive(double x, double y, double rotate) {
     double frontLeftPower = y + x + rotate;
@@ -53,11 +54,37 @@ public class Robot {
     double rearLeftPower = y - x + rotate;
     double rearRightPower = y + x - rotate;
 
-    frontLeft.setRPM(frontLeftPower * this.DRIVE_MAX_RPM);
-    frontRight.setRPM(frontRightPower * this.DRIVE_MAX_RPM);
-    rearLeft.setRPM(rearLeftPower * this.DRIVE_MAX_RPM);
-    rearRight.setRPM(rearRightPower * this.DRIVE_MAX_RPM);
+    frontLeft.setRPM(Range.clip(frontLeftPower, -1, 1) * Robot.DRIVE_MAX_RPM);
+    frontRight.setRPM(Range.clip(frontRightPower, -1, 1) * Robot.DRIVE_MAX_RPM);
+    rearLeft.setRPM(Range.clip(rearLeftPower, -1, 1) * Robot.DRIVE_MAX_RPM);
+    rearRight.setRPM(Range.clip(rearRightPower, -1, 1) * Robot.DRIVE_MAX_RPM);
   }
+
+/**
+ * Drives the robot using field-centric inputs by compensating for the robot's current heading.
+ *
+ * <p>This method converts a desired motion vector provided in field coordinates (x, y)
+ * into robot-relative coordinates by rotating the vector by -gyro (i.e. it applies a rotation
+ * that compensates for the robot's current heading). The transformed robot-relative commands
+ * are then passed to {@link #drive(double, double, double)} which computes individual wheel
+ * powers and sets motor RPMs (clipped and scaled by {@code DRIVE_MAX_RPM}).</p>
+ *
+ * <p>Coordinate/convention notes:
+ * <ul>
+ *   <li>{@code x} is the lateral (strafe) command; positive values request motion to the right.</li>
+ *   <li>{@code y} is the longitudinal (forward/backward) command; positive values request forward motion.</li>
+ *   <li>{@code rotate} is the rotation command (a signed rotational rate); its sign follows the
+ *       drivetrain's internal convention used by {@link #drive(double, double, double)}.</li>
+ *   <li>{@code gyro} is the robot heading used to convert field-relative inputs to robot-relative;
+ *       it is interpreted as an angle in radians.</li>
+ * </ul>
+ * </p>
+ *
+ * @param x lateral (strafe) input in field coordinates, typically in the range [-1, 1]
+ * @param y forward/backward input in field coordinates, typically in the range [-1, 1]
+ * @param rotate rotational input (signed), typically in the range [-1, 1]
+ * @param gyro robot heading in radians used to transform field-centric inputs into robot-centric ones
+ */
 
   public void drive(double x, double y, double rotate, double gyro) {
     double tempX = x * Math.cos(gyro) + y * Math.sin(gyro);
