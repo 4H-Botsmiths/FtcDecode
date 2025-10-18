@@ -27,7 +27,7 @@ import org.firstinspires.ftc.teamcode.hardware.Robot;
  * Station OpMode list
  */
 
-@TeleOp(name = "Shooter Teleop", group = "A")
+@TeleOp(name = "Shooter Teleop", group = "B")
 public class ShooterTeleop extends OpMode {
   public Robot robot;
 
@@ -72,25 +72,28 @@ public class ShooterTeleop extends OpMode {
    */
   @Override
   public void loop() {
-    // y=1.0, x=0.75, b=0.5, a=0.25
-    if (gamepad1.a) {
-      robot.leftShooter.setSpeed(1.0);
-      robot.rightShooter.setSpeed(1.0);
-    } else if (gamepad1.x) {
-      robot.leftShooter.setSpeed(0.75);
-      robot.rightShooter.setSpeed(0.75);
-    } else if (gamepad1.y) {
-      robot.leftShooter.setSpeed(0.5);
-      robot.rightShooter.setSpeed(0.5);
-    } else if (gamepad1.b) {
-      robot.leftShooter.setSpeed(0.25);
-      robot.rightShooter.setSpeed(0.25);
-    } else {
-      robot.leftShooter.setSpeed(0);
-      robot.rightShooter.setSpeed(0);
-    }
+    shooterLoop();
+    intakeLoop();
+    telemetries();
+  }
 
-    robot.intake.setPower(gamepad1.right_trigger - gamepad1.left_trigger);
+  private final int SHOOTER_MAX_RPM = 3000;
+
+  public void shooterLoop() {
+    // Shooter control
+    robot.shooter.setRPM(gamepad2.left_trigger * SHOOTER_MAX_RPM);
+  }
+
+  public void intakeLoop() {
+    // Intake control
+    if (gamepad2.b) {
+      robot.intake.setPower(-0.5);
+    } else {
+      robot.intake.setPower(gamepad2.right_trigger);
+    }
+  }
+
+  public void telemetries() {
     telemetry.addData("Left Shooter Velocity", robot.leftShooter.getVelocity());
     telemetry.addData("Right Shooter Velocity", robot.rightShooter.getVelocity());
     telemetry.addData("Left Shooter RPM", robot.leftShooter.getRPM());
