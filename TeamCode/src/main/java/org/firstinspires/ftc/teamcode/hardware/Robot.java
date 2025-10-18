@@ -27,22 +27,22 @@ public class Robot {
     // Initialize hardware here
     this.leftShooterRed = hardwareMap.get(LED.class, "DIGITAL_0");
     this.leftShooterGreen = hardwareMap.get(LED.class, "DIGITAL_1");
-    this.leftShooter = new Motor(hardwareMap.get(DcMotorEx.class, "MOTOR_0"),
+    this.leftShooter = new Motor(hardwareMap.get(DcMotorEx.class, "MOTOR_4"),
         new Lights(leftShooterGreen, leftShooterRed));
     this.rightShooterRed = hardwareMap.get(LED.class, "DIGITAL_2");
     this.rightShooterGreen = hardwareMap.get(LED.class, "DIGITAL_3");
-    this.rightShooter = new Motor(hardwareMap.get(DcMotorEx.class, "MOTOR_1"),
+    this.rightShooter = new Motor(hardwareMap.get(DcMotorEx.class, "MOTOR_5"),
         new Lights(rightShooterGreen, rightShooterRed));
     this.rightShooter.setDirection(DcMotorSimple.Direction.REVERSE);
 
     this.shooter = new Shooter(this.leftShooter, this.rightShooter);
 
-    this.frontLeft = new Motor(hardwareMap.get(DcMotorEx.class, "MOTOR_4"));
-    this.frontRight = new Motor(hardwareMap.get(DcMotorEx.class, "MOTOR_5"));
-    this.rearLeft = new Motor(hardwareMap.get(DcMotorEx.class, "MOTOR_6"));
-    this.rearRight = new Motor(hardwareMap.get(DcMotorEx.class, "MOTOR_7"));
+    this.frontLeft = new Motor(hardwareMap.get(DcMotorEx.class, "MOTOR_1"));
+    this.frontRight = new Motor(hardwareMap.get(DcMotorEx.class, "MOTOR_0"));
+    this.rearLeft = new Motor(hardwareMap.get(DcMotorEx.class, "MOTOR_3"));
+    this.rearRight = new Motor(hardwareMap.get(DcMotorEx.class, "MOTOR_2"));
 
-    this.intake = new Motor(hardwareMap.get(DcMotorEx.class, "MOTOR_2"));
+    this.intake = new Motor(hardwareMap.get(DcMotorEx.class, "MOTOR_6"));
     this.intake.setMode(DcMotorEx.RunMode.RUN_WITHOUT_ENCODER);
   }
 
