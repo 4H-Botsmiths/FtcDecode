@@ -6,10 +6,14 @@ import com.qualcomm.robotcore.hardware.DcMotorSimple;
 public class Shooter {
   private final Motor left;
   private final Motor right;
+  private final CRServo intakeLeft;
+  private final CRServo intakeRight;
 
-  public Shooter(Motor leftShooter, Motor rightShooter) {
+  public Shooter(Motor leftShooter, Motor rightShooter, CRServo intakeServoLeft, CRServo intakeServoRight) {
     this.left = leftShooter;
     this.right = rightShooter;
+    this.intakeLeft = intakeServoLeft;
+    this.intakeRight = intakeServoRight;
   }
 
   // Motor-like helpers (delegate to both motors)
@@ -62,6 +66,16 @@ public class Shooter {
   public void setRPM(double rpm) {
     left.setRPM(rpm);
     right.setRPM(rpm);
+  }
+
+  public void setFeederPower(double power) {
+    intakeLeft.setPower(power);
+    intakeRight.setPower(power);
+  }
+
+  public void startShooter(double rpm, double power) {
+    setRPM(rpm);
+    setPower(power);
   }
 
   public double getRPM() {
