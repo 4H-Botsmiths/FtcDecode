@@ -1,0 +1,22 @@
+# Handle line endings automatically for cross-platform development
+* text=auto
+
+# Explicitly declare text files for consistent line endings
+*.java text
+*.gradle text
+*.properties text
+*.xml text
+*.md text
+*.txt text
+*.json text
+
+# Declare binary files to prevent line ending conversion
+*.pdf binary
+*.png binary
+*.jpg binary
+*.jpeg binary
+*.gif binary
+*.apk binary
+*.aar binary
+*.jar binary
+*.keystore binary
