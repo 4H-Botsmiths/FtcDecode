@@ -17,8 +17,6 @@ public class Robot {
   public final Motor rearLeft;
   public final Motor rearRight;
 
-  public final Motor intake;
-
   public final CRServo intakeServoLeft;
   public final CRServo intakeServoRight;
 
