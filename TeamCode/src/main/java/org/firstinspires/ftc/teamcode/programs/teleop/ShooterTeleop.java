@@ -90,12 +90,10 @@ public class ShooterTeleop extends OpMode {
       robot.rightShooter.setSpeed(0);
     }
 
-    robot.intake.setPower(gamepad1.right_trigger - gamepad1.left_trigger);
     telemetry.addData("Left Shooter Velocity", robot.leftShooter.getVelocity());
     telemetry.addData("Right Shooter Velocity", robot.rightShooter.getVelocity());
     telemetry.addData("Left Shooter RPM", robot.leftShooter.getRPM());
     telemetry.addData("Right Shooter RPM", robot.rightShooter.getRPM());
-    telemetry.addData("Intake Power", robot.intake.getPower());
     telemetry.update();
   }
 
