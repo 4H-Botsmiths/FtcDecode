@@ -24,11 +24,9 @@ public class Robot {
 
   public Robot(HardwareMap hardwareMap) {
     // Initialize hardware here
-  
-    this.leftShooter = new Motor(hardwareMap.get(DcMotorEx.class, "MOTOR_4"),
-        new Lights(leftShooterGreen, leftShooterRed));
-    this.rightShooter = new Motor(hardwareMap.get(DcMotorEx.class, "MOTOR_5"),
-        new Lights(rightShooterGreen, rightShooterRed));
+
+    this.leftShooter = new Motor(hardwareMap.get(DcMotorEx.class, "MOTOR_4"));
+    this.rightShooter = new Motor(hardwareMap.get(DcMotorEx.class, "MOTOR_5"));
     this.rightShooter.setDirection(DcMotorSimple.Direction.REVERSE);
 
     this.intakeServoLeft = hardwareMap.get(CRServo.class, "SERVO_0");
