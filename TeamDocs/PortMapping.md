@@ -10,30 +10,30 @@ This document helps track exactly what is plugged into each of the Control Hub's
 
 | Port | Motor Name         | Description
 |------|--------------------|------------------------------------
-| 0    | MOTOR_0            | Front right drive motor
-| 1    | MOTOR_1            | Front left drive motor
-| 2    | MOTOR_2            | Rear right drive motor
-| 3    | MOTOR_3            | Rear left drive motor  
+| 0    | CH_MOTOR_0         | Front right drive motor
+| 1    | CH_MOTOR_1         | Front left drive motor
+| 2    | CH_MOTOR_2         | Rear right drive motor
+| 3    | CH_MOTOR_3         | Rear left drive motor  
 
 ### Servos
 
 | Port | Servo Name         | Description
 |------|--------------------|------------------------------------
-| 0    | SERVO_0.           | Feeder left
-| 1    | SERVO_1            | Indexer
-| 2    | SERVO_2            | 
-| 3    | SERVO_3            |
-| 4    | SERVO_4            |
-| 5    | SERVO_5            |
+| 0    | CH_SERVO_0         | Feeder left
+| 1    | CH_SERVO_1         | Indexer
+| 2    | CH_SERVO_2         | 
+| 3    | CH_SERVO_3         |
+| 4    | CH_SERVO_4         |
+| 5    | CH_SERVO_5         |
 
 ### Sensors (I2C)
 
 | I2C Bus | Sensor Name       | Description
 |---------|-------------------|------------------------------------
-| 0       | I2C_0             | Color sensor left
-| 1       | I2C_1             | 
-| 2       | I2C_2             | 
-| 3       | I2C_3             | 
+| 0       | CH_I2C_0          | Color sensor left
+| 1       | CH_I2C_1          | 
+| 2       | CH_I2C_2          | 
+| 3       | CH_I2C_3          | 
 
 ### Digital Devices
 
@@ -79,30 +79,30 @@ This document helps track exactly what is plugged into each of the Control Hub's
 
 | Port | Motor Name         | Description
 |------|--------------------|------------------------------------
-| 0    | MOTOR_4            | Left shooter motor
-| 1    | MOTOR_5            | Right shooter motor
-| 2    | MOTOR_6            |
-| 3    | MOTOR_7            |
+| 0    | EH_MOTOR_0         | Left shooter motor
+| 1    | EH_MOTOR_1         | Right shooter motor
+| 2    | EH_MOTOR_2         |
+| 3    | EH_MOTOR_3         |
 
 ### Servos
 
 | Port | Servo Name         | Description
 |------|--------------------|------------------------------------
-| 0    | SERVO_6            | Feeder right
-| 1    | SERVO_7            |
-| 2    | SERVO_8            |
-| 3    | SERVO_9            |
-| 4    | SERVO_10           |
-| 5    | SERVO_11           |
+| 0    | EH_SERVO_0         | Feeder right
+| 1    | EH_SERVO_1         |
+| 2    | EH_SERVO_2         |
+| 3    | EH_SERVO_3         |
+| 4    | EH_SERVO_4         |
+| 5    | EH_SERVO_5         |
 
 ### Sensors (I2C)
 
 | I2C Bus | Sensor Name       | Description
 |---------|-------------------|------------------------------------
-| 0       | I2C_4             | Color sensor right
-| 1       | I2C_5             |
-| 2       | I2C_6             |
-| 3       | I2C_7             |
+| 0       | EH_I2C_0          | Color sensor right
+| 1       | EH_I2C_1          |
+| 2       | EH_I2C_2          |
+| 3       | EH_I2C_3          |
 
 ### Digital Devices
 
