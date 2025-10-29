@@ -41,24 +41,24 @@ public class Robot {
      */
     public Robot(HardwareMap hardwareMap) {
         // Initialize Control Hub Motors
-        this.frontRight = hardwareMap.get(DcMotorEx.class, "CH_MOTOR_0");
-        this.frontLeft = hardwareMap.get(DcMotorEx.class, "CH_MOTOR_1");
-        this.rearRight = hardwareMap.get(DcMotorEx.class, "CH_MOTOR_2");
-        this.rearLeft = hardwareMap.get(DcMotorEx.class, "CH_MOTOR_3");
+        this.frontRight = hardwareMap.get(DcMotorEx.class, DeviceNames.CH_MOTOR_0.getDeviceName());
+        this.frontLeft = hardwareMap.get(DcMotorEx.class, DeviceNames.CH_MOTOR_1.getDeviceName());
+        this.rearRight = hardwareMap.get(DcMotorEx.class, DeviceNames.CH_MOTOR_2.getDeviceName());
+        this.rearLeft = hardwareMap.get(DcMotorEx.class, DeviceNames.CH_MOTOR_3.getDeviceName());
 
         // Initialize Expansion Hub Motors
-        this.leftShooter = hardwareMap.get(DcMotorEx.class, "EH_MOTOR_0");
-        this.rightShooter = hardwareMap.get(DcMotorEx.class, "EH_MOTOR_1");
+        this.leftShooter = hardwareMap.get(DcMotorEx.class, DeviceNames.EH_MOTOR_0.getDeviceName());
+        this.rightShooter = hardwareMap.get(DcMotorEx.class, DeviceNames.EH_MOTOR_1.getDeviceName());
 
         // Initialize Control Hub Servos
-        this.feederLeft = hardwareMap.get(CRServo.class, "CH_SERVO_0");
-        this.indexer = hardwareMap.get(CRServo.class, "CH_SERVO_1");
+        this.feederLeft = hardwareMap.get(CRServo.class, DeviceNames.CH_SERVO_0.getDeviceName());
+        this.indexer = hardwareMap.get(CRServo.class, DeviceNames.CH_SERVO_1.getDeviceName());
 
         // Initialize Expansion Hub Servos
-        this.feederRight = hardwareMap.get(CRServo.class, "EH_SERVO_0");
+        this.feederRight = hardwareMap.get(CRServo.class, DeviceNames.EH_SERVO_0.getDeviceName());
 
         // Initialize Color Sensors
-        this.colorSensorLeft = hardwareMap.get(ColorSensor.class, "CH_I2C_0");
-        this.colorSensorRight = hardwareMap.get(ColorSensor.class, "EH_I2C_0");
+        this.colorSensorLeft = hardwareMap.get(ColorSensor.class, DeviceNames.CH_I2C_0.getDeviceName());
+        this.colorSensorRight = hardwareMap.get(ColorSensor.class, DeviceNames.EH_I2C_0.getDeviceName());
     }
 }
