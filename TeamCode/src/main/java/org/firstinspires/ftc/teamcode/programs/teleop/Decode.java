@@ -79,11 +79,6 @@ public class Decode extends OpMode {
 
   public void intakeLoop() {
     // Intake control
-    if (gamepad2.b) {
-      robot.intake.setPower(-0.5);
-    } else {
-      robot.intake.setPower(gamepad2.right_trigger);
-    }
   }
 
   /*
