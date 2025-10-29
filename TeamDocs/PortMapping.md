@@ -19,8 +19,8 @@ This document helps track exactly what is plugged into each of the Control Hub's
 
 | Port | Servo Name         | Description
 |------|--------------------|------------------------------------
-| 0    | SERVO_0.           | 
-| 1    | SERVO_1            | 
+| 0    | SERVO_0.           | Feeder left
+| 1    | SERVO_1            | Indexer
 | 2    | SERVO_2            | 
 | 3    | SERVO_3            |
 | 4    | SERVO_4            |
@@ -30,10 +30,10 @@ This document helps track exactly what is plugged into each of the Control Hub's
 
 | I2C Bus | Sensor Name       | Description
 |---------|-------------------|------------------------------------
-| 0       | GOBILDA_ODOMETRY  | 
-| 1       |                   | 
-| 2       |                   | 
-| 3       |                   | 
+| 0       | I2C_0             | Color sensor left
+| 1       | I2C_1             | 
+| 2       | I2C_2             | 
+| 3       | I2C_3             | 
 
 ### Digital Devices
 
@@ -81,28 +81,28 @@ This document helps track exactly what is plugged into each of the Control Hub's
 |------|--------------------|------------------------------------
 | 0    | MOTOR_4            | Left shooter motor
 | 1    | MOTOR_5            | Right shooter motor
-| 2    | MOTOR_6            | Conveyor belt motor
+| 2    | MOTOR_6            |
 | 3    | MOTOR_7            |
 
 ### Servos
 
 | Port | Servo Name         | Description
 |------|--------------------|------------------------------------
-| 0    | SERVO_6            | 
+| 0    | SERVO_6            | Feeder right
 | 1    | SERVO_7            |
 | 2    | SERVO_8            |
 | 3    | SERVO_9            |
 | 4    | SERVO_10           |
-| 5    | SERVO_11          |
+| 5    | SERVO_11           |
 
 ### Sensors (I2C)
 
 | I2C Bus | Sensor Name       | Description
 |---------|-------------------|------------------------------------
-| 0       |                   |
-| 1       |                   |
-| 2       |                   |
-| 3       |                   |
+| 0       | I2C_4             | Color sensor right
+| 1       | I2C_5             |
+| 2       | I2C_6             |
+| 3       | I2C_7             |
 
 ### Digital Devices
 
