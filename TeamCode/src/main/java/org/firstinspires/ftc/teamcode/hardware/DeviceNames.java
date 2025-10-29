@@ -27,7 +27,10 @@ public enum DeviceNames {
     CH_I2C_0("CH_I2C_0"),      // Color Sensor Left
     
     // === EXPANSION HUB I2C ===
-    EH_I2C_0("EH_I2C_0");      // Color Sensor Right
+    EH_I2C_0("EH_I2C_0"),      // Color Sensor Right
+    
+    // === CAMERAS ===
+    WEBCAM_1("Webcam 1");      // USB Camera for AprilTag detection
     
     private final String deviceName;
     

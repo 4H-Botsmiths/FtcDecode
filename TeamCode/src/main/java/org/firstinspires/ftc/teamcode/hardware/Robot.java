@@ -5,6 +5,7 @@ import com.qualcomm.robotcore.hardware.DcMotorSimple;
 import com.qualcomm.robotcore.hardware.HardwareMap;
 import com.qualcomm.robotcore.hardware.CRServo;
 import com.qualcomm.robotcore.hardware.ColorSensor;
+import org.firstinspires.ftc.robotcore.external.hardware.camera.WebcamName;
 import com.qualcomm.robotcore.util.Range;
 
 /**
@@ -34,6 +35,9 @@ public class Robot {
     // === COLOR SENSORS ===
     public final ColorSensor colorSensorLeft;  // CH_I2C_0
     public final ColorSensor colorSensorRight; // EH_I2C_0
+    
+    // === CAMERAS ===
+    public final WebcamName webcam;            // Webcam 1
 
     /**
      * Initialize all robot hardware from the hardware map
@@ -60,5 +64,8 @@ public class Robot {
         // Initialize Color Sensors
         this.colorSensorLeft = hardwareMap.get(ColorSensor.class, DeviceNames.CH_I2C_0.getDeviceName());
         this.colorSensorRight = hardwareMap.get(ColorSensor.class, DeviceNames.EH_I2C_0.getDeviceName());
+        
+        // Initialize Camera
+        this.webcam = hardwareMap.get(WebcamName.class, DeviceNames.WEBCAM_1.getDeviceName());
     }
 }

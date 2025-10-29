@@ -6,6 +6,8 @@ import org.firstinspires.ftc.teamcode.hardware.Robot;
 import org.firstinspires.ftc.teamcode.hardware.MechanumDrive;
 import org.firstinspires.ftc.teamcode.hardware.Shooter;
 import org.firstinspires.ftc.teamcode.hardware.Indexer;
+import org.firstinspires.ftc.teamcode.hardware.AprilTagVision;
+import org.firstinspires.ftc.teamcode.hardware.AutoAlign;
 
 @TeleOp(name = "Decode", group = "Competition")
 public class DecodeTeleop extends OpMode {
@@ -15,6 +17,8 @@ public class DecodeTeleop extends OpMode {
     private MechanumDrive drive;
     private Shooter shooter;
     private Indexer indexer;
+    private AprilTagVision vision;
+    private AutoAlign autoAlign;
     
     // Control settings
     private static final double NORMAL_DRIVE_SPEED = 0.8;
@@ -24,6 +28,8 @@ public class DecodeTeleop extends OpMode {
     // Button state tracking for toggles
     private boolean lastShooterButton = false;
     private boolean shooterActive = false;
+    private boolean lastAlignButton = false;
+    private boolean visionActive = false;
     
     @Override
     public void init() {
@@ -36,9 +42,13 @@ public class DecodeTeleop extends OpMode {
             drive = new MechanumDrive(robot);
             shooter = new Shooter(robot);
             indexer = new Indexer(robot);
+            vision = new AprilTagVision(robot);
+            autoAlign = new AutoAlign(vision, drive);
             
             telemetry.addData("Status", "Robot Ready");
             telemetry.addData("Operator", "A=Shooter, Triggers=Indexer");
+            telemetry.addData("Driver", "Right Bumper=Vision On/Off");
+            telemetry.addData("Align", "Left Bumper=Auto Align (when vision on)");
             telemetry.addData("Feeder", "Bumpers=Manual Control");
             
         } catch (Exception e) {
@@ -66,6 +76,11 @@ public class DecodeTeleop extends OpMode {
     
     @Override
     public void loop() {
+        // Update vision system only when needed
+        if (visionActive) {
+            vision.update();
+        }
+        
         // Handle drive controls (Gamepad 1)
         handleDriveControls();
         
@@ -81,6 +96,42 @@ public class DecodeTeleop extends OpMode {
      * Handle mecanum drive controls using Gamepad 1
      */
     private void handleDriveControls() {
+        // Toggle vision system with right bumper (for performance)
+        boolean currentAlignButton = gamepad1.right_bumper;
+        if (currentAlignButton && !lastAlignButton) {
+            visionActive = !visionActive;
+            if (!visionActive) {
+                // Stop auto-alignment when vision is turned off
+                autoAlign.stopAlignment();
+            }
+        }
+        lastAlignButton = currentAlignButton;
+        
+        // Handle auto-alignment with left bumper (only works if vision is active)
+        if (gamepad1.left_bumper && visionActive) {
+            // Start auto-alignment if not already aligning
+            if (!autoAlign.isAligning()) {
+                autoAlign.startAlignment();
+            }
+        } else if (autoAlign.isAligning()) {
+            // Stop auto-alignment when button released
+            autoAlign.stopAlignment();
+        }
+        
+        // Update auto-alignment or handle manual driving
+        if (autoAlign.isAligning()) {
+            // Auto-alignment is handling drive commands
+            autoAlign.updateAlignment();
+        } else {
+            // Manual driving
+            handleManualDriving();
+        }
+    }
+    
+    /**
+     * Handle manual driving controls
+     */
+    private void handleManualDriving() {
         // Get drive inputs from gamepad 1
         double strafe = gamepad1.left_stick_x;      // Left/right movement
         double forward = -gamepad1.left_stick_y;    // Forward/backward (inverted)
@@ -167,11 +218,24 @@ public class DecodeTeleop extends OpMode {
         // Shooter status (primary concern for operator)
         telemetry.addData("Shooter", shooterActive ? "ACTIVE" : "STOPPED");
         
+        // Target alignment status (for driver) - only show if vision is active
+        if (visionActive) {
+            telemetry.addData("Target", vision.getAlignmentStatus());
+        } else {
+            telemetry.addData("Target", "VISION OFF");
+        }
+        
         // Ball detection (critical for operator decisions)
         telemetry.addData("Balls", indexer.getBallStatusMessage());
         
         // Clear action instruction (what the operator should do next)
-        telemetry.addData("Action", indexer.getDriverInstruction());
+        if (autoAlign.isAligning()) {
+            telemetry.addData("Action", "AUTO ALIGNING...");
+        } else if (visionActive && vision.isTargetVisible()) {
+            telemetry.addData("Action", vision.getDriverInstruction());
+        } else {
+            telemetry.addData("Action", indexer.getDriverInstruction());
+        }
         
         // Indexer activity status (operator feedback)
         telemetry.addData("Indexer", indexer.isRotating() ? "SPINNING" : "READY");
@@ -190,6 +254,12 @@ public class DecodeTeleop extends OpMode {
         }
         if (indexer != null) {
             indexer.stop();
+        }
+        if (autoAlign != null) {
+            autoAlign.stopAlignment();
+        }
+        if (vision != null) {
+            vision.stop();
         }
         
         telemetry.addData("Status", "Stopped");
