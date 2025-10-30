@@ -195,19 +195,21 @@ public class DecodeTeleop extends OpMode {
     private void handleIndexerControls() {
         // Manual indexer rotation with triggers
         if (gamepad2.left_trigger > 0.1) {
-            // Left trigger: rotate counter-clockwise for GREEN balls
-            indexer.rotateCounterClockwise();
+            // Left trigger: rotate LEFT (counter-clockwise) for GREEN balls
+            indexer.rotateLeft();
         } else if (gamepad2.right_trigger > 0.1) {
-            // Right trigger: rotate clockwise for PURPLE balls
-            indexer.rotateClockwise();
-        } else {
-            // Stop indexer when triggers are released
-            indexer.stop();
+            // Right trigger: rotate RIGHT (clockwise) for PURPLE balls
+            indexer.rotateRight();
         }
         
-        // Emergency stop indexer with X button
-        if (gamepad2.x) {
-            indexer.stop();
+        // Manual override with D-pad (if color sensors fail)
+        if (gamepad2.dpad_left) {
+            indexer.rotateLeft();
+            telemetry.addData("⚠️ MANUAL", "Rotated LEFT");
+        }
+        if (gamepad2.dpad_right) {
+            indexer.rotateRight();
+            telemetry.addData("⚠️ MANUAL", "Rotated RIGHT");
         }
     }
     

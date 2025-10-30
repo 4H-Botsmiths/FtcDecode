@@ -18,7 +18,7 @@ public enum DeviceNames {
     
     // === CONTROL HUB SERVOS ===
     CH_SERVO_0("CH_SERVO_0"),  // Feeder Left
-    CH_SERVO_1("CH_SERVO_1"),  // Indexer
+    CH_SERVO_1("CH_SERVO_1"),  // Indexer (GoBUILDA 5-turn servo 2000-0024-0502)
     
     // === EXPANSION HUB SERVOS ===
     EH_SERVO_0("EH_SERVO_0"),  // Feeder Right

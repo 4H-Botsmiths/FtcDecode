@@ -46,12 +46,12 @@
 | **9** | **Indexer - Purple Balls** | Right trigger: Rotate clockwise | Positions PURPLE balls for shooting |
 | **10** | **Manual Feed Forward** | Right bumper: Run feeder forward | Use to feed balls into shooter |
 | **7** | **Manual Feed Reverse** | Left bumper: Run feeder backward | Use to clear jams or reposition |
+| **2** | **Manual Rotate LEFT** | D-pad LEFT: Override and rotate left | Manual override when color sensors fail |
+| **4** | **Manual Rotate RIGHT** | D-pad RIGHT: Override and rotate right | Manual override when color sensors fail |
 | **B** | - | *Not assigned* | |
 | **X** | - | *Not assigned* | |
 | **1** | - | *Not assigned* | |
-| **2** | - | *Not assigned* | |
 | **3** | - | *Not assigned* | |
-| **4** | - | *Not assigned* | |
 | **5** | - | *Not assigned* | |
 | **8** | - | *Not assigned* | |
 
@@ -73,6 +73,7 @@
 ### 🔧 Troubleshooting for Operator:
 - **Ball jammed?** Use left bumper (7) to reverse feeder
 - **Wrong color ready?** Use triggers (6/9) to rotate indexer
+- **Color sensors not working?** Use D-pad LEFT (2) or RIGHT (4) to manually rotate indexer
 - **Shooter not working?** Press Y to emergency stop, then restart with A
 - **Unsure of ball color?** Check driver station telemetry for color sensor readings
 

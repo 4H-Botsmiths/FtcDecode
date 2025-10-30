@@ -4,6 +4,7 @@ import com.qualcomm.robotcore.hardware.DcMotorEx;
 import com.qualcomm.robotcore.hardware.DcMotorSimple;
 import com.qualcomm.robotcore.hardware.HardwareMap;
 import com.qualcomm.robotcore.hardware.CRServo;
+import com.qualcomm.robotcore.hardware.Servo;
 import com.qualcomm.robotcore.hardware.ColorSensor;
 import org.firstinspires.ftc.robotcore.external.hardware.camera.WebcamName;
 import com.qualcomm.robotcore.util.Range;
@@ -27,7 +28,7 @@ public class Robot {
 
     // === CONTROL HUB SERVOS ===
     public final CRServo feederLeft;     // CH_SERVO_0
-    public final CRServo indexer;        // CH_SERVO_1
+    public final Servo indexer;          // CH_SERVO_1 (GoBUILDA 5-turn servo 2000-0024-0502)
 
     // === EXPANSION HUB SERVOS ===
     public final CRServo feederRight;    // EH_SERVO_0
@@ -60,7 +61,7 @@ public class Robot {
 
         // Initialize Control Hub Servos
         this.feederLeft = hardwareMap.get(CRServo.class, DeviceNames.CH_SERVO_0.getDeviceName());
-        this.indexer = hardwareMap.get(CRServo.class, DeviceNames.CH_SERVO_1.getDeviceName());
+        this.indexer = hardwareMap.get(Servo.class, DeviceNames.CH_SERVO_1.getDeviceName());
 
         // Initialize Expansion Hub Servos
         this.feederRight = hardwareMap.get(CRServo.class, DeviceNames.EH_SERVO_0.getDeviceName());
