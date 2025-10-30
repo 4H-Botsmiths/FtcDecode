@@ -23,37 +23,69 @@ public class AprilTagVision {
     // Optimal shooting angle tolerance in degrees
     private static final double ANGLE_TOLERANCE = 5.0;
     
-    private final VisionPortal visionPortal;
-    private final AprilTagProcessor aprilTag;
+    private VisionPortal visionPortal;
+    private AprilTagProcessor aprilTag;
     
     // Current detection state
     private AprilTagDetection currentTarget = null;
     private long lastDetectionTime = 0;
     
+    // Initialization state
+    private boolean initialized = false;
+    private String lastError = "";
+    
     /**
      * Initialize AprilTag vision system
      * @param robot Robot instance containing camera hardware
+     * @throws Exception if camera initialization fails (caller should catch this)
      */
-    public AprilTagVision(Robot robot) {
-        // Create AprilTag processor
-        aprilTag = new AprilTagProcessor.Builder()
-                .setDrawAxes(true)
-                .setDrawCubeProjection(true)
-                .setDrawTagOutline(true)
-                .build();
+    public AprilTagVision(Robot robot) throws Exception {
+        // Check if webcam is available first
+        if (robot.webcam == null) {
+            aprilTag = null;
+            visionPortal = null;
+            initialized = false;
+            lastError = "Webcam not available in Robot.java";
+            throw new Exception("AprilTag vision init failed: Webcam not initialized");
+        }
         
-        // Create vision portal with standard 640x480 resolution for compatibility
-        visionPortal = new VisionPortal.Builder()
-                .setCamera(robot.webcam)
-                .addProcessor(aprilTag)
-                .setCameraResolution(new android.util.Size(640, 480))
-                .build();
+        try {
+            // Create AprilTag processor
+            aprilTag = new AprilTagProcessor.Builder()
+                    .setDrawAxes(true)
+                    .setDrawCubeProjection(true)
+                    .setDrawTagOutline(true)
+                    .build();
+            
+            // Create vision portal - let camera use its native resolution/FPS
+            // If camera only supports 120fps modes, it will automatically use those
+            // VisionPortal will negotiate the best available settings
+            visionPortal = new VisionPortal.Builder()
+                    .setCamera(robot.webcam)
+                    .addProcessor(aprilTag)
+                    // Don't specify resolution - let camera use native settings
+                    .build();
+            
+            initialized = true;
+            
+        } catch (Exception e) {
+            // Camera initialization failed - set everything to null and throw
+            aprilTag = null;
+            visionPortal = null;
+            initialized = false;
+            lastError = "Camera init failed: " + e.getMessage();
+            throw new Exception("AprilTag vision init failed: " + e.getMessage(), e);
+        }
     }
     
     /**
      * Update detection - call this regularly in loop()
      */
     public void update() {
+        if (!initialized || aprilTag == null) {
+            return; // Vision not initialized, skip update
+        }
+        
         List<AprilTagDetection> detections = aprilTag.getDetections();
         
         // Look for our target tag
@@ -72,6 +104,9 @@ public class AprilTagVision {
      * @return true if target AprilTag is detected
      */
     public boolean isTargetVisible() {
+        if (!initialized) {
+            return false; // Vision not initialized
+        }
         return currentTarget != null && 
                (System.currentTimeMillis() - lastDetectionTime) < 250; // 250ms timeout
     }
@@ -195,5 +230,21 @@ public class AprilTagVision {
         if (visionPortal != null) {
             visionPortal.close();
         }
+    }
+    
+    /**
+     * Check if vision system is initialized and working
+     * @return true if vision is ready to use
+     */
+    public boolean isInitialized() {
+        return initialized;
+    }
+    
+    /**
+     * Get last error message if initialization failed
+     * @return error message or empty string if no error
+     */
+    public String getLastError() {
+        return lastError;
     }
 }

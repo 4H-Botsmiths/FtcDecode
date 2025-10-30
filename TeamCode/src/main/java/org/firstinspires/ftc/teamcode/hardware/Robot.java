@@ -76,7 +76,14 @@ public class Robot {
         this.colorSensorLeft = hardwareMap.get(ColorSensor.class, DeviceNames.CH_I2C_0.getDeviceName());
         this.colorSensorRight = hardwareMap.get(ColorSensor.class, DeviceNames.EH_I2C_0.getDeviceName());
         
-        // Initialize Camera
-        this.webcam = hardwareMap.get(WebcamName.class, DeviceNames.WEBCAM_1.getDeviceName());
+        // Initialize Camera - make it optional for now (resolution issues)
+        // TODO: Fix camera resolution issue and remove try-catch
+        WebcamName tempWebcam = null;
+        try {
+            tempWebcam = hardwareMap.get(WebcamName.class, DeviceNames.WEBCAM_1.getDeviceName());
+        } catch (Exception e) {
+            // Camera not available or failed to initialize - vision will be disabled
+        }
+        this.webcam = tempWebcam;
     }
 }

@@ -42,13 +42,24 @@ public class DecodeTeleop extends OpMode {
             drive = new MechanumDrive(robot);
             shooter = new Shooter(robot);
             indexer = new Indexer(robot);
-            vision = new AprilTagVision(robot);
-            autoAlign = new AutoAlign(vision, drive);
+            
+            // Try to initialize vision - make it optional for now
+            try {
+                vision = new AprilTagVision(robot);
+                autoAlign = new AutoAlign(vision, drive);
+                telemetry.addData("Vision", "Available");
+            } catch (Exception visionError) {
+                vision = null;
+                autoAlign = null;
+                telemetry.addData("Vision", "DISABLED - " + visionError.getMessage());
+            }
             
             telemetry.addData("Status", "Robot Ready");
             telemetry.addData("Operator", "A=Shooter, Triggers=Indexer");
-            telemetry.addData("Driver", "Right Bumper=Vision On/Off");
-            telemetry.addData("Align", "Left Bumper=Auto Align (when vision on)");
+            if (vision != null) {
+                telemetry.addData("Driver", "Right Bumper=Vision On/Off");
+                telemetry.addData("Align", "Left Bumper=Auto Align");
+            }
             telemetry.addData("Feeder", "Bumpers=Manual Control");
             
         } catch (Exception e) {
@@ -76,8 +87,8 @@ public class DecodeTeleop extends OpMode {
     
     @Override
     public void loop() {
-        // Update vision system only when needed
-        if (visionActive) {
+        // Update vision system only when needed and available
+        if (visionActive && vision != null) {
             vision.update();
         }
         
@@ -96,30 +107,32 @@ public class DecodeTeleop extends OpMode {
      * Handle mecanum drive controls using Gamepad 1
      */
     private void handleDriveControls() {
-        // Toggle vision system with right bumper (for performance)
-        boolean currentAlignButton = gamepad1.right_bumper;
-        if (currentAlignButton && !lastAlignButton) {
-            visionActive = !visionActive;
-            if (!visionActive) {
-                // Stop auto-alignment when vision is turned off
-                autoAlign.stopAlignment();
+        // Toggle vision system with right bumper (for performance) - only if vision available
+        if (vision != null) {
+            boolean currentAlignButton = gamepad1.right_bumper;
+            if (currentAlignButton && !lastAlignButton) {
+                visionActive = !visionActive;
+                if (!visionActive && autoAlign != null) {
+                    // Stop auto-alignment when vision is turned off
+                    autoAlign.stopAlignment();
+                }
             }
+            lastAlignButton = currentAlignButton;
         }
-        lastAlignButton = currentAlignButton;
         
-        // Handle auto-alignment with left bumper (only works if vision is active)
-        if (gamepad1.left_bumper && visionActive) {
+        // Handle auto-alignment with left bumper (only works if vision is active and available)
+        if (autoAlign != null && gamepad1.left_bumper && visionActive) {
             // Start auto-alignment if not already aligning
             if (!autoAlign.isAligning()) {
                 autoAlign.startAlignment();
             }
-        } else if (autoAlign.isAligning()) {
+        } else if (autoAlign != null && autoAlign.isAligning()) {
             // Stop auto-alignment when button released
             autoAlign.stopAlignment();
         }
         
         // Update auto-alignment or handle manual driving
-        if (autoAlign.isAligning()) {
+        if (autoAlign != null && autoAlign.isAligning()) {
             // Auto-alignment is handling drive commands
             autoAlign.updateAlignment();
         } else {
@@ -220,9 +233,11 @@ public class DecodeTeleop extends OpMode {
         // Shooter status (primary concern for operator)
         telemetry.addData("Shooter", shooterActive ? "ACTIVE" : "STOPPED");
         
-        // Target alignment status (for driver) - only show if vision is active
-        if (visionActive) {
+        // Target alignment status (for driver) - only show if vision is active and available
+        if (vision != null && visionActive) {
             telemetry.addData("Target", vision.getAlignmentStatus());
+        } else if (vision == null) {
+            telemetry.addData("Target", "NO CAMERA");
         } else {
             telemetry.addData("Target", "VISION OFF");
         }
@@ -231,9 +246,9 @@ public class DecodeTeleop extends OpMode {
         telemetry.addData("Balls", indexer.getBallStatusMessage());
         
         // Clear action instruction (what the operator should do next)
-        if (autoAlign.isAligning()) {
+        if (autoAlign != null && autoAlign.isAligning()) {
             telemetry.addData("Action", "AUTO ALIGNING...");
-        } else if (visionActive && vision.isTargetVisible()) {
+        } else if (vision != null && visionActive && vision.isTargetVisible()) {
             telemetry.addData("Action", vision.getDriverInstruction());
         } else {
             telemetry.addData("Action", indexer.getDriverInstruction());
