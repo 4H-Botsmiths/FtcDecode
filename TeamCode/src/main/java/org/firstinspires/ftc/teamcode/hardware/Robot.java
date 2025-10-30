@@ -58,6 +58,9 @@ public class Robot {
         // Initialize Expansion Hub Motors
         this.leftShooter = hardwareMap.get(DcMotorEx.class, DeviceNames.EH_MOTOR_0.getDeviceName());
         this.rightShooter = hardwareMap.get(DcMotorEx.class, DeviceNames.EH_MOTOR_1.getDeviceName());
+        
+        // Reverse right shooter motor (mounted opposite to left)
+        this.rightShooter.setDirection(DcMotorSimple.Direction.REVERSE);
 
         // Initialize Control Hub Servos
         this.feederLeft = hardwareMap.get(CRServo.class, DeviceNames.CH_SERVO_0.getDeviceName());
@@ -65,6 +68,9 @@ public class Robot {
 
         // Initialize Expansion Hub Servos
         this.feederRight = hardwareMap.get(CRServo.class, DeviceNames.EH_SERVO_0.getDeviceName());
+        
+        // Reverse right feeder servo (mounted opposite to left)
+        this.feederRight.setDirection(DcMotorSimple.Direction.REVERSE);
 
         // Initialize Color Sensors
         this.colorSensorLeft = hardwareMap.get(ColorSensor.class, DeviceNames.CH_I2C_0.getDeviceName());
