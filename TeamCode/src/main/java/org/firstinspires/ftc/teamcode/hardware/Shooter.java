@@ -74,11 +74,6 @@ public class Shooter {
     intakeRight.setPower(power);
   }
 
-  public void startShooter(double rpm, double power) {
-    setRPM(rpm);
-    setPower(power);
-  }
-
   public double getRPM() {
     return (left.getRPM() + right.getRPM()) / 2.0;
   }
