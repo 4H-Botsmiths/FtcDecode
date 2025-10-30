@@ -1,5 +1,6 @@
 package org.firstinspires.ftc.teamcode.hardware;
 
+import android.util.Size;
 import com.qualcomm.robotcore.hardware.HardwareMap;
 import java.util.concurrent.CompletableFuture;
 import org.firstinspires.ftc.robotcore.external.Telemetry;
@@ -48,11 +49,15 @@ public class Camera {
     }
 
     // Create the AprilTag processor by using a builder.
-    aprilTag = new AprilTagProcessor.Builder().build();
+    aprilTag = new AprilTagProcessor.Builder()
+        //TODO: .setLensIntrinsics(615.0, 615.0, 320.0, 240.0) // Focal lengths fx, fy; Principal point cx, cy
+        .build();
     // Create the vision portal by using a builder.
     visionPortal = new VisionPortal.Builder()
         .setCamera(this.webcam)
         .addProcessor(aprilTag)
+        .setCameraResolution(new Size(1280, 800)) // Refine further, lower is better
+        .setStreamFormat(VisionPortal.StreamFormat.MJPEG)
         .build();
 
   } // end method initAprilTag()
