@@ -49,6 +49,10 @@ public class Robot {
         this.frontLeft = hardwareMap.get(DcMotorEx.class, DeviceNames.CH_MOTOR_1.getDeviceName());
         this.rearRight = hardwareMap.get(DcMotorEx.class, DeviceNames.CH_MOTOR_2.getDeviceName());
         this.rearLeft = hardwareMap.get(DcMotorEx.class, DeviceNames.CH_MOTOR_3.getDeviceName());
+        
+        // Reverse right side motors
+        this.frontRight.setDirection(DcMotorSimple.Direction.REVERSE);
+        this.rearRight.setDirection(DcMotorSimple.Direction.REVERSE);
 
         // Initialize Expansion Hub Motors
         this.leftShooter = hardwareMap.get(DcMotorEx.class, DeviceNames.EH_MOTOR_0.getDeviceName());
