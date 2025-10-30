@@ -61,11 +61,19 @@ public class Motor {
   }
 
   // DcMotorEx-specific helpers
+
+  public static final double TOLERANCE = 0.1;// percent tolerance of velocity
+
+  public boolean atSpeed(double targetVelocity) {
+    double currentVelocity = getVelocity();
+    return Math.abs(currentVelocity - targetVelocity) <= TOLERANCE * targetVelocity;
+  }
+
   public void setVelocity(double angularRate) {
     motor.setVelocity(angularRate);
     if (lights != null) {
       if (angularRate != 0) {
-        if (this.getVelocity() < angularRate * 0.9) {
+        if (atSpeed(angularRate)) {
           lights.setRed(true);
           lights.setGreen(false);
         } else {
