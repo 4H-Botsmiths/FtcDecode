@@ -4,12 +4,15 @@ import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.hardware.DcMotorEx;
 import org.firstinspires.ftc.robotcore.external.Telemetry;
+import org.firstinspires.ftc.teamcode.hardware.Camera;
 import org.firstinspires.ftc.teamcode.hardware.Robot;
+import org.firstinspires.ftc.teamcode.hardware.Camera.CameraNotAttachedException;
 
 @TeleOp(name = "Shooter Speed Tester", group = "Diagnostics")
 public class ShooterSpeedTester extends LinearOpMode {
 
   public Robot robot;
+  public Camera camera;
 
   public double RPM = 1500;
 
@@ -17,6 +20,12 @@ public class ShooterSpeedTester extends LinearOpMode {
   public void runOpMode() {
     telemetry.addData("Status", "Initializing...");
     robot = new Robot(hardwareMap);
+    camera = new Camera(hardwareMap);
+    try {
+      camera.initAprilTag();
+    } catch (CameraNotAttachedException e) {
+      telemetry.speak("Camera not attached. Range will not be logged.");
+    }
     telemetry.update();
     telemetry.addData("Status", "Initialized!");
     telemetry.update();
@@ -44,6 +53,17 @@ public class ShooterSpeedTester extends LinearOpMode {
       telemetry.addData("Current RPM", robot.shooter.getRPM());
       telemetry.addData("Shooter Velocity", robot.shooter.getVelocity());
       telemetry.addData("Shooter Power", robot.shooter.getPower());
+      telemetry.addData("Camera Status", camera.visionPortal.getCameraState().toString());
+      try {
+        Camera.AprilTag tag = camera.getAprilTag(Camera.AprilTagPosition.GOAL);
+        telemetry.addData("Distance to Target (in)", tag.ftcPose.range);
+        telemetry.addData("Tag X (in?)", tag.ftcPose.x);
+        telemetry.addData("Tag Yaw (deg)", tag.ftcPose.yaw);
+      } catch (CameraNotAttachedException e) {
+        telemetry.addLine("Camera not attached.");
+      } catch (Camera.CameraNotStreamingException e) {
+        telemetry.addLine("Camera not streaming.");
+      }
       telemetry.update();
     }
   }
