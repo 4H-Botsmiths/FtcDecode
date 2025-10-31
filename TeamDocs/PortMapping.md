@@ -12,10 +12,10 @@ This document helps track exactly what is plugged into each of the Control Hub's
 
 | Port | Motor Name         | Driver Station Config | Description
 |------|--------------------|----------------------|------------------------------------
-| 0    | CH_MOTOR_0         | GoBUILDA 5203/2402/1620 (or appropriate motor) | Front right drive motor
-| 1    | CH_MOTOR_1         | GoBUILDA 5203/2402/1620 (or appropriate motor) | Front left drive motor
-| 2    | CH_MOTOR_2         | GoBUILDA 5203/2402/1620 (or appropriate motor) | Rear right drive motor
-| 3    | CH_MOTOR_3         | GoBUILDA 5203/2402/1620 (or appropriate motor) | Rear left drive motor  
+| 0    | CH_MOTOR_0         | GoBUILDA 5203/2402/1620 (or appropriate motor) | Rear right drive motor
+| 1    | CH_MOTOR_1         | GoBUILDA 5203/2402/1620 (or appropriate motor) | Rear left drive motor
+| 2    | CH_MOTOR_2         | GoBUILDA 5203/2402/1620 (or appropriate motor) | Front right drive motor
+| 3    | CH_MOTOR_3         | GoBUILDA 5203/2402/1620 (or appropriate motor) | Front left drive motor  
 
 ### Servos
 
