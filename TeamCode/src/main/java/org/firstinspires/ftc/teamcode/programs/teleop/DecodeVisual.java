@@ -84,11 +84,20 @@ public class DecodeVisual extends OpMode {
     z -= gamepad1.left_trigger * (gamepad1.right_stick_x / 3);
 
     if (gamepad1.right_bumper) {
+      try {
+        try {
+          Camera.AprilTag tag = camera.getAprilTag(Camera.AprilTagPosition.GOAL);
+          tagX = tag.ftcPose.x;
+        } catch (Camera.CameraNotStreamingException e) {
+          camera.resume();
+        }
+      } catch (CameraNotAttachedException e) {
+        telemetry.addLine("ERROR: CAMERA NOT ATTACHED!");
+      }
       if (!driverAnnounced) {
         telemetry.speak("Driver Ready");
         driverAnnounced = true;
       }
-      driverAnnounced = false;
       if (Math.abs(tagX) > xTolerance) {
         xReady = false;
         gamepad1.rumble(1, 1, Gamepad.RUMBLE_DURATION_CONTINUOUS);
@@ -98,9 +107,10 @@ public class DecodeVisual extends OpMode {
         xReady = true;
       }
     } else {
+      tagX = 0;
       gamepad1.stopRumble();
     }
-
+    driverAnnounced = false;
     robot.drive(x, y, z);
   }
 
@@ -114,7 +124,6 @@ public class DecodeVisual extends OpMode {
       try {
         try {
           Camera.AprilTag tag = camera.getAprilTag(Camera.AprilTagPosition.GOAL);
-          tagX = tag.ftcPose.x;
           tagRange = tag.ftcPose.range;
         } catch (Camera.CameraNotStreamingException e) {
           camera.resume();
@@ -139,7 +148,6 @@ public class DecodeVisual extends OpMode {
         gamepad1.rumble(1, 1, Gamepad.RUMBLE_DURATION_CONTINUOUS);
       }
     } else {
-      tagX = 0;
       tagRange = 0;
       operatorAnnounced = false;
       gamepad1.stopRumble();
