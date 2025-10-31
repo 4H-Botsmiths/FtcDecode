@@ -135,6 +135,7 @@ public class Camera {
    * Add telemetry about AprilTag detections.
    */
   public void telemetryAprilTag(Telemetry telemetry) {
+    telemetry.addData("Camera State", visionPortal.getCameraState().toString());
     try {
       List<AprilTag> currentDetections = getAprilTags();
       telemetry.addData("# AprilTags Detected", currentDetections.size());
@@ -165,7 +166,6 @@ public class Camera {
       telemetry.addLine("Camera is not attached");
     } catch (CameraNotStreamingException e) {
       telemetry.addLine("Camera is not streaming");
-      telemetry.addLine(visionPortal.getCameraState().toString());
     }
   } // end method telemetryAprilTag()
 
