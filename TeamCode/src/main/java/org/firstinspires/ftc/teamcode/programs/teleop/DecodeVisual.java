@@ -233,7 +233,7 @@ public class DecodeVisual extends OpMode {
 
       // Placeholder mapping from range (in) -> shooter RPM. Replace with calibrated function/table.
       shooterRpm = 3300;//tagRange > 0 ? 3300 : 0; //(tagRange / 100) * SHOOTER_MAX_RPM : SHOOTER_MAX_RPM; // TODO: MATH - calibrate mapping
-      if (tagRange > 0 && robot.shooter.atSpeedRPM(shooterRpm)) {
+      if (robot.shooter.atSpeedRPM(shooterRpm)) {
         // At speed: stop operator rumble.
         gamepad2.stopRumble();
         if (xReady) {
