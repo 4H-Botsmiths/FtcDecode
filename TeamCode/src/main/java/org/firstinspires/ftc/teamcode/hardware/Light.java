@@ -2,11 +2,11 @@ package org.firstinspires.ftc.teamcode.hardware;
 
 import com.qualcomm.robotcore.hardware.LED;
 
-public class Lights {
+public class Light {
   private final LED ledGreen;
   private final LED ledRed;
 
-  public Lights(LED ledGreen, LED ledRed) {
+  public Light(LED ledGreen, LED ledRed) {
     this.ledGreen = ledGreen;
     this.ledRed = ledRed;
   }
