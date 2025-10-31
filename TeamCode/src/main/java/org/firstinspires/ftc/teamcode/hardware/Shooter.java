@@ -90,4 +90,9 @@ public class Shooter {
   public boolean atSpeed(double targetVelocity) {
     return left.atSpeed(targetVelocity) && right.atSpeed(targetVelocity);
   }
+
+  public boolean atSpeedRPM(double targetRPM) {
+    return left.atSpeedRPM(targetRPM) && right.atSpeedRPM(targetRPM);
+  }
+
 }
