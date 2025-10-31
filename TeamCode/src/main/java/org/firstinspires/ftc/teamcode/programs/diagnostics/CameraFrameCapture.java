@@ -60,6 +60,7 @@ import org.firstinspires.ftc.vision.apriltag.AprilTagProcessor;
  */
 
 @TeleOp(name = "Utility: Camera Frame Capture", group = "Utility")
+@Disabled
 public class CameraFrameCapture extends LinearOpMode {
     /*
      * EDIT THESE PARAMETERS AS NEEDED
