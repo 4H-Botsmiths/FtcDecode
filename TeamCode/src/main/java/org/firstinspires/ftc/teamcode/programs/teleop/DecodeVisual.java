@@ -161,6 +161,7 @@ public class DecodeVisual extends OpMode {
         try {
           Camera.AprilTag tag = camera.getAprilTag(Camera.AprilTagPosition.GOAL);
           tagX = tag.ftcPose.x;
+          tagRange = tag.ftcPose.range;
         } catch (Camera.CameraNotStreamingException e) {
           // If the camera is paused or briefly unavailable, try to resume streaming.
           camera.resume();
