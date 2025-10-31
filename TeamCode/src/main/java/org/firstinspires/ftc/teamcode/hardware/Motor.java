@@ -10,14 +10,14 @@ import com.qualcomm.robotcore.hardware.DcMotorSimple;
  */
 public class Motor {
   private final DcMotorEx motor;
-  private final Lights lights;
+  private final Light lights;
 
   public Motor(DcMotorEx motor) {
     this.motor = motor;
     this.lights = null;
   }
 
-  public Motor(DcMotorEx motor, Lights lights) {
+  public Motor(DcMotorEx motor, Light lights) {
     this.motor = motor;
     this.lights = lights;
   }
