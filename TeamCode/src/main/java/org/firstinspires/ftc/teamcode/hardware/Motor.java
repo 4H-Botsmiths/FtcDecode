@@ -84,6 +84,11 @@ public class Motor {
     return Math.abs(currentVelocity - targetVelocity) <= TOLERANCE * targetVelocity;
   }
 
+  public boolean atSpeedRPM(double targetRPM) {
+    double currentRPM = getRPM();
+    return Math.abs(currentRPM - targetRPM) <= TOLERANCE * targetRPM;
+  }
+
   public void setVelocity(double angularRate) {
     motor.setVelocity(angularRate);
     if (lights != null) {
