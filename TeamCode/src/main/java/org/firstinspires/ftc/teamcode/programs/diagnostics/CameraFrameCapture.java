@@ -72,7 +72,7 @@ public class CameraFrameCapture extends LinearOpMode {
             new Size(640, 480),
             new Size(320, 240),
     };
-    int RESOLUTION_INDEX = 0; // default to 1280x800
+    int RESOLUTION_INDEX = 3; // default to 640x480
 
     // Internal state
     boolean lastX;
