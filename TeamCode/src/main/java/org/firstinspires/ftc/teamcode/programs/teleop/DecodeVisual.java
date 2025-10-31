@@ -60,6 +60,7 @@ public class DecodeVisual extends OpMode {
     driverLoop();
     // Operator control
     operatorLoop();
+    telemetries();
   }
 
   double tagX = 0;
@@ -152,11 +153,25 @@ public class DecodeVisual extends OpMode {
     robot.indexer.setPower(gamepad2.left_stick_x);
   }
 
+  public void telemetries() {
+    telemetry.addLine(String.format("FL (%6.1f) (%6.1f) FR", robot.frontLeft.getRPM(), robot.frontRight.getRPM()));
+    telemetry.addLine(String.format("RL (%6.1f) (%6.1f) RR", robot.rearLeft.getRPM(), robot.rearRight.getRPM()));
+    telemetry.addLine(String.format("Shooter RPM: (%6.1f)", robot.shooter.getRPM()));
+    telemetry.addLine(String.format("Tag X: (%6.1f) Tag Range: (%6.1f)", tagX, tagRange));
+    telemetry.addLine(String.format("Intake Power: (%6.1f)", robot.intake.getPowers()));
+    telemetry.addLine(String.format("Indexer Power: (%6.1f)", robot.indexer.getPower()));
+    camera.telemetryAprilTag(telemetry);
+  }
+
   /*
    * Code to run ONCE after the driver hits STOP
    */
   @Override
   public void stop() {
+    robot.drive(0, 0, 0);
+    robot.shooter.setRPM(0);
+    robot.intake.setPowerAll(0);
+    robot.indexer.setPower(0);
   }
 
 }
