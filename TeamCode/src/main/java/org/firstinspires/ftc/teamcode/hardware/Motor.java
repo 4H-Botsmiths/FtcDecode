@@ -19,7 +19,7 @@ public class Motor {
     this.ticksPerRotation = motor.getMotorType().getTicksPerRev();
   }
 
-  public Motor(DcMotorEx motor, int ticksPerRotation) {
+  public Motor(DcMotorEx motor, double ticksPerRotation) {
     this.motor = motor;
     this.lights = null;
     this.ticksPerRotation = ticksPerRotation;
@@ -31,7 +31,7 @@ public class Motor {
     this.ticksPerRotation = motor.getMotorType().getTicksPerRev();
   }
 
-  public Motor(DcMotorEx motor, int ticksPerRotation, Light lights) {
+  public Motor(DcMotorEx motor, double ticksPerRotation, Light lights) {
     this.motor = motor;
     this.lights = lights;
     this.ticksPerRotation = ticksPerRotation;

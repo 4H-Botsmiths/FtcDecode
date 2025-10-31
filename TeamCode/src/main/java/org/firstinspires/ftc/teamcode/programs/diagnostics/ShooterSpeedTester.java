@@ -54,6 +54,7 @@ public class ShooterSpeedTester extends LinearOpMode {
 
       telemetry.addData("Target RPM", RPM);
       telemetry.addData("Current RPM", robot.shooter.getRPM());
+      telemetry.addData("Shooter At Speed", robot.shooter.atSpeed(RPM));
       telemetry.addData("Shooter Velocity", robot.shooter.getVelocity());
       telemetry.addData("Shooter Power", robot.shooter.getPower());
       telemetry.addData("Camera Status", camera.visionPortal.getCameraState().toString());
