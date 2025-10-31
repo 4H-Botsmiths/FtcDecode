@@ -183,7 +183,7 @@ public class DecodeVisual extends OpMode {
         // Gain/clip: proportional correction from tag X offset, clipped to avoid overshoot.
         // NOTE: tagX currently in inches; tune gain accordingly if you convert units.
         z += Range.clip(tagX * -0.025, -0.15, 0.15);
-        y += Range.clip((targetRange - tagRange) * 0.025, -0.15, 0.15);
+        y += Range.clip((tagRange - targetRange) * 0.025, -0.15, 0.15);
       } else {
         // Centered enough: stop rumble and mark alignment ready for operator auto-feed.
         gamepad1.stopRumble();
