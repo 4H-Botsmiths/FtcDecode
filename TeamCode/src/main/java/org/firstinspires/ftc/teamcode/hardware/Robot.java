@@ -3,17 +3,13 @@ package org.firstinspires.ftc.teamcode.hardware;
 import com.qualcomm.robotcore.hardware.DcMotorEx;
 import com.qualcomm.robotcore.hardware.DcMotorSimple;
 import com.qualcomm.robotcore.hardware.HardwareMap;
-import com.qualcomm.robotcore.hardware.LED;
 import com.qualcomm.robotcore.util.Range;
+import com.qualcomm.robotcore.hardware.CRServo;
 
 public class Robot {
 
   public final Motor leftShooter;
-  private final LED leftShooterRed;
-  private final LED leftShooterGreen;
   public final Motor rightShooter;
-  private final LED rightShooterRed;
-  private final LED rightShooterGreen;
   public final Shooter shooter;
 
   public final Motor frontLeft;
@@ -21,29 +17,26 @@ public class Robot {
   public final Motor rearLeft;
   public final Motor rearRight;
 
-  public final Motor intake;
+  public final CRServo intakeServoLeft;
+  public final CRServo intakeServoRight;
 
   public Robot(HardwareMap hardwareMap) {
     // Initialize hardware here
-    this.leftShooterRed = hardwareMap.get(LED.class, "DIGITAL_0");
-    this.leftShooterGreen = hardwareMap.get(LED.class, "DIGITAL_1");
-    this.leftShooter = new Motor(hardwareMap.get(DcMotorEx.class, "MOTOR_4"),
-        new Lights(leftShooterGreen, leftShooterRed));
-    this.rightShooterRed = hardwareMap.get(LED.class, "DIGITAL_2");
-    this.rightShooterGreen = hardwareMap.get(LED.class, "DIGITAL_3");
-    this.rightShooter = new Motor(hardwareMap.get(DcMotorEx.class, "MOTOR_5"),
-        new Lights(rightShooterGreen, rightShooterRed));
+
+    this.leftShooter = new Motor(hardwareMap.get(DcMotorEx.class, "MOTOR_4"));
+    this.rightShooter = new Motor(hardwareMap.get(DcMotorEx.class, "MOTOR_5"));
     this.rightShooter.setDirection(DcMotorSimple.Direction.REVERSE);
 
-    this.shooter = new Shooter(this.leftShooter, this.rightShooter);
+    this.intakeServoLeft = hardwareMap.get(CRServo.class, "SERVO_0");
+    this.intakeServoRight = hardwareMap.get(CRServo.class, "SERVO_6");
+    this.intakeServoRight.setDirection(CRServo.Direction.REVERSE);
+
+    this.shooter = new Shooter(this.leftShooter, this.rightShooter, this.intakeServoLeft, this.intakeServoRight);
 
     this.frontLeft = new Motor(hardwareMap.get(DcMotorEx.class, "MOTOR_1"));
     this.frontRight = new Motor(hardwareMap.get(DcMotorEx.class, "MOTOR_0"));
     this.rearLeft = new Motor(hardwareMap.get(DcMotorEx.class, "MOTOR_3"));
     this.rearRight = new Motor(hardwareMap.get(DcMotorEx.class, "MOTOR_2"));
-
-    this.intake = new Motor(hardwareMap.get(DcMotorEx.class, "MOTOR_6"));
-    this.intake.setMode(DcMotorEx.RunMode.RUN_WITHOUT_ENCODER);
   }
 
   public static final int DRIVE_MAX_RPM = 300;
