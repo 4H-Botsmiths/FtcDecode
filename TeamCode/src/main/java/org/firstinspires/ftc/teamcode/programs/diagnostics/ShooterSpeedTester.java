@@ -65,6 +65,8 @@ public class ShooterSpeedTester extends LinearOpMode {
         telemetry.addLine("Camera not attached.");
       } catch (Camera.CameraNotStreamingException e) {
         telemetry.addLine("Camera not streaming.");
+      } catch (Camera.TagNotFoundException e) {
+        telemetry.addLine("Tag not found.");
       }
       telemetry.update();
     }

@@ -85,14 +85,14 @@ public class Camera {
   }
 
   public AprilTag getAprilTag(AprilTagPosition position)
-      throws CameraNotStreamingException, CameraNotAttachedException {
+      throws CameraNotStreamingException, CameraNotAttachedException, TagNotFoundException {
     List<AprilTag> detections = getAprilTags();
     for (AprilTag tag : detections) {
       if (tag.position == position) {
         return tag;
       }
     }
-    return null;
+    throw new TagNotFoundException();
   }
 
   public void pause() throws CameraNotAttachedException {
@@ -178,6 +178,12 @@ public class Camera {
   public class CameraNotAttachedException extends Exception {
     public CameraNotAttachedException() {
       super("The camera is not attached");
+    }
+  }
+
+  public class TagNotFoundException extends Exception {
+    public TagNotFoundException() {
+      super("The specified tag was not found");
     }
   }
 

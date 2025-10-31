@@ -153,6 +153,9 @@ public class DecodeVisual extends OpMode {
         } catch (Camera.CameraNotStreamingException e) {
           // If the camera is paused or briefly unavailable, try to resume streaming.
           camera.resume();
+        } catch (Camera.TagNotFoundException e) {
+          // For now, keep the tag coordinate that was last seen.
+          //tagX = 0;
         }
       } catch (CameraNotAttachedException e) {
         telemetry.addLine("ERROR: CAMERA NOT ATTACHED!");
@@ -213,6 +216,9 @@ public class DecodeVisual extends OpMode {
         } catch (Camera.CameraNotStreamingException e) {
           // If streaming stopped, attempt to resume so operator can continue quickly.
           camera.resume();
+        } catch (Camera.TagNotFoundException e) {
+          // If tag not found, keep last known range (could be zero).
+          //tagRange = 0;
         }
       } catch (CameraNotAttachedException e) {
         telemetry.addLine("ERROR: CAMERA NOT ATTACHED!");
