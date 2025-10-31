@@ -103,6 +103,15 @@ public class DecodeVisual extends OpMode {
     // Operator control
     operatorLoop();
     telemetries();
+
+    if (!gamepad1.right_bumper && !gamepad2.right_bumper) {
+      try {
+        // Pause the camera to save resources during active driving.
+        camera.pause();
+      } catch (Camera.CameraNotAttachedException e) {
+        telemetry.speak("WARNING: Camera not attached!");
+      }
+    }
   }
 
   double tagX = 0;
@@ -122,6 +131,8 @@ public class DecodeVisual extends OpMode {
    *   term to drive z until within xTolerance. Gamepad rumbles while outside tolerance.
    */
   double xTolerance = 5;
+  double rangeTolerance = 10;
+  double targetRange = 80;
 
   boolean driverAnnounced = false;
   boolean xReady = false;
@@ -164,13 +175,14 @@ public class DecodeVisual extends OpMode {
         telemetry.speak("Driver Ready");
         driverAnnounced = true;
       }
-      if (Math.abs(tagX) > xTolerance) {
+      if (Math.abs(tagX) > xTolerance || Math.abs(targetRange - tagRange) > rangeTolerance) {
         // Outside tolerance: keep rotating toward center and rumble as feedback.
         xReady = false;
         gamepad1.rumble(1, 1, Gamepad.RUMBLE_DURATION_CONTINUOUS);
         // Gain/clip: proportional correction from tag X offset, clipped to avoid overshoot.
         // NOTE: tagX currently in inches; tune gain accordingly if you convert units.
-        z += Range.clip(tagX * 0.05, -0.15, 0.15);
+        z += Range.clip(tagX * -0.025, -0.15, 0.15);
+        y += Range.clip((targetRange - tagRange) * 0.025, -0.15, 0.15);
       } else {
         // Centered enough: stop rumble and mark alignment ready for operator auto-feed.
         gamepad1.stopRumble();
@@ -201,12 +213,13 @@ public class DecodeVisual extends OpMode {
    */
 
   boolean operatorAnnounced = false;
-  private final int SHOOTER_MAX_RPM = 3000;
+  private final int SHOOTER_MAX_RPM = 3300;
   double tagRange = 0;
 
   public void operatorLoop() {
     // Default intake: pull game pieces in with LT (negative power indicates direction in this setup).
     double intakePower = -gamepad2.left_trigger;
+    double shooterRpm = 0;
     if (gamepad2.right_bumper) {
       // Auto-shoot mode: derive target shooter RPM from tag range and gate intake until ready.
       try {
@@ -230,8 +243,7 @@ public class DecodeVisual extends OpMode {
       operatorAnnounced = true;
 
       // Placeholder mapping from range (in) -> shooter RPM. Replace with calibrated function/table.
-      double shooterRpm = tagRange > 0 ? (tagRange / 100) * SHOOTER_MAX_RPM : SHOOTER_MAX_RPM; // TODO: MATH - calibrate mapping
-      robot.shooter.setRPM(shooterRpm);
+      shooterRpm = tagRange > 0 ? 3300 : 0; //(tagRange / 100) * SHOOTER_MAX_RPM : SHOOTER_MAX_RPM; // TODO: MATH - calibrate mapping
       if (tagRange > 0 && robot.shooter.atSpeed(shooterRpm)) {
         // At speed: stop operator rumble.
         gamepad2.stopRumble();
@@ -248,11 +260,7 @@ public class DecodeVisual extends OpMode {
       tagRange = 0;
       operatorAnnounced = false;
       gamepad2.stopRumble();
-      try {
-        camera.pause();
-      } catch (Camera.CameraNotAttachedException e) {
-        telemetry.addLine("WARNING: CAMERA NOT ATTACHED!");
-      }
+
     }
     /**
      * Publishes drivetrain RPMs, shooter RPM, tag alignment info, and mechanism powers.
@@ -260,6 +268,7 @@ public class DecodeVisual extends OpMode {
      */
     // Apply mechanism outputs
     robot.intake.setPowerAll(intakePower);
+    robot.shooter.setRPM(shooterRpm);
     robot.indexer.setPower(gamepad2.left_stick_x);
   }
 
