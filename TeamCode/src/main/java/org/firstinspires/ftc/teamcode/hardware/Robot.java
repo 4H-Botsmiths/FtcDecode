@@ -26,23 +26,23 @@ public class Robot {
   public Robot(HardwareMap hardwareMap) {
     // Initialize hardware here
 
-    this.leftShooter = new Motor(hardwareMap.get(DcMotorEx.class, "MOTOR_4"));
-    this.rightShooter = new Motor(hardwareMap.get(DcMotorEx.class, "MOTOR_5"));
+    this.leftShooter = new Motor(hardwareMap.get(DcMotorEx.class, DeviceNames.EH_MOTOR_0.getDeviceName()));
+    this.rightShooter = new Motor(hardwareMap.get(DcMotorEx.class, DeviceNames.EH_MOTOR_1.getDeviceName()));
     this.rightShooter.setDirection(DcMotorSimple.Direction.REVERSE);
 
-    this.intakeServoLeft = hardwareMap.get(CRServo.class, "SERVO_0");
-    this.intakeServoRight = hardwareMap.get(CRServo.class, "SERVO_6");
+    this.intakeServoLeft = hardwareMap.get(CRServo.class, DeviceNames.CH_SERVO_0.getDeviceName());
+    this.intakeServoRight = hardwareMap.get(CRServo.class, DeviceNames.EH_SERVO_0.getDeviceName());
     this.intakeServoRight.setDirection(CRServo.Direction.REVERSE);
     this.intake = new Intake(this.intakeServoLeft, this.intakeServoRight);
 
     this.shooter = new Shooter(this.leftShooter, this.rightShooter);
 
-    this.frontLeft = new Motor(hardwareMap.get(DcMotorEx.class, "MOTOR_1"));
-    this.frontRight = new Motor(hardwareMap.get(DcMotorEx.class, "MOTOR_0"));
-    this.rearLeft = new Motor(hardwareMap.get(DcMotorEx.class, "MOTOR_3"));
-    this.rearRight = new Motor(hardwareMap.get(DcMotorEx.class, "MOTOR_2"));
+    this.frontLeft = new Motor(hardwareMap.get(DcMotorEx.class, DeviceNames.CH_MOTOR_3.getDeviceName()));
+    this.frontRight = new Motor(hardwareMap.get(DcMotorEx.class, DeviceNames.CH_MOTOR_2.getDeviceName()));
+    this.rearLeft = new Motor(hardwareMap.get(DcMotorEx.class, DeviceNames.CH_MOTOR_1.getDeviceName()));
+    this.rearRight = new Motor(hardwareMap.get(DcMotorEx.class, DeviceNames.CH_MOTOR_0.getDeviceName()));
 
-    this.indexer = hardwareMap.get(CRServo.class, "SERVO_1");
+    this.indexer = hardwareMap.get(CRServo.class, DeviceNames.CH_SERVO_1.getDeviceName());
   }
 
   public static final int DRIVE_MAX_RPM = 300;
