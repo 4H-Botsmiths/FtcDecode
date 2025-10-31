@@ -100,6 +100,7 @@ public class CameraFrameCapture extends LinearOpMode {
                 if (RESOLUTION_INDEX >= RESOLUTIONS.length) {
                     RESOLUTION_INDEX = 0;
                 }
+                portal.setProcessorEnabled(aprilTag, false);
                 portal.close();
                 portal = initCamera();
             }
