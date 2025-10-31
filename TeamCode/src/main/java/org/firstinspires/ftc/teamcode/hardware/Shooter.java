@@ -86,4 +86,8 @@ public class Shooter {
   public int getCurrentPosition() {
     return (left.getCurrentPosition() + right.getCurrentPosition()) / 2;
   }
+
+  public boolean atSpeed(double targetVelocity) {
+    return left.atSpeed(targetVelocity) && right.atSpeed(targetVelocity);
+  }
 }
