@@ -37,14 +37,15 @@ public class Robot {
 
     this.shooter = new Shooter(this.leftShooter, this.rightShooter);
 
+    double drivePPR = ((((1 + (46.0 / 17.0))) * (1 + (46.0 / 11.0))) * 28.0);
     this.frontLeft = new Motor(hardwareMap.get(DcMotorEx.class, DeviceNames.CH_MOTOR_2.getDeviceName()),
-        ((((1 + (46 / 17))) * (1 + (46 / 11))) * 28));
+        drivePPR);
     this.frontRight = new Motor(hardwareMap.get(DcMotorEx.class, DeviceNames.CH_MOTOR_3.getDeviceName()),
-        ((((1 + (46 / 17))) * (1 + (46 / 11))) * 28));
+        drivePPR);
     this.rearLeft = new Motor(hardwareMap.get(DcMotorEx.class, DeviceNames.CH_MOTOR_0.getDeviceName()),
-        ((((1 + (46 / 17))) * (1 + (46 / 11))) * 28));
+        drivePPR);
     this.rearRight = new Motor(hardwareMap.get(DcMotorEx.class, DeviceNames.CH_MOTOR_1.getDeviceName()),
-        ((((1 + (46 / 17))) * (1 + (46 / 11))) * 28));
+        drivePPR);
 
     this.indexer = hardwareMap.get(CRServo.class, DeviceNames.CH_SERVO_1.getDeviceName());
   }
