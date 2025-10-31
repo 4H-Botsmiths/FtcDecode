@@ -192,6 +192,7 @@ public class DecodeVisual extends OpMode {
     } else {
       // Align-assist not active.
       tagX = 0;
+      tagRange = 0;
       gamepad1.stopRumble();
     }
     // Reset so we re-announce the next time align-assist is entered.
@@ -223,20 +224,6 @@ public class DecodeVisual extends OpMode {
     double shooterRpm = 0;
     if (gamepad2.right_bumper) {
       // Auto-shoot mode: derive target shooter RPM from tag range and gate intake until ready.
-      try {
-        try {
-          Camera.AprilTag tag = camera.getAprilTag(Camera.AprilTagPosition.GOAL);
-          tagRange = tag.ftcPose.range;
-        } catch (Camera.CameraNotStreamingException e) {
-          // If streaming stopped, attempt to resume so operator can continue quickly.
-          camera.resume();
-        } catch (Camera.TagNotFoundException e) {
-          // If tag not found, keep last known range (could be zero).
-          //tagRange = 0;
-        }
-      } catch (CameraNotAttachedException e) {
-        telemetry.addLine("ERROR: CAMERA NOT ATTACHED!");
-      }
       if (!operatorAnnounced) {
         telemetry.speak("Operator Ready");
         operatorAnnounced = true;
@@ -244,7 +231,7 @@ public class DecodeVisual extends OpMode {
       operatorAnnounced = true;
 
       // Placeholder mapping from range (in) -> shooter RPM. Replace with calibrated function/table.
-      shooterRpm = tagRange > 0 ? 3300 : 0; //(tagRange / 100) * SHOOTER_MAX_RPM : SHOOTER_MAX_RPM; // TODO: MATH - calibrate mapping
+      shooterRpm = 3300;//tagRange > 0 ? 3300 : 0; //(tagRange / 100) * SHOOTER_MAX_RPM : SHOOTER_MAX_RPM; // TODO: MATH - calibrate mapping
       if (tagRange > 0 && robot.shooter.atSpeed(shooterRpm)) {
         // At speed: stop operator rumble.
         gamepad2.stopRumble();
@@ -258,7 +245,6 @@ public class DecodeVisual extends OpMode {
       }
     } else {
       // Exit auto-shoot: stop rumble feedback, pause camera to save processing, and reset state.
-      tagRange = 0;
       operatorAnnounced = false;
       gamepad2.stopRumble();
 
