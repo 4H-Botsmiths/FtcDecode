@@ -48,6 +48,8 @@ public class ShooterSpeedTester extends LinearOpMode {
         downPressed = false;
       }
 
+      robot.intake.setPowerAll(gamepad1.right_trigger - gamepad1.left_trigger);
+
       robot.shooter.setRPM(RPM);
       telemetry.addData("Target RPM", RPM);
       telemetry.addData("Current RPM", robot.shooter.getRPM());
