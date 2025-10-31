@@ -30,7 +30,6 @@ public class ShooterSpeedTester extends LinearOpMode {
     telemetry.addData("Status", "Initialized!");
     telemetry.update();
     waitForStart(); //IMPORTANT
-    telemetry.addData("Status", "Running - Press A for Full Power, B for Half Power, Nothing to Stop");
     telemetry.update();
     boolean upPressed = false;
     boolean downPressed = false;
@@ -50,7 +49,7 @@ public class ShooterSpeedTester extends LinearOpMode {
 
       robot.intake.setPowerAll(gamepad1.right_trigger - gamepad1.left_trigger);
 
-      robot.shooter.setRPM(RPM);
+      robot.shooter.setRPM(gamepad1.b ? RPM : 0);
       telemetry.addData("Target RPM", RPM);
       telemetry.addData("Current RPM", robot.shooter.getRPM());
       telemetry.addData("Shooter Velocity", robot.shooter.getVelocity());
