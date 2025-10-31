@@ -193,6 +193,7 @@ public class DecodeVisual extends OpMode {
       // Align-assist not active.
       tagX = 0;
       tagRange = 0;
+      xReady = false;
       gamepad1.stopRumble();
     }
     // Reset so we re-announce the next time align-assist is entered.
