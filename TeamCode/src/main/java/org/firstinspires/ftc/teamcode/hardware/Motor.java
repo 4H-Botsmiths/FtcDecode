@@ -11,15 +11,30 @@ import com.qualcomm.robotcore.hardware.DcMotorSimple;
 public class Motor {
   private final DcMotorEx motor;
   private final Light lights;
+  private double ticksPerRotation;
 
   public Motor(DcMotorEx motor) {
     this.motor = motor;
     this.lights = null;
+    this.ticksPerRotation = motor.getMotorType().getTicksPerRev();
+  }
+
+  public Motor(DcMotorEx motor, int ticksPerRotation) {
+    this.motor = motor;
+    this.lights = null;
+    this.ticksPerRotation = ticksPerRotation;
   }
 
   public Motor(DcMotorEx motor, Light lights) {
     this.motor = motor;
     this.lights = lights;
+    this.ticksPerRotation = motor.getMotorType().getTicksPerRev();
+  }
+
+  public Motor(DcMotorEx motor, int ticksPerRotation, Light lights) {
+    this.motor = motor;
+    this.lights = lights;
+    this.ticksPerRotation = ticksPerRotation;
   }
 
   // Expose the underlying motor when direct access is needed
@@ -100,8 +115,7 @@ public class Motor {
   }
 
   public double setRPM(double rpm) {
-    double ticksPerRev = motor.getMotorType().getTicksPerRev();
-    double ticksPerMinute = rpm * ticksPerRev;
+    double ticksPerMinute = rpm * ticksPerRotation;
     double ticksPerSecond = ticksPerMinute / 60.0;
     motor.setVelocity(ticksPerSecond);
     return ticksPerSecond;
@@ -109,16 +123,15 @@ public class Motor {
 
   public double getRPM() {
     double ticksPerSecond = motor.getVelocity();
-    double ticksPerRev = motor.getMotorType().getTicksPerRev();
     double ticksPerMinute = ticksPerSecond * 60.0;
-    return ticksPerMinute / ticksPerRev;
+    return ticksPerMinute / ticksPerRotation;
   }
 
   public void setSpeed(double speed) {
-    setRPM(speed * motor.getMotorType().getMaxRPM());
+    setRPM(speed * ticksPerRotation);
   }
 
   public double getSpeed() {
-    return getRPM() / motor.getMotorType().getMaxRPM();
+    return getRPM() / ticksPerRotation;
   }
 }

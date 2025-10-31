@@ -26,8 +26,8 @@ public class Robot {
   public Robot(HardwareMap hardwareMap) {
     // Initialize hardware here
 
-    this.leftShooter = new Motor(hardwareMap.get(DcMotorEx.class, DeviceNames.EH_MOTOR_0.getDeviceName()));
-    this.rightShooter = new Motor(hardwareMap.get(DcMotorEx.class, DeviceNames.EH_MOTOR_1.getDeviceName()));
+    this.leftShooter = new Motor(hardwareMap.get(DcMotorEx.class, DeviceNames.EH_MOTOR_0.getDeviceName()), 28);
+    this.rightShooter = new Motor(hardwareMap.get(DcMotorEx.class, DeviceNames.EH_MOTOR_1.getDeviceName()), 28);
     this.rightShooter.setDirection(DcMotorSimple.Direction.REVERSE);
 
     this.intakeServoLeft = hardwareMap.get(CRServo.class, DeviceNames.CH_SERVO_0.getDeviceName());
@@ -37,10 +37,14 @@ public class Robot {
 
     this.shooter = new Shooter(this.leftShooter, this.rightShooter);
 
-    this.frontLeft = new Motor(hardwareMap.get(DcMotorEx.class, DeviceNames.CH_MOTOR_3.getDeviceName()));
-    this.frontRight = new Motor(hardwareMap.get(DcMotorEx.class, DeviceNames.CH_MOTOR_2.getDeviceName()));
-    this.rearLeft = new Motor(hardwareMap.get(DcMotorEx.class, DeviceNames.CH_MOTOR_1.getDeviceName()));
-    this.rearRight = new Motor(hardwareMap.get(DcMotorEx.class, DeviceNames.CH_MOTOR_0.getDeviceName()));
+    this.frontLeft = new Motor(hardwareMap.get(DcMotorEx.class, DeviceNames.CH_MOTOR_3.getDeviceName()),
+        ((((1 + (46 / 17))) * (1 + (46 / 11))) * 28));
+    this.frontRight = new Motor(hardwareMap.get(DcMotorEx.class, DeviceNames.CH_MOTOR_2.getDeviceName()),
+        ((((1 + (46 / 17))) * (1 + (46 / 11))) * 28));
+    this.rearLeft = new Motor(hardwareMap.get(DcMotorEx.class, DeviceNames.CH_MOTOR_1.getDeviceName()),
+        ((((1 + (46 / 17))) * (1 + (46 / 11))) * 28));
+    this.rearRight = new Motor(hardwareMap.get(DcMotorEx.class, DeviceNames.CH_MOTOR_0.getDeviceName()),
+        ((((1 + (46 / 17))) * (1 + (46 / 11))) * 28));
 
     this.indexer = hardwareMap.get(CRServo.class, DeviceNames.CH_SERVO_1.getDeviceName());
   }
