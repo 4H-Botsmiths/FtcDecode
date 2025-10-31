@@ -21,6 +21,8 @@ public class Robot {
   public final CRServo intakeServoRight;
   public final Intake intake;
 
+  public final CRServo indexer;
+
   public Robot(HardwareMap hardwareMap) {
     // Initialize hardware here
 
@@ -39,6 +41,8 @@ public class Robot {
     this.frontRight = new Motor(hardwareMap.get(DcMotorEx.class, "MOTOR_0"));
     this.rearLeft = new Motor(hardwareMap.get(DcMotorEx.class, "MOTOR_3"));
     this.rearRight = new Motor(hardwareMap.get(DcMotorEx.class, "MOTOR_2"));
+
+    this.indexer = hardwareMap.get(CRServo.class, "SERVO_1");
   }
 
   public static final int DRIVE_MAX_RPM = 300;
