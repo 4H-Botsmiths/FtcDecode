@@ -3,6 +3,7 @@ package org.firstinspires.ftc.teamcode.programs.diagnostics;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.hardware.DcMotorEx;
+import com.qualcomm.robotcore.util.Range;
 import org.firstinspires.ftc.robotcore.external.Telemetry;
 import org.firstinspires.ftc.teamcode.hardware.Camera;
 import org.firstinspires.ftc.teamcode.hardware.Robot;
@@ -50,6 +51,7 @@ public class ShooterSpeedTester extends LinearOpMode {
       robot.intake.setPowerAll(gamepad1.right_trigger - gamepad1.left_trigger);
 
       robot.shooter.setRPM(gamepad1.b ? RPM : 0);
+
       telemetry.addData("Target RPM", RPM);
       telemetry.addData("Current RPM", robot.shooter.getRPM());
       telemetry.addData("Shooter Velocity", robot.shooter.getVelocity());
@@ -60,12 +62,17 @@ public class ShooterSpeedTester extends LinearOpMode {
         telemetry.addData("Distance to Target (in)", tag.ftcPose.range);
         telemetry.addData("Tag X (in?)", tag.ftcPose.x);
         telemetry.addData("Tag Yaw (deg)", tag.ftcPose.yaw);
+        if (gamepad1.a) {
+          robot.drive(0, 0, Range.clip(tag.ftcPose.x * -0.05, -0.15, 0.15));
+        }
       } catch (CameraNotAttachedException e) {
         telemetry.addLine("Camera not attached.");
       } catch (Camera.CameraNotStreamingException e) {
         telemetry.addLine("Camera not streaming.");
       } catch (Camera.TagNotFoundException e) {
         telemetry.addLine("Tag not found.");
+        robot.drive(0, 0, 0);
+
       }
       telemetry.update();
     }
