@@ -77,7 +77,7 @@ public class Motor {
 
   // DcMotorEx-specific helpers
 
-  public static final double TOLERANCE = 0.1;// percent tolerance of velocity
+  public static final double TOLERANCE = 0.03;// percent tolerance of velocity
 
   public boolean atSpeed(double targetVelocity) {
     double currentVelocity = getVelocity();
