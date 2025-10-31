@@ -64,7 +64,10 @@ public class ShooterSpeedTester extends LinearOpMode {
         telemetry.addData("Tag X (in?)", tag.ftcPose.x);
         telemetry.addData("Tag Yaw (deg)", tag.ftcPose.yaw);
         if (gamepad1.a) {
-          robot.drive(0, 0, Range.clip(tag.ftcPose.x * -0.05, -0.15, 0.15));
+          robot.drive(0, tag.ftcPose.range < 70 ? -Range.clip((70 - tag.ftcPose.range) * 0.025, -0.15, 0.15) : 0,
+              Range.clip(tag.ftcPose.x * -0.025, -0.15, 0.15));
+        } else {
+          robot.drive(0, 0, 0);
         }
       } catch (CameraNotAttachedException e) {
         telemetry.addLine("Camera not attached.");
