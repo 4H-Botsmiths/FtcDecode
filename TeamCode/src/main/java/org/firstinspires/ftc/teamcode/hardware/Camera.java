@@ -56,7 +56,7 @@ public class Camera {
     visionPortal = new VisionPortal.Builder()
         .setCamera(this.webcam)
         .addProcessor(aprilTag)
-        .setCameraResolution(new Size(1280, 800)) // Refine further, lower is better
+        .setCameraResolution(new Size(640, 480)) // Refine further, lower is better
         .setStreamFormat(VisionPortal.StreamFormat.MJPEG)
         .build();
 
