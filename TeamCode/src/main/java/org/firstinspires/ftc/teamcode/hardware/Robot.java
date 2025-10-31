@@ -40,10 +40,12 @@ public class Robot {
     double drivePPR = ((((1 + (46.0 / 17.0))) * (1 + (46.0 / 11.0))) * 28.0);
     this.frontLeft = new Motor(hardwareMap.get(DcMotorEx.class, DeviceNames.CH_MOTOR_2.getDeviceName()),
         drivePPR);
+    this.frontLeft.setDirection(DcMotorSimple.Direction.REVERSE);
     this.frontRight = new Motor(hardwareMap.get(DcMotorEx.class, DeviceNames.CH_MOTOR_3.getDeviceName()),
         drivePPR);
     this.rearLeft = new Motor(hardwareMap.get(DcMotorEx.class, DeviceNames.CH_MOTOR_0.getDeviceName()),
         drivePPR);
+    this.rearLeft.setDirection(DcMotorSimple.Direction.REVERSE);
     this.rearRight = new Motor(hardwareMap.get(DcMotorEx.class, DeviceNames.CH_MOTOR_1.getDeviceName()),
         drivePPR);
 
