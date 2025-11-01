@@ -52,12 +52,12 @@ public class LeaveWallAndShoot extends OpMode {
    */
   @Override
   public void loop() {
-    if (timer.milliseconds() < 2500) {
+    if (timer.milliseconds() < 3000) {
       // Drive forward for the first ~2.5 seconds (no backing up)
       robot.drive(0, 0.25, 0);
       return;
     }
-    if (timer.milliseconds() < 3000) {
+    if (timer.milliseconds() < 3500) {
       // Brief pause to stabilize
       robot.drive(0, 0, 0.25);
       return;
