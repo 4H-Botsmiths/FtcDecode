@@ -99,7 +99,7 @@ public class LeaveWallAndShootRED extends OpMode {
     robot.drive(0, 0, turn);
 
     // Spin up and feed when at speed
-    final int targetRpm = 3300;
+    final int targetRpm = 3000;
     robot.shooter.setRPM(targetRpm);
     if (robot.shooter.atSpeedRPM(targetRpm)) {
       robot.indexer.setPower(indexerClockwise ? -1 : 1);
@@ -115,7 +115,7 @@ public class LeaveWallAndShootRED extends OpMode {
     telemetry.addLine(String.format("FL (%6.1f) (%6.1f) FR", robot.frontLeft.getRPM(), robot.frontRight.getRPM()));
     telemetry.addLine(String.format("RL (%6.1f) (%6.1f) RR", robot.rearLeft.getRPM(), robot.rearRight.getRPM()));
     telemetry.addLine(String.format("Shooter RPM: (%6.1f)", robot.shooter.getRPM()));
-    telemetry.addData("At Speed", robot.shooter.atSpeedRPM(3300));
+    telemetry.addData("At Speed", robot.shooter.atSpeedRPM(3000));
     telemetry.addData("Indexer Power", robot.indexer.getPower());
     telemetry.addData("Intake Power", robot.intake.getPowers()[0]);
   }
