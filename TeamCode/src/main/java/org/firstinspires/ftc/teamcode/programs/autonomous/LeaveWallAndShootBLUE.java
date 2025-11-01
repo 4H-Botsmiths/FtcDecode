@@ -119,7 +119,6 @@ public class LeaveWallAndShootBLUE extends OpMode {
     telemetry.addData("At Speed", robot.shooter.atSpeedRPM(3300));
     telemetry.addData("Indexer Power", robot.indexer.getPower());
     telemetry.addData("Intake Power", robot.intake.getPowers()[0]);
-    telemetry.update();
   }
 
   /*
