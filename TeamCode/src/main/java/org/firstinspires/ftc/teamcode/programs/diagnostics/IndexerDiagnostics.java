@@ -1,10 +1,10 @@
 package org.firstinspires.ftc.teamcode.programs.diagnostics;
 
-import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
+import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import org.firstinspires.ftc.robotcore.external.Telemetry;
 
-@Autonomous(name = "Indexer Diagnostics", group = "Diagnostics")
+@TeleOp(name = "Indexer Diagnostics", group = "Diagnostics")
 public class IndexerDiagnostics extends LinearOpMode {
 
   // TODO: Declare your indexer hardware components here
