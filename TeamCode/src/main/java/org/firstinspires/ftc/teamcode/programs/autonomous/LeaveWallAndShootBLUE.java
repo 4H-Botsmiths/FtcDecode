@@ -40,9 +40,7 @@ public class LeaveWallAndShootBLUE extends OpMode {
   public void init_loop() {
     try {
       Camera.AprilTag tag = camera.getAprilTag(Camera.AprilTagPosition.OBELISK);
-      if (tag.id == 23) {
-        indexerClockwise = false;
-      }
+      indexerClockwise = tag.id != 23;
     } catch (Camera.CameraNotAttachedException e) {
       telemetry.addData("Camera", "Not attached");
     } catch (Camera.CameraNotStreamingException e) {
