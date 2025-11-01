@@ -5,6 +5,7 @@ import com.qualcomm.robotcore.hardware.DcMotorSimple;
 import com.qualcomm.robotcore.hardware.HardwareMap;
 import com.qualcomm.robotcore.util.Range;
 import com.qualcomm.robotcore.hardware.CRServo;
+import com.qualcomm.robotcore.hardware.ColorSensor;
 
 public class Robot {
 
@@ -22,6 +23,9 @@ public class Robot {
   public final Intake intake;
 
   public final CRServo indexer;
+
+  public final ColorSensor colorSensorLeft;
+  public final ColorSensor colorSensorRight;
 
   public Robot(HardwareMap hardwareMap) {
     // Initialize hardware here
@@ -50,6 +54,9 @@ public class Robot {
         drivePPR);
 
     this.indexer = hardwareMap.get(CRServo.class, DeviceNames.CH_SERVO_1.getDeviceName());
+
+    this.colorSensorLeft = hardwareMap.get(ColorSensor.class, DeviceNames.CH_I2C_0.getDeviceName());
+    this.colorSensorRight = hardwareMap.get(ColorSensor.class, DeviceNames.EH_I2C_0.getDeviceName());
   }
 
   public static final int DRIVE_MAX_RPM = 300;
