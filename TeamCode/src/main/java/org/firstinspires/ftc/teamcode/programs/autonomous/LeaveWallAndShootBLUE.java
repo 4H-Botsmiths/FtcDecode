@@ -58,6 +58,7 @@ public class LeaveWallAndShootBLUE extends OpMode {
 
   @Override
   public void loop() {
+    telemetries();
     if (timer.milliseconds() < 3000) {
       // Drive forward for the first ~2.5 seconds (no backing up)
       robot.drive(0, 0.25, 0);
@@ -108,6 +109,17 @@ public class LeaveWallAndShootBLUE extends OpMode {
       robot.indexer.setPower(0);
       robot.intake.setPowerAll(0);
     }
+  }
+
+  void telemetries() {
+    telemetry.addData("Indexer Direction", indexerClockwise ? "Clockwise" : "Counter-Clockwise");
+    telemetry.addLine(String.format("FL (%6.1f) (%6.1f) FR", robot.frontLeft.getRPM(), robot.frontRight.getRPM()));
+    telemetry.addLine(String.format("RL (%6.1f) (%6.1f) RR", robot.rearLeft.getRPM(), robot.rearRight.getRPM()));
+    telemetry.addLine(String.format("Shooter RPM: (%6.1f)", robot.shooter.getRPM()));
+    telemetry.addData("At Speed", robot.shooter.atSpeedRPM(3300));
+    telemetry.addData("Indexer Power", robot.indexer.getPower());
+    telemetry.addData("Intake Power", robot.intake.getPowers()[0]);
+    telemetry.update();
   }
 
   /*
