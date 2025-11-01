@@ -70,12 +70,12 @@ public class LeaveWallAndShootBLUE extends OpMode {
   @Override
   public void loop() {
     telemetries();
-    if (timer.milliseconds() < 3750) {
+    if (timer.milliseconds() < 4000) {
       // Drive forward for the first ~2.5 seconds (no backing up)
       robot.drive(0, 0.25, 0);
       return;
     }
-    if (timer.milliseconds() < 4250) {
+    if (timer.milliseconds() < 4500) {
       // Brief pause to stabilize
       robot.drive(0, 0, -0.25);
       return;
