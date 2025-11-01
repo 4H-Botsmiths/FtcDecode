@@ -71,8 +71,6 @@ public class DecodeVisual extends OpMode {
    */
   @Override
   public void init_loop() {
-    // Surface camera state so drivers can confirm streaming before start.
-    telemetry.addData("Camera Status", camera.visionPortal.getCameraState().toString());
     // Also show AprilTag telemetry while waiting on start so you can verify detections.
     camera.telemetryAprilTag(telemetry);
   }
