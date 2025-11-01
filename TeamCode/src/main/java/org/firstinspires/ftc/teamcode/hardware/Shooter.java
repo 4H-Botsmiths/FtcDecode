@@ -7,14 +7,10 @@ import com.qualcomm.robotcore.hardware.CRServo;
 public class Shooter {
   private final Motor left;
   private final Motor right;
-  private final CRServo intakeLeft;
-  private final CRServo intakeRight;
 
-  public Shooter(Motor leftShooter, Motor rightShooter, CRServo intakeServoLeft, CRServo intakeServoRight) {
+  public Shooter(Motor leftShooter, Motor rightShooter) {
     this.left = leftShooter;
     this.right = rightShooter;
-    this.intakeLeft = intakeServoLeft;
-    this.intakeRight = intakeServoRight;
   }
 
   // Motor-like helpers (delegate to both motors)
@@ -69,16 +65,6 @@ public class Shooter {
     right.setRPM(rpm);
   }
 
-  public void setFeederPower(double power) {
-    intakeLeft.setPower(power);
-    intakeRight.setPower(power);
-  }
-
-  public void startShooter(double rpm, double power) {
-    setRPM(rpm);
-    setPower(power);
-  }
-
   public double getRPM() {
     return (left.getRPM() + right.getRPM()) / 2.0;
   }
@@ -100,4 +86,13 @@ public class Shooter {
   public int getCurrentPosition() {
     return (left.getCurrentPosition() + right.getCurrentPosition()) / 2;
   }
+
+  public boolean atSpeed(double targetVelocity) {
+    return left.atSpeed(targetVelocity) && right.atSpeed(targetVelocity);
+  }
+
+  public boolean atSpeedRPM(double targetRPM) {
+    return left.atSpeedRPM(targetRPM) && right.atSpeedRPM(targetRPM);
+  }
+
 }

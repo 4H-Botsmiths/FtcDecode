@@ -28,6 +28,7 @@ import org.firstinspires.ftc.teamcode.hardware.Robot;
  */
 
 @TeleOp(name = "Shooter Teleop", group = "A")
+@Disabled
 public class ShooterTeleop extends OpMode {
   public Robot robot;
 

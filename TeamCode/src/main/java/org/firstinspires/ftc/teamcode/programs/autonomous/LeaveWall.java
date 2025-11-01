@@ -2,14 +2,14 @@ package org.firstinspires.ftc.teamcode.programs.teleop;
 
 import com.qualcomm.robotcore.eventloop.opmode.Disabled;
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
-import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
+import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.DcMotorEx;
+import com.qualcomm.robotcore.util.ElapsedTime;
 import org.firstinspires.ftc.teamcode.hardware.Robot;
 
-@TeleOp(name = "Decode Teleop", group = "A")
-@Disabled
-public class Decode extends OpMode {
+@Autonomous(name = "Drive Forward", group = "A", preselectTeleOp = "Decode Camera TeleOp")
+public class LeaveWall extends OpMode {
   public Robot robot;
 
   // 
@@ -32,11 +32,14 @@ public class Decode extends OpMode {
   public void init_loop() {
   }
 
+  ElapsedTime timer = new ElapsedTime();
+
   /*
    * Code to run ONCE when the driver hits PLAY
    */
   @Override
   public void start() {
+    timer.reset();
   }
 
   /*
@@ -44,40 +47,11 @@ public class Decode extends OpMode {
    */
   @Override
   public void loop() {
-    // Drive control
-    driveLoop();
-    // Shooter control
-    shooterLoop();
-    // Intake control
-    intakeLoop();
-  }
-
-  public void driveLoop() {
-    double x = gamepad1.left_stick_x / 3;
-    x *= 2;
-    x += gamepad1.right_trigger * (gamepad1.left_stick_x / 3);
-    x -= gamepad1.left_trigger * (gamepad1.left_stick_x / 3);
-    double y = -gamepad1.left_stick_y / 3;
-    y *= 2;
-    y += gamepad1.right_trigger * (-gamepad1.left_stick_y / 3);
-    y -= gamepad1.left_trigger * (-gamepad1.left_stick_y / 3);
-    double z = gamepad1.right_stick_x / 3;
-    z *= 2;
-    z += gamepad1.right_trigger * (gamepad1.right_stick_x / 3);
-    z -= gamepad1.left_trigger * (gamepad1.right_stick_x / 3);
-
-    robot.drive(x, y, z);
-  }
-
-  private final int SHOOTER_MAX_RPM = 3000;
-
-  public void shooterLoop() {
-    // Shooter control
-    robot.shooter.setRPM(gamepad2.left_trigger * SHOOTER_MAX_RPM);
-  }
-
-  public void intakeLoop() {
-    // Intake control
+    if (timer.milliseconds() < 2000) {
+      robot.drive(0, 0.25, 0);
+    } else {
+      robot.drive(0, 0, 0);
+    }
   }
 
   /*

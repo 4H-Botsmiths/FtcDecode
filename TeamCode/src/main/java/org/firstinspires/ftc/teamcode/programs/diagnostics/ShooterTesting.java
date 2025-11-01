@@ -4,8 +4,10 @@ import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.hardware.DcMotorEx;
 import org.firstinspires.ftc.robotcore.external.Telemetry;
+import com.qualcomm.robotcore.eventloop.opmode.Disabled;
 
 @TeleOp(name = "Shooter Testing", group = "Diagnostics")
+@Disabled
 public class ShooterTesting extends LinearOpMode {
 
   public DcMotorEx shooter1 = null;

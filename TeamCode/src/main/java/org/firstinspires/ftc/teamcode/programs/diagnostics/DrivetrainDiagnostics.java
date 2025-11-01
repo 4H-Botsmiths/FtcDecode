@@ -4,6 +4,7 @@ import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.hardware.DcMotorEx;
 import org.firstinspires.ftc.robotcore.external.Telemetry;
+import org.firstinspires.ftc.teamcode.hardware.DeviceNames;
 
 @Autonomous(name = "Drivetrain Diagnostics", group = "Diagnostics")
 public class DrivetrainDiagnostics extends LinearOpMode {
@@ -30,10 +31,10 @@ public class DrivetrainDiagnostics extends LinearOpMode {
     Telemetry.Item rearLeftItem = telemetry.addData("Rear Left", "Waiting...");
     Telemetry.Item rearRightItem = telemetry.addData("Rear Right", "Waiting...");
     telemetry.update();
-    frontLeft = hardwareMap.get(DcMotorEx.class, "DRIVE_FRONT_LEFT");
-    frontRight = hardwareMap.get(DcMotorEx.class, "DRIVE_FRONT_RIGHT");
-    rearLeft = hardwareMap.get(DcMotorEx.class, "DRIVE_REAR_LEFT");
-    rearRight = hardwareMap.get(DcMotorEx.class, "DRIVE_REAR_RIGHT");
+    frontLeft = hardwareMap.get(DcMotorEx.class, DeviceNames.CH_MOTOR_2.getDeviceName());
+    frontRight = hardwareMap.get(DcMotorEx.class, DeviceNames.CH_MOTOR_3.getDeviceName());
+    rearLeft = hardwareMap.get(DcMotorEx.class, DeviceNames.CH_MOTOR_0.getDeviceName());
+    rearRight = hardwareMap.get(DcMotorEx.class, DeviceNames.CH_MOTOR_1.getDeviceName());
     statusItem.setValue("Initialized -  Raise Robot Off The Ground, Then Hit Start");
     telemetry.update();
     waitForStart();
