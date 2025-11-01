@@ -3,49 +3,53 @@ package org.firstinspires.ftc.teamcode.programs.diagnostics;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import org.firstinspires.ftc.robotcore.external.Telemetry;
+import org.firstinspires.ftc.teamcode.hardware.Robot;
 
 @TeleOp(name = "Indexer Diagnostics", group = "Diagnostics")
 public class IndexerDiagnostics extends LinearOpMode {
 
-  // TODO: Declare your indexer hardware components here
-  // Example: public DcMotor indexerMotor = null;
-  // Example: public Servo indexerServo = null;
+  private Robot robot;
 
   @Override
   public void runOpMode() {
-    telemetry.setAutoClear(false);
-    Telemetry.Item statusItem = telemetry.addData("Status", "Initializing...");
-    
-    // TODO: Add telemetry items for your indexer components
-    // Example: Telemetry.Item indexerItem = telemetry.addData("Indexer Motor", "Waiting...");
-    
+    telemetry.setAutoClear(true);
+    telemetry.addData("Status", "Initializing...");
     telemetry.update();
 
-    // TODO: Initialize your indexer hardware from hardwareMap
-    // Example: indexerMotor = hardwareMap.get(DcMotor.class, DeviceNames.INDEXER_MOTOR.getDeviceName());
+    robot = new Robot(hardwareMap);
 
-    statusItem.setValue("Initialized - Hit Start When Ready");
+    telemetry.addData("Status", "Ready - Press Start");
     telemetry.update();
     
     waitForStart();
     
-    statusItem.setValue("Running Indexer Tests...");
-    telemetry.update();
-
-    // TODO: Add your test logic here
-    // This is where you'll test your indexer functionality
-
-    statusItem.setValue("Done, See Below For Test Results");
-    telemetry.update();
-    
     while (opModeIsActive()) {
+      String leftColor = detectColor(robot.colorSensorLeft);
+      String rightColor = detectColor(robot.colorSensorRight);
+      
+      telemetry.addData("Left", leftColor);
+      telemetry.addData("Right", rightColor);
+      telemetry.update();
+      
       sleep(100);
     }
   }
 
-  // TODO: Add helper methods for your indexer tests
-  // Example:
-  // private void testIndexerMotor() {
-  //   // Your test code here
-  // }
+  private String detectColor(com.qualcomm.robotcore.hardware.ColorSensor sensor) {
+    int red = sensor.red();
+    int green = sensor.green();
+    int blue = sensor.blue();
+    
+    // Detect purple (high red and blue, low green)
+    if (red > green && blue > green && red > 100 && blue > 100) {
+      return "Purple";
+    }
+    
+    // Detect green (high green, lower red and blue)
+    if (green > red && green > blue && green > 100) {
+      return "Green";
+    }
+    
+    return "Empty";
+  }
 }
