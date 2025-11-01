@@ -38,6 +38,19 @@ public class LeaveWallAndShootBLUE extends OpMode {
    */
   @Override
   public void init_loop() {
+    try {
+      Camera.AprilTag tag = camera.getAprilTag(Camera.AprilTagPosition.OBELISK);
+      if (tag.id == 23) {
+        indexerClockwise = false;
+      }
+    } catch (Camera.CameraNotAttachedException e) {
+      telemetry.addData("Camera", "Not attached");
+    } catch (Camera.CameraNotStreamingException e) {
+      telemetry.addData("Camera", "Not streaming");
+    } catch (Camera.TagNotFoundException e) {
+      telemetry.addData("Obelisk Tag", "Not found");
+    }
+    telemetries();
   }
 
   /*
@@ -62,18 +75,6 @@ public class LeaveWallAndShootBLUE extends OpMode {
     if (timer.milliseconds() < 3000) {
       // Drive forward for the first ~2.5 seconds (no backing up)
       robot.drive(0, 0.25, 0);
-      try {
-        Camera.AprilTag tag = camera.getAprilTag(Camera.AprilTagPosition.OBELISK);
-        if (tag.id == 23) {
-          indexerClockwise = false;
-        }
-      } catch (Camera.CameraNotAttachedException e) {
-        telemetry.addData("Camera", "Not attached");
-      } catch (Camera.CameraNotStreamingException e) {
-        telemetry.addData("Camera", "Not streaming");
-      } catch (Camera.TagNotFoundException e) {
-        telemetry.addData("Obelisk Tag", "Not found");
-      }
       return;
     }
     if (timer.milliseconds() < 3500) {
