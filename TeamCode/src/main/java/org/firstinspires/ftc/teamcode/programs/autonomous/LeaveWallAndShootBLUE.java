@@ -29,6 +29,7 @@ public class LeaveWallAndShootBLUE extends OpMode {
       telemetry.speak("Camera not attached.");
     }
     telemetry.addData("Status", "Initialized");
+    telemetry.addLine("Load the purple balls on the left and the green on the right");
     telemetry.update();
   }
 
@@ -47,14 +48,31 @@ public class LeaveWallAndShootBLUE extends OpMode {
     timer.reset();
   }
 
+  boolean indexerClockwise = true;
+
   /*
    * Code to run REPEATEDLY after the driver hits PLAY but before they hit STOP
    */
+  // After leaving the wall, hold position and align to AprilTag by turning only
+  double turn = 0;
+
   @Override
   public void loop() {
     if (timer.milliseconds() < 3000) {
       // Drive forward for the first ~2.5 seconds (no backing up)
       robot.drive(0, 0.25, 0);
+      try {
+        Camera.AprilTag tag = camera.getAprilTag(Camera.AprilTagPosition.OBELISK);
+        if (tag.id == 23) {
+          indexerClockwise = false;
+        }
+      } catch (Camera.CameraNotAttachedException e) {
+        telemetry.addData("Camera", "Not attached");
+      } catch (Camera.CameraNotStreamingException e) {
+        telemetry.addData("Camera", "Not streaming");
+      } catch (Camera.TagNotFoundException e) {
+        telemetry.addData("Obelisk Tag", "Not found");
+      }
       return;
     }
     if (timer.milliseconds() < 3500) {
@@ -63,13 +81,9 @@ public class LeaveWallAndShootBLUE extends OpMode {
       return;
     }
 
-    // After leaving the wall, hold position and align to AprilTag by turning only
-    double turn = 0;
     try {
       Camera.AprilTag tag = camera.getAprilTag(Camera.AprilTagPosition.GOAL);
       double x = tag.ftcPose.x;
-      double range = tag.ftcPose.range;
-      telemetry.addData("Range", range);
       telemetry.addData("X", x);
       turn = Range.clip(x * -0.025, -0.15, 0.15);
     } catch (Camera.CameraNotAttachedException e) {
@@ -77,8 +91,8 @@ public class LeaveWallAndShootBLUE extends OpMode {
     } catch (Camera.CameraNotStreamingException e) {
       telemetry.addData("Camera", "Not streaming");
     } catch (Camera.TagNotFoundException e) {
-      telemetry.addData("Tag", "Not found");
-      turn = 0; // If we don't see a tag, don't spin aimlessly
+      telemetry.addData("Goal Tag", "Not found");
+      //turn = 0; // If we don't see a tag, don't spin aimlessly
     }
 
     // Hold position, only rotate to align
@@ -88,7 +102,7 @@ public class LeaveWallAndShootBLUE extends OpMode {
     final int targetRpm = 3300;
     robot.shooter.setRPM(targetRpm);
     if (robot.shooter.atSpeedRPM(targetRpm)) {
-      robot.indexer.setPower(1);
+      robot.indexer.setPower(indexerClockwise ? -1 : 1);
       robot.intake.setPowerAll(1);
     } else {
       robot.indexer.setPower(0);
