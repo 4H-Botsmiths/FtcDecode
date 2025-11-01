@@ -176,14 +176,14 @@ public class DecodeVisual extends OpMode {
         telemetry.speak("Driver Ready");
         driverAnnounced = true;
       }
+      z += Range.clip(tagX * -0.025, -0.15, 0.15);
+      y += Range.clip((tagRange - targetRange) * 0.025, -0.15, 0.15);
       if (Math.abs(tagX) > xTolerance || Math.abs(targetRange - tagRange) > rangeTolerance) {
         // Outside tolerance: keep rotating toward center and rumble as feedback.
         xReady = false;
         gamepad1.rumble(1, 1, Gamepad.RUMBLE_DURATION_CONTINUOUS);
         // Gain/clip: proportional correction from tag X offset, clipped to avoid overshoot.
         // NOTE: tagX currently in inches; tune gain accordingly if you convert units.
-        z += Range.clip(tagX * -0.025, -0.15, 0.15);
-        y += Range.clip((tagRange - targetRange) * 0.025, -0.15, 0.15);
       } else {
         // Centered enough: stop rumble and mark alignment ready for operator auto-feed.
         gamepad1.stopRumble();
@@ -221,7 +221,7 @@ public class DecodeVisual extends OpMode {
 
   public void operatorLoop() {
     // Default intake: pull game pieces in with LT (negative power indicates direction in this setup).
-    double intakePower = -gamepad2.left_trigger;
+    double intakePower = gamepad2.right_trigger - gamepad2.left_trigger;
     double shooterRpm = 0;
     if (gamepad2.right_bumper) {
       // Auto-shoot mode: derive target shooter RPM from tag range and gate intake until ready.
@@ -236,9 +236,9 @@ public class DecodeVisual extends OpMode {
       if (robot.shooter.atSpeedRPM(shooterRpm)) {
         // At speed: stop operator rumble.
         gamepad2.stopRumble();
-        if (xReady) {
+        if (!xReady && !gamepad2.b) {
           // Only feed when we're both at speed AND driver align-assist has centered x.
-          intakePower = gamepad2.right_trigger;
+          intakePower = 0;
         }
       } else {
         // Not ready: notify operator via rumble (gamepad2).
