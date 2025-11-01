@@ -214,10 +214,24 @@ public class DecodeVisual extends OpMode {
    */
 
   boolean operatorAnnounced = false;
-  private final int SHOOTER_MAX_RPM = 3300;
+  private int RPM = 3300;
+  boolean upPressed = false;
+  boolean downPressed = false;
   double tagRange = 0;
 
   public void operatorLoop() {
+    if (gamepad2.dpad_up && !upPressed) {
+      RPM += 100;
+      upPressed = true;
+    } else if (!gamepad2.dpad_up) {
+      upPressed = false;
+    }
+    if (gamepad2.dpad_down && !downPressed) {
+      RPM -= 100;
+      downPressed = true;
+    } else if (!gamepad2.dpad_down) {
+      downPressed = false;
+    }
     // Default intake: pull game pieces in with LT (negative power indicates direction in this setup).
     double intakePower = gamepad2.right_trigger - gamepad2.left_trigger;
     double shooterRpm = 0;
@@ -230,7 +244,7 @@ public class DecodeVisual extends OpMode {
       operatorAnnounced = true;
 
       // Placeholder mapping from range (in) -> shooter RPM. Replace with calibrated function/table.
-      shooterRpm = 3300;//tagRange > 0 ? 3300 : 0; //(tagRange / 100) * SHOOTER_MAX_RPM : SHOOTER_MAX_RPM; // TODO: MATH - calibrate mapping
+      shooterRpm = RPM;//tagRange > 0 ? 3300 : 0; //(tagRange / 100) * SHOOTER_MAX_RPM : SHOOTER_MAX_RPM; // TODO: MATH - calibrate mapping
       if (robot.shooter.atSpeedRPM(shooterRpm)) {
         // At speed: stop operator rumble.
         gamepad2.stopRumble();
@@ -262,7 +276,8 @@ public class DecodeVisual extends OpMode {
     // Drivetrain RPMs (per-wheel), shooter speed, and vision-derived alignment/shooting info
     telemetry.addLine(String.format("FL (%6.1f) (%6.1f) FR", robot.frontLeft.getRPM(), robot.frontRight.getRPM()));
     telemetry.addLine(String.format("RL (%6.1f) (%6.1f) RR", robot.rearLeft.getRPM(), robot.rearRight.getRPM()));
-    telemetry.addLine(String.format("Shooter RPM: (%6.1f)", robot.shooter.getRPM()));
+    telemetry.addData("Target Shooter RPM", RPM);
+    telemetry.addLine(String.format("Shooter RPM: %6.1f", robot.shooter.getRPM()));
     telemetry.addLine(String.format("Tag X: (%6.1f) Tag Range: (%6.1f)", tagX, tagRange));
     //telemetry.addLine(String.format("Intake Power: (%6.1f)", robot.intake.getPowers()));
     telemetry.addLine(String.format("Indexer Power: (%6.1f)", robot.indexer.getPower()));
