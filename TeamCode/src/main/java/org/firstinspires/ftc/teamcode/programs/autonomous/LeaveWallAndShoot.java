@@ -57,6 +57,11 @@ public class LeaveWallAndShoot extends OpMode {
       robot.drive(0, 0.25, 0);
       return;
     }
+    if (timer.milliseconds() < 3000) {
+      // Brief pause to stabilize
+      robot.drive(0, 0, 0.25);
+      return;
+    }
 
     // After leaving the wall, hold position and align to AprilTag by turning only
     double turn = 0;
