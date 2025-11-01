@@ -49,6 +49,7 @@ public class Robot {
     this.rearRight = new Motor(hardwareMap.get(DcMotorEx.class, DeviceNames.CH_MOTOR_1.getDeviceName()),
         drivePPR);
 
+    /** Positive power is counter-clockwise. Negative power is clockwise */
     this.indexer = hardwareMap.get(CRServo.class, DeviceNames.CH_SERVO_1.getDeviceName());
   }
 
