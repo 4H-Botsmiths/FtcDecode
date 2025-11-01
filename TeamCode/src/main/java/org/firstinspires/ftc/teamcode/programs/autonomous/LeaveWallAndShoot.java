@@ -1,22 +1,19 @@
 package org.firstinspires.ftc.teamcode.programs.teleop;
 
-import com.qualcomm.robotcore.eventloop.opmode.Disabled;
-import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
-import com.qualcomm.robotcore.hardware.DcMotor;
-import com.qualcomm.robotcore.hardware.DcMotorEx;
+import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import com.qualcomm.robotcore.util.ElapsedTime;
-
 import com.qualcomm.robotcore.util.Range;
 import org.firstinspires.ftc.teamcode.hardware.Camera;
 import org.firstinspires.ftc.teamcode.hardware.Robot;
 
-@Autonomous(name = "Back and Shoot", group = "A", preselectTeleOp = "Decode Camera TeleOp")
-public class BackAndShoot extends OpMode {
+@Autonomous(name = "Leave Wall and Shoot", group = "A", preselectTeleOp = "Decode Camera TeleOp")
+public class LeaveWallAndShoot extends OpMode {
   public Robot robot;
   public Camera camera;
 
-  // 
+  private final ElapsedTime timer = new ElapsedTime();
+
   /*
    * Code to run ONCE when the driver hits INIT
    */
@@ -47,42 +44,50 @@ public class BackAndShoot extends OpMode {
    */
   @Override
   public void start() {
+    timer.reset();
   }
-
-  double range = 0;
-  double x = 0;
 
   /*
    * Code to run REPEATEDLY after the driver hits PLAY but before they hit STOP
    */
   @Override
   public void loop() {
+    if (timer.milliseconds() < 2500) {
+      // Drive forward for the first ~2.5 seconds (no backing up)
+      robot.drive(0, 0.25, 0);
+      return;
+    }
+
+    // After leaving the wall, hold position and align to AprilTag by turning only
+    double turn = 0;
     try {
       Camera.AprilTag tag = camera.getAprilTag(Camera.AprilTagPosition.GOAL);
-      range = tag.ftcPose.range;
-      x = tag.ftcPose.x;
+      double x = tag.ftcPose.x;
+      double range = tag.ftcPose.range;
       telemetry.addData("Range", range);
       telemetry.addData("X", x);
+      turn = Range.clip(x * -0.025, -0.15, 0.15);
     } catch (Camera.CameraNotAttachedException e) {
-      telemetry.addData("Range", "Camera not attached");
+      telemetry.addData("Camera", "Not attached");
     } catch (Camera.CameraNotStreamingException e) {
-      telemetry.addData("Range", "Camera not streaming");
+      telemetry.addData("Camera", "Not streaming");
     } catch (Camera.TagNotFoundException e) {
-      telemetry.addData("Range", "Tag not found");
+      telemetry.addData("Tag", "Not found");
+      turn = 0; // If we don't see a tag, don't spin aimlessly
     }
-    if (range < 85) {
-      robot.drive(0, -0.25, 0);
-    } else {
-      robot.drive(0, 0, Range.clip(x * -0.025, -0.15, 0.15));
-      robot.shooter.setRPM(3300);
-      if (robot.shooter.atSpeedRPM(3300)) {
-        robot.indexer.setPower(1);
-        robot.intake.setPowerAll(1);
-      } else {
-        robot.indexer.setPower(0);
-        robot.intake.setPowerAll(0);
 
-      }
+    // Hold position, only rotate to align
+    robot.drive(0, 0, turn);
+
+    // Spin up and feed when at speed
+    final int targetRpm = 3300;
+    robot.shooter.setRPM(targetRpm);
+    if (robot.shooter.atSpeedRPM(targetRpm)) {
+      robot.indexer.setPower(1);
+      robot.intake.setPowerAll(1);
+    } else {
+      robot.indexer.setPower(0);
+      robot.intake.setPowerAll(0);
     }
   }
 
