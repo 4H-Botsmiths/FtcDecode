@@ -131,8 +131,8 @@ public class DecodeVisual extends OpMode {
    *   term to drive z until within xTolerance. Gamepad rumbles while outside tolerance.
    */
   double xTolerance = 5;
-  double rangeTolerance = 10;
-  double targetRange = 80;
+  double rangeTolerance = 5;
+  double targetRange = 85;
 
   boolean driverAnnounced = false;
   boolean xReady = false;
