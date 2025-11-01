@@ -7,8 +7,8 @@ import com.qualcomm.robotcore.util.Range;
 import org.firstinspires.ftc.teamcode.hardware.Camera;
 import org.firstinspires.ftc.teamcode.hardware.Robot;
 
-@Autonomous(name = "Leave Wall and Shoot", group = "A", preselectTeleOp = "Decode Camera TeleOp")
-public class LeaveWallAndShoot extends OpMode {
+@Autonomous(name = "Leave Wall and Shoot RED", group = "A", preselectTeleOp = "Decode Camera TeleOp")
+public class LeaveWallAndShootRED extends OpMode {
   public Robot robot;
   public Camera camera;
 
