@@ -29,9 +29,104 @@ public class Robot {
   public Robot(HardwareMap hardwareMap) {
     // Initialize hardware here
 
+    // Shooter motors: Direct drive (no gearbox), 28 PPR encoders
+    // Operating at ~3000 RPM constant speed for ball launching
     this.leftShooter = new Motor(hardwareMap.get(DcMotorEx.class, DeviceNames.EH_MOTOR_0.getDeviceName()), 28);
     this.rightShooter = new Motor(hardwareMap.get(DcMotorEx.class, DeviceNames.EH_MOTOR_1.getDeviceName()), 28);
     this.rightShooter.setDirection(DcMotorSimple.Direction.REVERSE);
+
+    // ==================================================================================
+    // PIDF TUNING SECTION FOR SHOOTER MOTORS
+    // ==================================================================================
+    // The shooter motors run at ~3000 RPM and need to:
+    // 1. Handle resistance from balls being pushed into them
+    // 2. Get up to speed quickly without overshooting
+    // 3. Be consistent from shot to shot
+    // 4. Correct for errors sooner (more aggressive than drive motors)
+    //
+    // SHOOTER-SPECIFIC PIDF REQUIREMENTS:
+    // - Higher P: Responds faster to ball resistance (load disturbance)
+    // - Higher I: Maintains consistency despite load and voltage drop
+    // - Moderate D: Prevents overshoot during rapid spin-up
+    // - Same F concept: Provides baseline power for 3000 RPM
+    //
+    // CALCULATING PIDF VALUES FOR SHOOTER MOTORS:
+    //
+    // Step 1: Calculate velocity in ticks/second
+    //   Shooter velocity = (3000 RPM × 28 PPR) / 60 seconds = 1400 ticks/sec
+    //
+    // Step 2: Calculate F (Feedforward)
+    //   F = maximum_power / shooter_velocity
+    //   F = 1.0 / 1400 = 0.000714
+    //   Recommended: Kf = 0.0007
+    //
+    // Step 3: Calculate P (Proportional) - HIGHER for shooters!
+    //   Rule of thumb: Kp ≈ 30 to 80 times Kf (vs. 10-100 for drive)
+    //   For quick load response: Kp = 60 × 0.0007 = 0.042
+    //   Recommended starting value: Kp = 0.040
+    //   Why higher? Responds faster when ball hits, gets to speed quicker
+    //
+    // Step 4: Calculate I (Integral) - HIGHER for shooters!
+    //   Rule of thumb: Ki ≈ Kp / 20 to Kp / 50 (vs. Kp/10-100 for drive)
+    //   For consistent shots: Ki = 0.040 / 27 = 0.00148
+    //   Recommended starting value: Ki = 0.0015
+    //   Why higher? Fights ball resistance better, maintains speed under load
+    //
+    // Step 5: Calculate D (Derivative) - MODERATE for shooters
+    //   Rule of thumb: Kd ≈ Kp / 40 to Kp / 100
+    //   For minimal overshoot: Kd = 0.040 / 50 = 0.0008
+    //   Recommended starting value: Kd = 0.0008
+    //   Why moderate? Prevents overshoot on startup without slowing response
+    //
+    // RECOMMENDED STARTING VALUES (for ~3000 RPM shooter):
+    //   Kp = 0.040   // High responsiveness to ball load
+    //   Ki = 0.0015  // Strong correction for consistency
+    //   Kd = 0.0008  // Moderate overshoot prevention
+    //   Kf = 0.0007  // Feedforward for 3000 RPM baseline
+    //
+    // TO APPLY THESE VALUES, uncomment and customize the code below:
+    /*
+    // Set shooter motors to use velocity control with encoders
+    leftShooter.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+    rightShooter.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+
+    // Define PIDF coefficients optimized for shooter operation
+    // These values prioritize:
+    // - Fast response when ball creates resistance
+    // - Quick spin-up without overshoot (0.3-0.5 seconds to 3000 RPM)
+    // - Consistent velocity shot-to-shot (±30 RPM)
+    PIDFCoefficients shooterPIDF = new PIDFCoefficients(
+        0.040,  // P - High for quick load response
+        0.0015, // I - Strong for consistent performance
+        0.0008, // D - Moderate to prevent overshoot
+        0.0007  // F - Feedforward for 3000 RPM baseline
+    );
+
+    // Apply PIDF to both shooter motors
+    // Note: Requires REV Expansion Hub/Control Hub with firmware 1.8.2 or higher
+    leftShooter.asDcMotorEx().setVelocityPIDFCoefficients(
+        shooterPIDF.p, shooterPIDF.i, shooterPIDF.d, shooterPIDF.f);
+    rightShooter.asDcMotorEx().setVelocityPIDFCoefficients(
+        shooterPIDF.p, shooterPIDF.i, shooterPIDF.d, shooterPIDF.f);
+    */
+    
+    // TUNING TIPS FOR SHOOTERS:
+    // 1. Start with F only (P=I=D=0), tune until close to 3000 RPM
+    // 2. Add P=0.040 to improve load response and startup speed
+    // 3. Add I=0.0015 for shot-to-shot consistency
+    // 4. Add D=0.0008 to eliminate any overshoot
+    // 5. Test with actual ball shots under match conditions!
+    //
+    // PERFORMANCE TARGETS:
+    // - Spin-up time: 0.3-0.5 seconds (0 to 3000 RPM)
+    // - Overshoot: < 5% (< 150 RPM above 3000)
+    // - Speed drop during shot: < 100 RPM
+    // - Shot-to-shot consistency: ±30 RPM
+    // - Recovery after shot: < 0.2 seconds back to 3000 RPM
+    //
+    // For detailed shooter tuning instructions, see: TeamDocs/PIDF_Shooter_Tuning_Guide.md
+    // For quick reference, see: TeamDocs/PIDF_Shooter_Quick_Reference.md
+    // ==================================================================================
 
     this.intakeServoLeft = hardwareMap.get(CRServo.class, DeviceNames.CH_SERVO_0.getDeviceName());
     this.intakeServoRight = hardwareMap.get(CRServo.class, DeviceNames.EH_SERVO_0.getDeviceName());
