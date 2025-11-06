@@ -29,17 +29,17 @@ import org.firstinspires.ftc.teamcode.hardware.Robot;
  * - A Button: Start/Stop shooter at 3000 RPM
  * - B Button: Quick spin-up test (measures acceleration time)
  * - X Button: Continuous run test (monitors consistency)
- * - Y Button: Emergency stop
+ * - Y Button: Emergency stop (stops shooter and intake)
  * - DPad Up: Increase target RPM by 100
  * - DPad Down: Decrease target RPM by 100
- * - Left Bumper: Simulate load (brief power drop)
+ * - Left Bumper: Feed ball test (runs intake, measures real load recovery)
  * - Right Bumper: Reset statistics
  * 
  * WHAT TO LOOK FOR:
  * - "Spin-up Time": Should be 0.3-0.5 seconds to reach 3000 RPM
  * - "Overshoot": Should be < 5% (< 150 RPM above target)
  * - "Steady Speed": Should maintain ±50 RPM at 3000 RPM
- * - "Recovery Time": < 0.2 seconds after simulated load
+ * - "Recovery Time": < 0.2 seconds after ball shot (real measurement)
  * - "L/R Difference": Should be < 50 RPM
  * - No oscillation or vibration
  * 
@@ -67,10 +67,13 @@ public class ShooterPIDFTuningTest extends LinearOpMode {
     private int samplesAtSpeed = 0;
     private boolean measuringSpinUp = false;
     private boolean measuringRecovery = false;
+    private double recoveryTime = 0;
     
-    // Load simulation
-    private boolean loadApplied = false;
-    private ElapsedTime loadTimer = new ElapsedTime();
+    // Real ball feed test (intake control)
+    private boolean intakeRunning = false;
+    private boolean ballDetected = false;
+    private double preLoadRPM = 0;
+    private double minRPMDuringLoad = 99999;
     
     @Override
     public void runOpMode() {
@@ -114,8 +117,8 @@ public class ShooterPIDFTuningTest extends LinearOpMode {
                 robot.shooter.setPower(0);
             }
             
-            // Apply simulated load if requested
-            handleLoadSimulation();
+            // Handle real ball feed test
+            handleBallFeedTest();
             
             // Update statistics
             updateStatistics();
@@ -126,8 +129,9 @@ public class ShooterPIDFTuningTest extends LinearOpMode {
             sleep(20); // Update at ~50 Hz for smooth monitoring
         }
         
-        // Stop shooter when OpMode ends
+        // Stop shooter and intake when OpMode ends
         robot.shooter.setPower(0);
+        robot.intake.stopAll();
     }
     
     private void handleGamepadInput() {
@@ -137,6 +141,8 @@ public class ShooterPIDFTuningTest extends LinearOpMode {
             startSpinUpMeasurement();
         } else if (gamepad1.y) {
             shooterRunning = false;
+            intakeRunning = false;
+            robot.intake.stopAll();
             resetStatistics();
         }
         
@@ -163,9 +169,9 @@ public class ShooterPIDFTuningTest extends LinearOpMode {
             sleep(200); // Debounce
         }
         
-        // Simulate load disturbance
-        if (gamepad1.left_bumper && shooterRunning) {
-            applyLoadSimulation();
+        // Real ball feed test - runs intake to feed balls
+        if (gamepad1.left_bumper && shooterRunning && !intakeRunning) {
+            startBallFeedTest();
             sleep(200); // Debounce
         }
         
@@ -176,26 +182,49 @@ public class ShooterPIDFTuningTest extends LinearOpMode {
         }
     }
     
-    private void handleLoadSimulation() {
-        if (loadApplied) {
-            // Apply load for 0.15 seconds (simulates ball contact)
-            if (loadTimer.seconds() < 0.15) {
-                // Reduce power by 30% to simulate ball resistance
-                double currentRPM = robot.shooter.getRPM();
-                robot.shooter.setRPM(currentRPM * 0.7);
-            } else {
-                loadApplied = false;
-                // Start measuring recovery time
+    private void handleBallFeedTest() {
+        if (intakeRunning) {
+            double currentRPM = robot.shooter.getRPM();
+            
+            // Track minimum RPM during load
+            if (currentRPM < minRPMDuringLoad) {
+                minRPMDuringLoad = currentRPM;
+            }
+            
+            // Detect when ball hits shooter (velocity drop)
+            if (!ballDetected && currentRPM < preLoadRPM * 0.85) {
+                // Ball just made contact - significant velocity drop detected
+                ballDetected = true;
                 measuringRecovery = true;
                 recoveryTimer.reset();
+            }
+            
+            // Auto-stop intake after ball is shot (velocity recovers)
+            if (ballDetected && currentRPM >= targetRPM * 0.95) {
+                // Ball has been shot and shooter recovered to target speed
+                robot.intake.stopAll();
+                intakeRunning = false;
+                measuringRecovery = false;
+                recoveryTime = recoveryTimer.seconds();
+            }
+            
+            // Safety timeout - stop intake after 3 seconds
+            if (recoveryTimer.seconds() > 3.0) {
+                robot.intake.stopAll();
+                intakeRunning = false;
+                measuringRecovery = false;
             }
         }
     }
     
-    private void applyLoadSimulation() {
-        loadApplied = true;
-        loadTimer.reset();
-        minRPM = robot.shooter.getRPM(); // Track minimum during load
+    private void startBallFeedTest() {
+        // Start intake to feed a ball
+        robot.intake.setPowerAll(1.0);
+        intakeRunning = true;
+        ballDetected = false;
+        preLoadRPM = robot.shooter.getRPM();
+        minRPMDuringLoad = preLoadRPM;
+        recoveryTimer.reset();
     }
     
     private void startSpinUpMeasurement() {
@@ -220,16 +249,10 @@ public class ShooterPIDFTuningTest extends LinearOpMode {
             }
         }
         
-        // Track recovery time
-        if (measuringRecovery) {
-            if (currentRPM >= targetRPM * 0.95) {
-                // Recovered to target
-                measuringRecovery = false;
-            }
-        }
+        // Note: Recovery time is now tracked in handleBallFeedTest() when ball is actually shot
         
-        // Track steady-state statistics (only when at speed)
-        if (shooterRunning && !measuringSpinUp && !measuringRecovery && !loadApplied) {
+        // Track steady-state statistics (only when at speed and not feeding balls)
+        if (shooterRunning && !measuringSpinUp && !intakeRunning) {
             if (currentRPM >= targetRPM * 0.90 && currentRPM <= targetRPM * 1.10) {
                 samplesAtSpeed++;
                 if (currentRPM > maxRPM) maxRPM = currentRPM;
@@ -246,7 +269,11 @@ public class ShooterPIDFTuningTest extends LinearOpMode {
         samplesAtSpeed = 0;
         measuringSpinUp = false;
         measuringRecovery = false;
-        loadApplied = false;
+        recoveryTime = 0;
+        intakeRunning = false;
+        ballDetected = false;
+        minRPMDuringLoad = 99999;
+        robot.intake.stopAll();
     }
     
     private void displayTelemetry() {
@@ -274,10 +301,11 @@ public class ShooterPIDFTuningTest extends LinearOpMode {
         } else if (measuringSpinUp) {
             telemetry.addLine("Status: ⟳ SPINNING UP...");
             telemetry.addData("  Time", "%.2f sec", spinUpTimer.seconds());
-        } else if (loadApplied) {
-            telemetry.addLine("Status: 🔴 LOAD APPLIED");
-        } else if (measuringRecovery) {
-            telemetry.addLine("Status: ⟳ RECOVERING...");
+        } else if (intakeRunning && !ballDetected) {
+            telemetry.addLine("Status: 🟢 INTAKE ON - Waiting for ball...");
+            telemetry.addData("  Intake Power", "%.1f", robot.intake.getPowers()[0]);
+        } else if (intakeRunning && ballDetected) {
+            telemetry.addLine("Status: 🔴 BALL DETECTED - Shooting...");
             telemetry.addData("  Recovery Time", "%.2f sec", recoveryTimer.seconds());
         } else if (Math.abs(percentError) < 3.0) {
             telemetry.addLine("Status: ✓ AT TARGET");
@@ -322,6 +350,20 @@ public class ShooterPIDFTuningTest extends LinearOpMode {
         } else {
             telemetry.addLine("  Consistency: Need more samples");
         }
+        
+        // Display real ball feed test results
+        if (recoveryTime > 0) {
+            String recoveryStatus = recoveryTime < 0.2 ? "✓ Excellent" :
+                                   recoveryTime < 0.4 ? "⚠ Acceptable" : "✗ Too Slow";
+            telemetry.addData("  Recovery Time", "%.2f sec %s", recoveryTime, recoveryStatus);
+            double rpmDrop = preLoadRPM - minRPMDuringLoad;
+            double dropPercent = (preLoadRPM != 0) ? (rpmDrop / preLoadRPM) * 100.0 : 0;
+            telemetry.addData("  Speed Drop", "%.0f RPM (%.1f%%)", rpmDrop, dropPercent);
+        } else if (intakeRunning) {
+            telemetry.addLine("  Recovery: Measuring real ball shot...");
+        } else {
+            telemetry.addLine("  Recovery: Press Left Bumper to test");
+        }
         telemetry.addLine();
         
         // Display current PIDF values
@@ -338,15 +380,16 @@ public class ShooterPIDFTuningTest extends LinearOpMode {
         telemetry.addLine("  Spin-up: < 0.5 sec (Excellent) < 0.7 sec (OK)");
         telemetry.addLine("  Overshoot: < 5% (Excellent) < 10% (OK)");
         telemetry.addLine("  Consistency: ±30 RPM (Excellent) ±50 RPM (OK)");
+        telemetry.addLine("  Recovery: < 0.2 sec (Excellent) < 0.4 sec (OK)");
         telemetry.addLine("  L/R Sync: < 50 RPM difference");
         telemetry.addLine();
         
         // Display controls
         telemetry.addLine("Controls:");
-        telemetry.addLine("  A: Start shooter | Y: Stop");
+        telemetry.addLine("  A: Start shooter | Y: Stop all");
         telemetry.addLine("  B: Spin-up test | X: Continuous test");
         telemetry.addLine("  DPad Up/Down: Adjust target ±100");
-        telemetry.addLine("  Left Bumper: Simulate ball load");
+        telemetry.addLine("  Left Bumper: Feed ball (real test!)");
         telemetry.addLine("  Right Bumper: Reset stats");
         
         telemetry.update();
