@@ -131,8 +131,11 @@ public class PIDFTuningTest extends LinearOpMode {
             setTargetRPM(150);
         } else if (gamepad1.y) {
             setTargetRPM(200);
-        } else {
-            robot.drive(gamepad1.left_stick_x * 0.66, gamepad1.left_stick_y * 0.66, gamepad1.right_stick_x);
+        } 
+        // Joystick control (scaled to max 250 RPM)
+        double stickInput = -gamepad1.left_stick_y;
+        if (Math.abs(stickInput) > 0.1) {
+            setTargetRPM(stickInput * 250);
         }
 
         // Fine adjustment
