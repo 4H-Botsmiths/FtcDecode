@@ -174,7 +174,7 @@ public class DecodeVisual extends OpMode {
         telemetry.speak("Driver Ready");
         driverAnnounced = true;
       }
-      z += Range.clip(tagX * -0.025, -0.15, 0.15);
+      z += Range.clip(tagX * 0.025, -0.15, 0.15);
       y += Range.clip((tagRange - targetRange) * 0.025, -0.15, 0.15);
       if (Math.abs(tagX) > xTolerance || Math.abs(targetRange - tagRange) > rangeTolerance) {
         // Outside tolerance: keep rotating toward center and rumble as feedback.

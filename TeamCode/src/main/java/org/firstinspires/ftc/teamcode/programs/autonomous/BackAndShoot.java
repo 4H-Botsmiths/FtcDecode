@@ -73,7 +73,7 @@ public class BackAndShoot extends OpMode {
     if (range < 85) {
       robot.drive(0, -0.25, 0);
     } else {
-      robot.drive(0, 0, Range.clip(x * -0.025, -0.15, 0.15));
+      robot.drive(0, 0, Range.clip(x * 0.025, -0.15, 0.15));
       robot.shooter.setRPM(3000);
       if (robot.shooter.atSpeedRPM(3000)) {
         robot.indexer.setPower(1);
