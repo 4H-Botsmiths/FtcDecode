@@ -50,7 +50,7 @@ public class Camera {
 
     // Create the AprilTag processor by using a builder.
     aprilTag = new AprilTagProcessor.Builder()
-        //TODO: .setLensIntrinsics(615.0, 615.0, 320.0, 240.0) // Focal lengths fx, fy; Principal point cx, cy
+        .setLensIntrinsics(541.591, 541.591, 328.0, 235.051) // Focal lengths fx, fy; Principal point cx, cy
         .build();
     // Create the vision portal by using a builder.
     visionPortal = new VisionPortal.Builder()
