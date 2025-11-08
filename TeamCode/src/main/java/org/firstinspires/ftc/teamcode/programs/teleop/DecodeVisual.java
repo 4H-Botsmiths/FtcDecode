@@ -269,7 +269,7 @@ public class DecodeVisual extends OpMode {
     // Apply mechanism outputs
     robot.intake.setPowerAll(intakePower);
     robot.shooter.setRPM(shooterRpm);
-    robot.indexer.setPower(gamepad2.left_stick_x);
+    robot.indexer.setPower(gamepad2.left_stick_x * (gamepad2.left_stick_button ? 1 : 0.25));
   }
 
   public void telemetries() {
