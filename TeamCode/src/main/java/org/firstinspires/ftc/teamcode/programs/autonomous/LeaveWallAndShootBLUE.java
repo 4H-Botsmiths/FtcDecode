@@ -85,7 +85,7 @@ public class LeaveWallAndShootBLUE extends OpMode {
       Camera.AprilTag tag = camera.getAprilTag(Camera.AprilTagPosition.GOAL);
       double x = tag.ftcPose.x;
       telemetry.addData("X", x);
-      turn = Range.clip(x * -0.025, -0.15, 0.15);
+      turn = Range.clip(x * 0.025, -0.15, 0.15);
     } catch (Camera.CameraNotAttachedException e) {
       telemetry.addData("Camera", "Not attached");
     } catch (Camera.CameraNotStreamingException e) {
