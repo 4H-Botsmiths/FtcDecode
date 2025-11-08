@@ -50,15 +50,13 @@ import org.firstinspires.ftc.teamcode.hardware.Robot;
 @TeleOp(name = "PIDF Tuning Test", group = "Diagnostics")
 public class PIDFTuningTest extends LinearOpMode {
 
-  private Robot robopriva
-  e double targetRPM = priva
-  e long lastSpeedChangeTime = priva
-  e double lastTargetRPM = 0;
+  private Robot robot;
+  private double targetRPM = 0;
+  private long lastSpeedChangeTime = 0;
+  private double lastTargetRPM = 0;
 
   @Override
-  publ
-
-  c void runOpMode() {
+  public void runOpMode() {
     // Initialize robot hardware
     robot = new Robot(hardwareMap);
 
@@ -123,9 +121,7 @@ public class PIDFTuningTest extends LinearOpMode {
     robot.rearRight.setPower(0);
   }
 
-  priva
-
-  e void handleGamepadInput() {
+  private void handleGamepadInput() {
     // Preset speed buttons
     if (gamepad1.a) {
       setTargetRPM(50);
@@ -134,9 +130,9 @@ public class PIDFTuningTest extends LinearOpMode {
     } else if (gamepad1.x) {
       setTargetRPM(150);
     } else if (gamepad1.y) {
-      setTargetRPM
-
-  // Joystick control (scaled to max 250 RPM)
+      setTargetRPM(200);
+    }
+    // Joystick control (scaled to max 250 RPM)
     double stickInput = -gamepad1.left_stick_y;
     if (Math.abs(stickInput) > 0.1) {
       setTargetRPM(stickInput * 250);
@@ -174,9 +170,7 @@ public class PIDFTuningTest extends LinearOpMode {
     }
   }
 
-  priva
-
-  e void setTargetRPM(double rpm) {
+  private void setTargetRPM(double rpm) {
     rpm = Math.max(-Robot.DRIVE_MAX_RPM, Math.min(Robot.DRIVE_MAX_RPM, rpm));
     if (Math.abs(rpm - targetRPM) > 5) { // Only update if significant change
       lastSpeedChangeTime = System.currentTimeMillis();
@@ -185,9 +179,7 @@ public class PIDFTuningTest extends LinearOpMode {
     targetRPM = rpm;
   }
 
-  priva
-
-  e void displayTelemetry() {
+  private void displayTelemetry() {
     // Get current velocities
     double flRPM = robot.frontLeft.getRPM();
     double frRPM = robot.frontRight.getRPM();
@@ -203,9 +195,7 @@ public class PIDFTuningTest extends LinearOpMode {
     long timeSinceChange = System.currentTimeMillis() - lastSpeedChangeTime;
     double timeInSeconds = timeSinceChange / 1000.0;
 
-    // Chec
-
-   if at target (within 5%)
+    // Check if at target (within 5%)
     boolean atTarget = Math.abs(percentError) < 5.0 && targetRPM != 0;
 
     // Display header
