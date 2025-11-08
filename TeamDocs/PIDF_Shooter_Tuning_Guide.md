@@ -24,11 +24,13 @@ This guide explains how to tune PIDF values specifically for your shooter motors
 | Aspect | Drive Motors (200 RPM) | Shooter Motors (3000 RPM) |
 |--------|----------------------|---------------------------|
 | **Speed** | Variable (0-300 RPM) | Constant (~3000 RPM) |
-| **P Gain** | Moderate (0.015) | Higher (more responsive) |
-| **I Gain** | Small (0.0003) | Larger (fight load better) |
-| **D Gain** | Small (0.0002) | Moderate (prevent overshoot) |
-| **F Gain** | 0.0008 | Lower (higher velocity) |
+| **P Gain** | 12.0 | Higher (~35.0, more responsive) |
+| **I Gain** | 3.0 | Larger (~6.0, fight load better) |
+| **D Gain** | 0.0 | Moderate (~2.0, prevent overshoot) |
+| **F Gain** | 17.0 | 23.0 (higher velocity: 1400 vs 1279 ticks/sec) |
 | **Priority** | Smooth changes | Fast response + consistency |
+
+Note: All values use FTC's scale where 32767 = max motor power.
 
 ## Calculating PIDF Values for Shooter Motors
 
@@ -42,34 +44,38 @@ Shooter velocity = (3000 RPM × 28 PPR) / 60 seconds
 ### Step 2: Calculate F (Feedforward)
 F is the foundation for velocity control.
 
-**Formula**: `Kf = (Max motor power) / (Target velocity)`
+**IMPORTANT**: FTC velocity PIDF uses scale where 32767 = max motor power (not 1.0).
+
+**Correct Formula for FTC**: `Kf = 32767 / velocity_ticks_per_sec`
 
 ```
-Kf = 1.0 / 1400
-Kf = 0.000714
+Kf = 32767 / 1400
+Kf ≈ 23.4
 
-Rounded for tuning: Kf ≈ 0.0007
+Rounded for tuning: Kf ≈ 23.0
 ```
 
 **Why this matters**: F provides the baseline power to maintain 3000 RPM. Without F, the motor would rely entirely on error correction, which is slower.
 
+**Why previous formula was wrong**: Using `F = 1.0 / 1400 ≈ 0.0007` assumed normalized (0-1) scale, but FTC uses 32767 scale internally, making that value ~1000x too small!
+
 ### Step 3: Calculate P (Proportional) - MORE AGGRESSIVE
 For shooters that need to resist load and correct quickly:
 
-**Formula**: `Kp = 30 × Kf` to `Kp = 80 × Kf` (higher than drive motors!)
+**Rule of thumb for FTC**: Start with P in range of 28-45 for shooters
 
 ```
-Conservative: Kp = 30 × 0.0007 = 0.021
-Moderate: Kp = 50 × 0.0007 = 0.035
-Aggressive: Kp = 80 × 0.0007 = 0.056
+Conservative: Kp = 28.0
+Moderate: Kp = 35.0
+Aggressive: Kp = 45.0
 ```
 
 **Recommendation for shooters**:
 ```
-Kp = 0.040  (60× F - good balance for load resistance)
+Kp = 35.0  (good balance for load resistance)
 ```
 
-**Why higher P?**
+**Why higher P than drive motors?**
 - Responds faster when a ball creates resistance
 - Corrects speed drops more aggressively
 - Gets up to speed faster on startup
@@ -77,18 +83,18 @@ Kp = 0.040  (60× F - good balance for load resistance)
 ### Step 4: Calculate I (Integral) - HIGHER FOR LOAD
 I eliminates steady-state error and fights continuous load.
 
-**Formula**: `Ki = Kp / 20` to `Kp / 50` (higher than drive motors!)
+**Rule of thumb for FTC**: Start with I in range of 4-8 for shooters
 
 ```
-For Kp = 0.040:
-Aggressive: Ki = 0.040 / 20 = 0.002
-Moderate: Ki = 0.040 / 30 = 0.00133
-Conservative: Ki = 0.040 / 50 = 0.0008
+For Kp = 35.0:
+Aggressive: Ki = 8.0
+Moderate: Ki = 6.0
+Conservative: Ki = 4.0
 ```
 
 **Recommendation for shooters**:
 ```
-Ki = 0.0015  (moderate - fights ball resistance)
+Ki = 6.0  (moderate - fights ball resistance)
 ```
 
 **Why higher I?**
@@ -99,18 +105,18 @@ Ki = 0.0015  (moderate - fights ball resistance)
 ### Step 5: Calculate D (Derivative) - MODERATE TO PREVENT OVERSHOOT
 D prevents overshoot during rapid acceleration.
 
-**Formula**: `Kd = Kp / 30` to `Kp / 100`
+**Rule of thumb for FTC**: Start with D in range of 1-3 for shooters
 
 ```
-For Kp = 0.040:
-Aggressive: Kd = 0.040 / 30 = 0.00133
-Moderate: Kd = 0.040 / 50 = 0.0008
-Conservative: Kd = 0.040 / 100 = 0.0004
+For Kp = 35.0:
+Aggressive: Kd = 3.0
+Moderate: Kd = 2.0
+Conservative: Kd = 1.0
 ```
 
 **Recommendation for shooters**:
 ```
-Kd = 0.0008  (moderate - prevents overshoot on startup)
+Kd = 2.0  (moderate - prevents overshoot on startup)
 ```
 
 **Why moderate D?**
@@ -123,28 +129,29 @@ Kd = 0.0008  (moderate - prevents overshoot on startup)
 ### Primary Recommendation (Balanced Performance)
 ```java
 // For ~3000 RPM shooter with frequent on/off cycles
-Kp = 0.040   // High responsiveness to load
-Ki = 0.0015  // Strong steady-state correction
-Kd = 0.0008  // Moderate overshoot prevention
-Kf = 0.0007  // Feedforward for 3000 RPM
+// Note: FTC velocity PIDF uses larger scale (P=35, not 0.04)
+Kp = 35.0   // High responsiveness to load
+Ki = 6.0    // Strong steady-state correction
+Kd = 2.0    // Moderate overshoot prevention
+Kf = 23.0   // Feedforward for 3000 RPM (32767/1400)
 ```
 
 ### Alternative: Maximum Responsiveness (If consistency suffers)
 ```java
 // More aggressive - better load handling, risk of slight oscillation
-Kp = 0.050
-Ki = 0.0020
-Kd = 0.0010
-Kf = 0.0007
+Kp = 45.0
+Ki = 8.0
+Kd = 3.0
+Kf = 23.0
 ```
 
 ### Alternative: Smoother Response (If overshooting)
 ```java
 // Less aggressive - smoother but slower load response
-Kp = 0.030
-Ki = 0.0010
-Kd = 0.0006
-Kf = 0.0007
+Kp = 28.0
+Ki = 4.0
+Kd = 1.5
+Kf = 23.0
 ```
 
 ## How PIDF Works Together for Shooters
@@ -155,20 +162,22 @@ motor_power = (P × error) + (I × Σerror) + (D × Δerror) + (F × target)
 ```
 
 ### During Normal Operation (at 3000 RPM, no load):
-- **F provides ~71% of power** needed to maintain 3000 RPM
+- **F provides ~71% of power** needed to maintain 3000 RPM (23 × 1400 ≈ 32200 of 32767 max)
 - **P contributes ~0%** (no error)
 - **I contributes ~0%** (accumulated error is zero)
 - **D contributes ~0%** (error rate is zero)
 
 ### When Ball Creates Resistance:
-1. **Velocity drops** (e.g., from 3000 to 2900 RPM)
-2. **P responds immediately**: `0.040 × 100 = 4` units of extra power
+1. **Velocity drops** (e.g., from 3000 to 2900 RPM, ~140 ticks/sec error)
+2. **P responds immediately**: `35 × 140 = 4900` units of extra power (strong correction)
 3. **I starts accumulating**: Every cycle adds to Σerror, providing sustained correction
 4. **D dampens any oscillation**: Prevents overshooting when returning to 3000 RPM
-5. **F continues baseline**: Still providing the 71% baseline power
+5. **F continues baseline**: Still providing the ~71% baseline power
 
 ### Result: 
 Motor quickly returns to 3000 RPM and maintains it despite the ball resistance, ensuring consistent shot velocity.
+
+Note: Previous docs used values ~1000x too small (P=0.04 vs 35) due to using wrong formula.
 
 ## Implementation in Code
 
@@ -186,11 +195,12 @@ rightShooter.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
 // - Fast response to load (ball resistance)
 // - Quick acceleration without overshoot
 // - Consistent shot-to-shot performance
+// Note: FTC velocity PIDF uses larger scale (P=35, not 0.04)
 PIDFCoefficients shooterPIDF = new PIDFCoefficients(
-    0.040,  // P - High for quick load response
-    0.0015, // I - Strong for sustained error correction
-    0.0008, // D - Moderate to prevent overshoot
-    0.0007  // F - Feedforward for 3000 RPM baseline
+    35.0,  // P - High for quick load response
+    6.0,   // I - Strong for sustained error correction
+    2.0,   // D - Moderate to prevent overshoot
+    23.0   // F - Feedforward for 3000 RPM baseline (32767/1400)
 );
 
 // Apply PIDF to both shooter motors
@@ -212,19 +222,22 @@ rightShooter.asDcMotorEx().setVelocityPIDFCoefficients(
 5. Target: Within 100 RPM of 3000 RPM using F alone
 
 ### Phase 2: Add P for Quick Response
-1. Start with P = 0.040
+1. Start with P = 35.0
 2. Test startup acceleration:
    - Should reach 3000 RPM within 0.3-0.5 seconds
    - Should not overshoot significantly (< 5%)
 3. Test with ball resistance:
    - Speed should recover quickly when ball hits
    - Should maintain steady speed during shot
+4. Adjust P if needed:
+   - Too slow or weak: increase P by 5-10 (e.g., 35→40)
+   - Oscillates: decrease P by 5 (e.g., 35→30)
 4. Adjust P:
    - **Too slow recovery from load**: Increase P by 20%
    - **Oscillates or overshoots on startup**: Decrease P by 20%
 
 ### Phase 3: Add I for Load Consistency
-1. Start with I = 0.0015
+1. Start with I = 6.0
 2. Run continuous shooting test (10+ shots)
 3. Monitor RPM during each shot
 4. Check for:
@@ -232,16 +245,16 @@ rightShooter.asDcMotorEx().setVelocityPIDFCoefficients(
    - No gradual drift in speed
    - Speed maintained during ball contact
 5. Adjust I:
-   - **Speed drops during shots**: Increase I by 30%
-   - **Oscillates after disturbance**: Decrease I by 30%
+   - **Speed drops during shots**: Increase I by 1-2 (e.g., 6→7)
+   - **Oscillates after disturbance**: Decrease I by 1-2 (e.g., 6→4)
 
 ### Phase 4: Add D to Eliminate Overshoot
-1. Start with D = 0.0008
+1. Start with D = 2.0
 2. Test rapid startup (0 to 3000 RPM)
 3. Check overshoot amount and settling time
 4. Adjust D:
-   - **Overshoots > 5%**: Increase D by 20%
-   - **Takes too long to reach speed**: Decrease D by 20%
+   - **Overshoots > 5%**: Increase D by 0.5-1 (e.g., 2→2.5 or 3)
+   - **Takes too long to reach speed**: Decrease D by 0.5-1 (e.g., 2→1.5 or 1)
 
 ## Testing Checklist for Shooters
 

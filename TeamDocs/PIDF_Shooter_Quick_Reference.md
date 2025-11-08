@@ -10,80 +10,99 @@
 
 ### Primary (Balanced - Start Here!)
 ```java
-Kp = 0.040   // High responsiveness
-Ki = 0.0015  // Strong load correction
-Kd = 0.0008  // Moderate damping
-Kf = 0.0007  // Feedforward for 3000 RPM
+Kp = 35.0   // High responsiveness (corrected scale)
+Ki = 6.0    // Strong load correction (corrected scale)
+Kd = 2.0    // Moderate damping (corrected scale)
+Kf = 23.0   // Feedforward for 3000 RPM (32767/1400)
 ```
 
 ### High Performance (Better Load Handling)
 ```java
-Kp = 0.050   // More aggressive
-Ki = 0.0020  // Stronger correction
-Kd = 0.0010  // More damping
-Kf = 0.0007  // Same baseline
+Kp = 45.0   // More aggressive
+Ki = 8.0    // Stronger correction
+Kd = 3.0    // More damping
+Kf = 23.0   // Same baseline
 ```
 
 ### Smooth (Less Overshoot Risk)
 ```java
-Kp = 0.030   // Gentler response
-Ki = 0.0010  // Lighter correction
-Kd = 0.0006  // Less damping
-Kf = 0.0007  // Same baseline
+Kp = 28.0   // Gentler response
+Ki = 4.0    // Lighter correction
+Kd = 1.5    // Less damping
+Kf = 23.0   // Same baseline
 ```
 
 ## Quick Formulas
 
+### IMPORTANT: FTC Velocity PIDF Scale
+FTC's velocity PIDF system uses a different scale than normalized (0-1) control systems.
+The scale is 32767 = max motor power (not 1.0). This applies to shooters just like drive motors!
+
 ### Calculate F (Feedforward)
 ```
-F = 1.0 / (RPM × PPR / 60)
-F = 1.0 / (3000 × 28 / 60)
-F = 1.0 / 1400 = 0.000714 ≈ 0.0007
+F = 32767 / velocity_ticks_per_sec
+
+F = 32767 / (3000 × 28 / 60)
+F = 32767 / 1400 = 23.4 ≈ 23.0
 ```
 
 ### Calculate P (Proportional)
 ```
-P = (30 to 80) × F
-Shooter typical: P = 60 × F ≈ 0.040
+Start with moderate value for shooters: P = 30-40
+Recommended: P = 35.0
+
+Adjust based on response:
+  - Too slow or weak load response: increase to 40-45
+  - Oscillates: decrease to 28-32
 ```
 
 ### Calculate I (Integral)
 ```
-I = P / (20 to 50)
-Shooter typical: I = P / 27 ≈ 0.0015
+Start with moderate value for shooters: I = 5-8
+Recommended: I = 6.0
+
+Adjust based on consistency:
+  - Doesn't maintain speed under load: increase to 7-9
+  - Overshoots: decrease to 4-5
 ```
 
 ### Calculate D (Derivative)
 ```
-D = P / (40 to 100)
-Shooter typical: D = P / 50 ≈ 0.0008
+Start with moderate value for shooters: D = 1-3
+Recommended: D = 2.0
+
+Adjust based on overshoot:
+  - Too much overshoot: increase to 3-4
+  - Response too sluggish: decrease to 1.0 or 0
 ```
 
 ## Shooter vs Drive Motor PIDF
 
 | Parameter | Drive Motors | Shooter Motors | Why Different |
 |-----------|-------------|----------------|---------------|
-| **P** | 0.015 | 0.040 | Shooter needs faster load response |
-| **I** | 0.0003 | 0.0015 | Shooter fights continuous ball resistance |
-| **D** | 0.0002 | 0.0008 | Shooter prevents startup overshoot |
-| **F** | 0.0008 | 0.0007 | Different velocity (200 vs 3000 RPM) |
+| **P** | 12.0 | 35.0 | Shooter needs faster load response |
+| **I** | 3.0 | 6.0 | Shooter fights continuous ball resistance |
+| **D** | 0.0 | 2.0 | Shooter prevents startup overshoot |
+| **F** | 17.0 | 23.0 | Different velocity (1279 vs 1400 ticks/sec) |
+
+Note: Previous docs had values ~1000x too small due to wrong formula (used normalized scale instead of FTC's 32767 scale).
 
 ## Troubleshooting Table
 
 | Problem | Cause | Solution |
 |---------|-------|----------|
-| Speed drops during shot | P or I too low | Increase P by 25% |
-| Inconsistent shots | I too low | Increase I by 30% |
-| Takes > 0.7s to spin up | P too low | Increase P by 30% |
-| Overshoots and oscillates | P too high, D too low | Increase D by 50% |
+| Speed drops during shot | P or I too low | Increase P by 5-10 (e.g., 35→40) |
+| Inconsistent shots | I too low | Increase I by 1-2 (e.g., 6→7) |
+| Takes > 0.7s to spin up | P too low | Increase P by 5-10 (e.g., 35→40) |
+| Overshoots and oscillates | P too high, D too low | Increase D by 1 or decrease P by 5 |
 | Different L/R speeds | Motor variance | Individual tuning per motor |
-| Weaker shots late in match | I insufficient for voltage drop | Increase I by 40% |
+| Weaker shots late in match | I insufficient for voltage drop | Increase I by 2 (e.g., 6→8) |
 
 ## Tuning Order (Fast Track)
-1. **F only** → Get close to 3000 RPM naturally
-2. **Add P (0.040)** → Fast startup + load response
-3. **Add I (0.0015)** → Consistent shot-to-shot
-4. **Add D (0.0008)** → Eliminate overshoot
+1. **F only** → Get close to 3000 RPM naturally (F=23)
+2. **Add P (35)** → Fast startup + load response
+3. **Add I (6)** → Consistent shot-to-shot
+4. **Add D (2)** → Eliminate overshoot
 
 ## Code Template
 ```java
@@ -92,11 +111,12 @@ Shooter typical: D = P / 50 ≈ 0.0008
 leftShooter.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
 rightShooter.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
 
+// Note: FTC velocity PIDF uses larger scale (P=35, not 0.04)
 PIDFCoefficients shooterPIDF = new PIDFCoefficients(
-    0.040,  // P - Quick load response
-    0.0015, // I - Fight ball resistance
-    0.0008, // D - Prevent overshoot
-    0.0007  // F - 3000 RPM baseline
+    35.0,  // P - Quick load response
+    6.0,   // I - Fight ball resistance
+    2.0,   // D - Prevent overshoot
+    23.0   // F - 3000 RPM baseline (32767/1400)
 );
 
 leftShooter.asDcMotorEx().setVelocityPIDFCoefficients(
@@ -149,13 +169,15 @@ rightShooter.asDcMotorEx().setVelocityPIDFCoefficients(
 ## Why These Values Work
 
 At 3000 RPM with a ball hitting:
-1. **Speed drops** 2900 RPM (100 RPM error)
-2. **P responds**: 0.040 × 100 = 4 units boost
-3. **I accumulates**: Adds sustained correction
-4. **F maintains**: 70% baseline power continues
-5. **D prevents**: Overshoot when recovering
+1. **Speed drops** to 2900 RPM (100 RPM error, ~140 ticks/sec)
+2. **P responds**: 35 × 140 = 4900 units boost (strong immediate correction)
+3. **I accumulates**: Adds sustained correction for persistent load
+4. **F maintains**: ~70% baseline power continues (23 × 1400 ≈ 32200)
+5. **D prevents**: Overshoot when recovering (damps the response)
 
 **Result**: Fast recovery, consistent velocity shot after shot!
+
+Note: Previous values (P=0.04, I=0.0015, D=0.0008, F=0.0007) were ~1000x too small due to using wrong formula (normalized scale vs FTC's 32767 scale).
 
 ## When to Retune
 - Shot inconsistency increases
