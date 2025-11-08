@@ -56,7 +56,7 @@ public class ShooterPIDFTuningTest extends LinearOpMode {
     private Robot robot;
     private double targetRPM = 3000;
     private boolean shooterRunning = false;
-    
+
     // Timing and statistics
     private ElapsedTime spinUpTimer = new ElapsedTime();
     private ElapsedTime recoveryTimer = new ElapsedTime();
@@ -68,31 +68,31 @@ public class ShooterPIDFTuningTest extends LinearOpMode {
     private boolean measuringSpinUp = false;
     private boolean measuringRecovery = false;
     private double recoveryTime = 0;
-    
+
     // Real ball feed test (intake control)
     private boolean intakeRunning = false;
     private boolean ballDetected = false;
     private double preLoadRPM = 0;
     private double minRPMDuringLoad = 99999;
-    
+
     @Override
     public void runOpMode() {
         // Initialize robot hardware
         robot = new Robot(hardwareMap);
-        
+
         // Set shooter motors to run using encoders
         robot.leftShooter.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
         robot.rightShooter.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
-        
+
         robot.leftShooter.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
         robot.rightShooter.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
-        
+
         // Display current PIDF coefficients
         telemetry.addLine("=== Shooter PIDF Tuning Test ===");
         telemetry.addLine();
         telemetry.addLine("Current Shooter PIDF Coefficients:");
-        
-        PIDFCoefficients leftPIDF = robot.leftShooter.asDcMotorEx().getVelocityPIDFCoefficients();
+
+        PIDFCoefficients leftPIDF = robot.leftShooter.getPIDFCoefficients();
         telemetry.addData("P", "%.6f", leftPIDF.p);
         telemetry.addData("I", "%.6f", leftPIDF.i);
         telemetry.addData("D", "%.6f", leftPIDF.d);
@@ -103,37 +103,37 @@ public class ShooterPIDFTuningTest extends LinearOpMode {
         telemetry.addLine("Target: 3000 RPM for consistency");
         telemetry.addLine("See OpMode comments for controls");
         telemetry.update();
-        
+
         waitForStart();
-        
+
         while (opModeIsActive()) {
             // Handle gamepad input
             handleGamepadInput();
-            
+
             // Control shooter motors
             if (shooterRunning) {
                 robot.shooter.setRPM(targetRPM);
             } else {
                 robot.shooter.setPower(0);
             }
-            
+
             // Handle real ball feed test
             handleBallFeedTest();
-            
+
             // Update statistics
             updateStatistics();
-            
+
             // Display telemetry
             displayTelemetry();
-            
+
             sleep(20); // Update at ~50 Hz for smooth monitoring
         }
-        
+
         // Stop shooter and intake when OpMode ends
         robot.shooter.setPower(0);
         robot.intake.stopAll();
     }
-    
+
     private void handleGamepadInput() {
         // Toggle shooter on/off
         if (gamepad1.a && !shooterRunning) {
@@ -145,21 +145,21 @@ public class ShooterPIDFTuningTest extends LinearOpMode {
             robot.intake.stopAll();
             resetStatistics();
         }
-        
+
         // Quick spin-up test
         if (gamepad1.b) {
             shooterRunning = true;
             startSpinUpMeasurement();
             sleep(200); // Debounce
         }
-        
+
         // Continuous run test
         if (gamepad1.x) {
             shooterRunning = true;
             resetStatistics();
             sleep(200); // Debounce
         }
-        
+
         // Adjust target RPM
         if (gamepad1.dpad_up) {
             targetRPM = Math.min(4000, targetRPM + 100);
@@ -168,29 +168,40 @@ public class ShooterPIDFTuningTest extends LinearOpMode {
             targetRPM = Math.max(1000, targetRPM - 100);
             sleep(200); // Debounce
         }
-        
+
         // Real ball feed test - runs intake to feed balls
         if (gamepad1.left_bumper && shooterRunning && !intakeRunning) {
             startBallFeedTest();
             sleep(200); // Debounce
         }
-        
+
         // Reset statistics
         if (gamepad1.right_bumper) {
             resetStatistics();
             sleep(200); // Debounce
         }
+
+        if (gamepad1.start) {
+            PIDFCoefficients shooterPIDF = new PIDFCoefficients(
+                    0.040, // P - High for quick load response
+                    0.0015, // I - Strong for consistent performance
+                    0.0008, // D - Moderate to prevent overshoot
+                    0.0007 // F - Feedforward for 3000 RPM baseline
+            );
+            robot.leftShooter.setPIDFCoefficients(shooterPIDF);
+            robot.rightShooter.setPIDFCoefficients(shooterPIDF);
+        }
     }
-    
+
     private void handleBallFeedTest() {
         if (intakeRunning) {
             double currentRPM = robot.shooter.getRPM();
-            
+
             // Track minimum RPM during load
             if (currentRPM < minRPMDuringLoad) {
                 minRPMDuringLoad = currentRPM;
             }
-            
+
             // Detect when ball hits shooter (velocity drop)
             if (!ballDetected && currentRPM < preLoadRPM * 0.85) {
                 // Ball just made contact - significant velocity drop detected
@@ -198,7 +209,7 @@ public class ShooterPIDFTuningTest extends LinearOpMode {
                 measuringRecovery = true;
                 recoveryTimer.reset();
             }
-            
+
             // Auto-stop intake after ball is shot (velocity recovers)
             if (ballDetected && currentRPM >= targetRPM * 0.95) {
                 // Ball has been shot and shooter recovered to target speed
@@ -207,7 +218,7 @@ public class ShooterPIDFTuningTest extends LinearOpMode {
                 measuringRecovery = false;
                 recoveryTime = recoveryTimer.seconds();
             }
-            
+
             // Safety timeout - stop intake after 3 seconds
             if (recoveryTimer.seconds() > 3.0) {
                 robot.intake.stopAll();
@@ -216,7 +227,7 @@ public class ShooterPIDFTuningTest extends LinearOpMode {
             }
         }
     }
-    
+
     private void startBallFeedTest() {
         // Start intake to feed a ball
         robot.intake.setPowerAll(1.0);
@@ -226,17 +237,17 @@ public class ShooterPIDFTuningTest extends LinearOpMode {
         minRPMDuringLoad = preLoadRPM;
         recoveryTimer.reset();
     }
-    
+
     private void startSpinUpMeasurement() {
         measuringSpinUp = true;
         spinUpTimer.reset();
         peakRPM = 0;
         resetStatistics();
     }
-    
+
     private void updateStatistics() {
         double currentRPM = robot.shooter.getRPM();
-        
+
         // Track spin-up time
         if (measuringSpinUp && shooterRunning) {
             if (currentRPM >= targetRPM * 0.95) {
@@ -248,19 +259,21 @@ public class ShooterPIDFTuningTest extends LinearOpMode {
                 peakRPM = currentRPM;
             }
         }
-        
+
         // Note: Recovery time is now tracked in handleBallFeedTest() when ball is actually shot
-        
+
         // Track steady-state statistics (only when at speed and not feeding balls)
         if (shooterRunning && !measuringSpinUp && !intakeRunning) {
             if (currentRPM >= targetRPM * 0.90 && currentRPM <= targetRPM * 1.10) {
                 samplesAtSpeed++;
-                if (currentRPM > maxRPM) maxRPM = currentRPM;
-                if (currentRPM < minRPM) minRPM = currentRPM;
+                if (currentRPM > maxRPM)
+                    maxRPM = currentRPM;
+                if (currentRPM < minRPM)
+                    minRPM = currentRPM;
             }
         }
     }
-    
+
     private void resetStatistics() {
         spinUpTime = 0;
         peakRPM = 0;
@@ -275,7 +288,7 @@ public class ShooterPIDFTuningTest extends LinearOpMode {
         minRPMDuringLoad = 99999;
         robot.intake.stopAll();
     }
-    
+
     private void displayTelemetry() {
         double leftRPM = robot.leftShooter.getRPM();
         double rightRPM = robot.rightShooter.getRPM();
@@ -283,18 +296,18 @@ public class ShooterPIDFTuningTest extends LinearOpMode {
         double rpmDifference = Math.abs(leftRPM - rightRPM);
         double error = targetRPM - avgRPM;
         double percentError = (targetRPM != 0) ? (error / targetRPM) * 100.0 : 0;
-        
+
         // Calculate overshoot
         double overshoot = peakRPM - targetRPM;
         double overshootPercent = (targetRPM != 0) ? (overshoot / targetRPM) * 100.0 : 0;
-        
+
         // Calculate consistency (range at steady state)
         double rpmRange = (samplesAtSpeed > 10) ? (maxRPM - minRPM) : 0;
-        
+
         // Display header
         telemetry.addLine("=== Shooter PIDF Tuning Test ===");
         telemetry.addLine();
-        
+
         // Display status
         if (!shooterRunning) {
             telemetry.addLine("Status: ⏸ STOPPED");
@@ -313,48 +326,47 @@ public class ShooterPIDFTuningTest extends LinearOpMode {
             telemetry.addLine("Status: ⚠ NOT AT TARGET");
         }
         telemetry.addLine();
-        
+
         // Display current speed
         telemetry.addData("Target RPM", "%.0f", targetRPM);
         telemetry.addData("Current RPM", "%.0f (%.1f%% error)", avgRPM, percentError);
         telemetry.addData("Left Motor", "%.0f RPM", leftRPM);
         telemetry.addData("Right Motor", "%.0f RPM", rightRPM);
-        telemetry.addData("L/R Difference", "%.0f RPM %s", rpmDifference, 
-            rpmDifference > 50 ? "⚠ HIGH" : "✓");
+        telemetry.addData("L/R Difference", "%.0f RPM %s", rpmDifference,
+                rpmDifference > 50 ? "⚠ HIGH" : "✓");
         telemetry.addLine();
-        
+
         // Display performance metrics
         telemetry.addLine("Performance Metrics:");
         if (spinUpTime > 0) {
-            String spinUpStatus = spinUpTime < 0.5 ? "✓ Excellent" : 
-                                 spinUpTime < 0.7 ? "⚠ Acceptable" : "✗ Too Slow";
+            String spinUpStatus = spinUpTime < 0.5 ? "✓ Excellent" : spinUpTime < 0.7 ? "⚠ Acceptable" : "✗ Too Slow";
             telemetry.addData("  Spin-up Time", "%.2f sec %s", spinUpTime, spinUpStatus);
         } else {
             telemetry.addLine("  Spin-up Time: Not measured");
         }
-        
+
         if (peakRPM > targetRPM) {
-            String overshootStatus = overshootPercent < 5 ? "✓ Excellent" :
-                                    overshootPercent < 10 ? "⚠ Acceptable" : "✗ Too High";
-            telemetry.addData("  Overshoot", "%.0f RPM (%.1f%%) %s", 
-                overshoot, overshootPercent, overshootStatus);
+            String overshootStatus = overshootPercent < 5 ? "✓ Excellent"
+                    : overshootPercent < 10 ? "⚠ Acceptable" : "✗ Too High";
+            telemetry.addData("  Overshoot", "%.0f RPM (%.1f%%) %s",
+                    overshoot, overshootPercent, overshootStatus);
         } else {
             telemetry.addLine("  Overshoot: None detected");
         }
-        
+
         if (samplesAtSpeed > 10) {
-            String consistencyStatus = rpmRange < 60 ? "✓ Excellent" :
-                                      rpmRange < 100 ? "⚠ Acceptable" : "✗ Inconsistent";
+            String consistencyStatus = rpmRange < 60 ? "✓ Excellent"
+                    : rpmRange < 100 ? "⚠ Acceptable" : "✗ Inconsistent";
             telemetry.addData("  Consistency", "±%.0f RPM range %s", rpmRange / 2, consistencyStatus);
             telemetry.addData("  Range", "%.0f - %.0f RPM", minRPM, maxRPM);
         } else {
             telemetry.addLine("  Consistency: Need more samples");
         }
-        
+
         // Display real ball feed test results
         if (recoveryTime > 0) {
-            String recoveryStatus = recoveryTime < 0.2 ? "✓ Excellent" :
-                                   recoveryTime < 0.4 ? "⚠ Acceptable" : "✗ Too Slow";
+            String recoveryStatus = recoveryTime < 0.2 ? "✓ Excellent"
+                    : recoveryTime < 0.4 ? "⚠ Acceptable" : "✗ Too Slow";
             telemetry.addData("  Recovery Time", "%.2f sec %s", recoveryTime, recoveryStatus);
             double rpmDrop = preLoadRPM - minRPMDuringLoad;
             double dropPercent = (preLoadRPM != 0) ? (rpmDrop / preLoadRPM) * 100.0 : 0;
@@ -365,16 +377,16 @@ public class ShooterPIDFTuningTest extends LinearOpMode {
             telemetry.addLine("  Recovery: Press Left Bumper to test");
         }
         telemetry.addLine();
-        
+
         // Display current PIDF values
-        PIDFCoefficients pidf = robot.leftShooter.asDcMotorEx().getVelocityPIDFCoefficients();
+        PIDFCoefficients pidf = robot.leftShooter.getPIDFCoefficients();
         telemetry.addLine("Current PIDF:");
         telemetry.addData("  P", "%.6f", pidf.p);
         telemetry.addData("  I", "%.6f", pidf.i);
         telemetry.addData("  D", "%.6f", pidf.d);
         telemetry.addData("  F", "%.6f", pidf.f);
         telemetry.addLine();
-        
+
         // Display targets
         telemetry.addLine("Performance Targets:");
         telemetry.addLine("  Spin-up: < 0.5 sec (Excellent) < 0.7 sec (OK)");
@@ -383,7 +395,7 @@ public class ShooterPIDFTuningTest extends LinearOpMode {
         telemetry.addLine("  Recovery: < 0.2 sec (Excellent) < 0.4 sec (OK)");
         telemetry.addLine("  L/R Sync: < 50 RPM difference");
         telemetry.addLine();
-        
+
         // Display controls
         telemetry.addLine("Controls:");
         telemetry.addLine("  A: Start shooter | Y: Stop all");
@@ -391,7 +403,7 @@ public class ShooterPIDFTuningTest extends LinearOpMode {
         telemetry.addLine("  DPad Up/Down: Adjust target ±100");
         telemetry.addLine("  Left Bumper: Feed ball (real test!)");
         telemetry.addLine("  Right Bumper: Reset stats");
-        
+
         telemetry.update();
     }
 }

@@ -3,6 +3,7 @@ package org.firstinspires.ftc.teamcode.hardware;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.DcMotorEx;
 import com.qualcomm.robotcore.hardware.DcMotorSimple;
+import com.qualcomm.robotcore.hardware.PIDFCoefficients;
 
 /**
  * Lightweight wrapper around a DcMotorEx that lets you add your own helpers/logic
@@ -138,5 +139,21 @@ public class Motor {
 
   public double getSpeed() {
     return getRPM() / ticksPerRotation;
+  }
+
+  public void setPIDFCoefficients(DcMotor.RunMode runMode, PIDFCoefficients coefficients) {
+    motor.setPIDFCoefficients(runMode, coefficients);
+  }
+
+  public void setPIDFCoefficients(PIDFCoefficients coefficients) {
+    motor.setPIDFCoefficients(DcMotor.RunMode.RUN_USING_ENCODER, coefficients);
+  }
+
+  public PIDFCoefficients getPIDFCoefficients(DcMotor.RunMode runMode) {
+    return motor.getPIDFCoefficients(runMode);
+  }
+
+  public PIDFCoefficients getPIDFCoefficients() {
+    return motor.getPIDFCoefficients(DcMotor.RunMode.RUN_USING_ENCODER);
   }
 }
