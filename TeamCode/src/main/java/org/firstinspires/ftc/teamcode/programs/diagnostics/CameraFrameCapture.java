@@ -60,20 +60,19 @@ import org.firstinspires.ftc.vision.apriltag.AprilTagProcessor;
  */
 
 @TeleOp(name = "Utility: Camera Frame Capture", group = "Utility")
-@Disabled
 public class CameraFrameCapture extends LinearOpMode {
     /*
      * EDIT THESE PARAMETERS AS NEEDED
      * These are the supported resolutions by the Arducam Global Shutter 120 FPS
      */
     final Size[] RESOLUTIONS = new Size[] {
-            new Size(1280, 800),
-            new Size(1280, 720),
-            new Size(800, 600),
-            new Size(640, 480),
             new Size(320, 240),
+            new Size(640, 480),
+            new Size(800, 600),
+            new Size(1280, 720),
+            new Size(1280, 800),
     };
-    int RESOLUTION_INDEX = 3; // default to 640x480
+    int RESOLUTION_INDEX = 2; // default to 640x480
 
     // Internal state
     boolean lastX;
