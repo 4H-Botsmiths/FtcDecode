@@ -147,10 +147,10 @@ public class DecodeVisual extends OpMode {
     y *= 2;
     y += gamepad1.right_trigger * (-gamepad1.left_stick_y / 3);
     y -= gamepad1.left_trigger * (-gamepad1.left_stick_y / 3);
-    double z = gamepad1.right_stick_x / 3;
-    z *= 2;
-    z += gamepad1.right_trigger * (gamepad1.right_stick_x / 3);
-    z -= gamepad1.left_trigger * (gamepad1.right_stick_x / 3);
+    double r = gamepad1.right_stick_x / 3;
+    r *= 2;
+    r += gamepad1.right_trigger * (gamepad1.right_stick_x / 3);
+    r -= gamepad1.left_trigger * (gamepad1.right_stick_x / 3);
 
     if (gamepad1.right_bumper) {
       // Align-assist: while RB is held, read the GOAL AprilTag and adjust rotation (z)
@@ -174,8 +174,8 @@ public class DecodeVisual extends OpMode {
         telemetry.speak("Driver Ready");
         driverAnnounced = true;
       }
-      z += Range.clip(tagX * 0.025, -0.15, 0.15);
-      y += Range.clip((tagRange - targetRange) * 0.025, -0.15, 0.15);
+      r += (tagX / 30) * 0.66;
+      y += tagRange < 50 ? -0.2 : 0;
       if (Math.abs(tagX) > xTolerance || Math.abs(targetRange - tagRange) > rangeTolerance) {
         // Outside tolerance: keep rotating toward center and rumble as feedback.
         xReady = false;
@@ -197,7 +197,7 @@ public class DecodeVisual extends OpMode {
     // Reset so we re-announce the next time align-assist is entered.
     driverAnnounced = false;
     // Drive the robot with final x/y/z inputs.
-    robot.drive(x, y, z);
+    robot.drive(x, y, r);
   }
 
   /**
@@ -214,20 +214,20 @@ public class DecodeVisual extends OpMode {
    */
 
   boolean operatorAnnounced = false;
-  private int RPM = 3000;
+  private int baseRPM = 3000;
   boolean upPressed = false;
   boolean downPressed = false;
   double tagRange = 0;
 
   public void operatorLoop() {
     if (gamepad2.dpad_up && !upPressed) {
-      RPM += 100;
+      baseRPM += 100;
       upPressed = true;
     } else if (!gamepad2.dpad_up) {
       upPressed = false;
     }
     if (gamepad2.dpad_down && !downPressed) {
-      RPM -= 100;
+      baseRPM -= 100;
       downPressed = true;
     } else if (!gamepad2.dpad_down) {
       downPressed = false;
@@ -244,7 +244,17 @@ public class DecodeVisual extends OpMode {
       operatorAnnounced = true;
 
       // Placeholder mapping from range (in) -> shooter RPM. Replace with calibrated function/table.
-      shooterRpm = RPM;//tagRange > 0 ? 3000 : 0; //(tagRange / 100) * SHOOTER_MAX_RPM : SHOOTER_MAX_RPM; // TODO: MATH - calibrate mapping
+      if (tagRange < 60) {
+        shooterRpm = baseRPM; //3000;
+      } else if (tagRange < 70) {
+        shooterRpm = baseRPM - 100; //2900;
+      } else if (tagRange < 80) {
+        shooterRpm = baseRPM - 200; //2800;
+      } else if (tagRange < 90) {
+        shooterRpm = baseRPM - 50; //2950;
+      } else {
+        shooterRpm = baseRPM + 200; //3200;
+      }
       if (robot.shooter.atSpeedRPM(shooterRpm)) {
         // At speed: stop operator rumble.
         gamepad2.stopRumble();
@@ -276,7 +286,7 @@ public class DecodeVisual extends OpMode {
     // Drivetrain RPMs (per-wheel), shooter speed, and vision-derived alignment/shooting info
     telemetry.addLine(String.format("FL (%6.1f) (%6.1f) FR", robot.frontLeft.getRPM(), robot.frontRight.getRPM()));
     telemetry.addLine(String.format("RL (%6.1f) (%6.1f) RR", robot.rearLeft.getRPM(), robot.rearRight.getRPM()));
-    telemetry.addData("Target Shooter RPM", RPM);
+    telemetry.addData("Target Shooter RPM", baseRPM);
     telemetry.addLine(String.format("Shooter RPM: %6.1f", robot.shooter.getRPM()));
     telemetry.addLine(String.format("Tag X: (%6.1f) Tag Range: (%6.1f)", tagX, tagRange));
     //telemetry.addLine(String.format("Intake Power: (%6.1f)", robot.intake.getPowers()));
