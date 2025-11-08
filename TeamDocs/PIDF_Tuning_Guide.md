@@ -123,7 +123,7 @@ Ki = 0.0001 to 0.0005
 ### Step 5: Set D (Derivative)
 D dampens oscillation but can make system sluggish.
 
-**Rule of thumb**: `Kd ≈ Kp / 10` to `Kd / 100`
+**Rule of thumb**: `Kd ≈ Kp / 10` to `Kp / 100`
 
 For your motors:
 ```
