@@ -154,10 +154,10 @@ public class PIDFTuningTest extends LinearOpMode {
 
     if (gamepad1.start) {
       PIDFCoefficients drivePIDF = new PIDFCoefficients(
-          0.015, // P - Proportional gain
-          0.0003, // I - Integral gain
-          0.0002, // D - Derivative gain
-          0.0008 // F - Feedforward gain
+          12.0, // P - Proportional gain (improved from default 10)
+          3.0,  // I - Integral gain (default, works well)
+          0.0,  // D - Derivative gain (not needed for velocity control)
+          17.0  // F - Feedforward gain (32767/1918.74, CRITICAL for velocity)
       );
 
       // Apply PIDF to each drive motor
