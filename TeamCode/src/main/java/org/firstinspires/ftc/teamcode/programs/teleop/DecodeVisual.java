@@ -185,8 +185,10 @@ public class DecodeVisual extends OpMode {
     if (gamepad1.right_bumper) {
       // Align-assist: while RB is held, read the GOAL AprilTag and adjust rotation (z)
       // to center the tag. Also provide driver rumble until within tolerance.
-      r += (tagX / 30) * 0.66;
-      y += tagRange < 50 ? -0.2 : 0;
+      r += (tagX / 30) * (tagFound ? 0.66 : 0.33);
+      if (tagRange > 0) {
+        y += tagRange < 50 ? -0.4 : 0;
+      }
       if (Math.abs(tagX) > xTolerance || Math.abs(targetRange - tagRange) > rangeTolerance) {
         // Outside tolerance: keep rotating toward center and rumble as feedback.
         xReady = false;
