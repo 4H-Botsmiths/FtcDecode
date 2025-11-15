@@ -40,6 +40,21 @@ public class BackAndShoot extends OpMode {
    */
   @Override
   public void init_loop() {
+    // Allow quick base RPM tuning via dpad during INIT
+    telemetry.addData("Base RPM", baseRPM);
+    if (gamepad1.dpad_up && !upPressed) {
+      baseRPM += 100;
+      upPressed = true;
+    } else if (!gamepad1.dpad_up) {
+      upPressed = false;
+    }
+    if (gamepad1.dpad_down && !downPressed) {
+      baseRPM -= 100;
+      downPressed = true;
+    } else if (!gamepad1.dpad_down) {
+      downPressed = false;
+    }
+    telemetry.update();
   }
 
   /*
@@ -52,6 +67,9 @@ public class BackAndShoot extends OpMode {
   double range = 0;
   double x = 0;
   int baseRPM = 3000;
+  boolean upPressed = false;
+  boolean downPressed = false;
+  double xTolerance = 5;
 
   /*
    * Code to run REPEATEDLY after the driver hits PLAY but before they hit STOP
@@ -74,7 +92,9 @@ public class BackAndShoot extends OpMode {
     if (range < 85) {
       robot.drive(0, -0.25, 0);
     } else {
-      robot.drive(0, 0, Range.clip(x * 0.025, -0.15, 0.15));
+      double turn = Range.clip(x / 30, -0.15, 0.15);
+      boolean xReady = Math.abs(x) <= xTolerance;
+      robot.drive(0, 0, turn);
       int shooterRpm;
       if (range < 60) {
         shooterRpm = baseRPM;
@@ -88,7 +108,7 @@ public class BackAndShoot extends OpMode {
         shooterRpm = baseRPM + 200;
       }
       robot.shooter.setRPM(shooterRpm);
-      if (robot.shooter.atSpeedRPM(shooterRpm)) {
+      if (robot.shooter.atSpeedRPM(shooterRpm) && xReady) {
         robot.indexer.setPower(0.1);
         robot.intake.setPowerAll(1);
       } else {

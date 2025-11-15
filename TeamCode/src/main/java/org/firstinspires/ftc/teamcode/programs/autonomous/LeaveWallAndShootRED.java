@@ -16,6 +16,10 @@ public class LeaveWallAndShootRED extends OpMode {
   private int baseRPM = 3000;
   private int shooterRpm = 0;
   private double tagRange = 85;
+  private double tagX = 0;
+  private boolean upPressed = false;
+  private boolean downPressed = false;
+  private double xTolerance = 5;
 
   /*
    * Code to run ONCE when the driver hits INIT
@@ -50,6 +54,20 @@ public class LeaveWallAndShootRED extends OpMode {
       telemetry.addData("Camera", "Not streaming");
     } catch (Camera.TagNotFoundException e) {
       telemetry.addData("Obelisk Tag", "Not found");
+    }
+    // Base RPM tuning during INIT via dpad
+    telemetry.addData("Base RPM", baseRPM);
+    if (gamepad1.dpad_up && !upPressed) {
+      baseRPM += 100;
+      upPressed = true;
+    } else if (!gamepad1.dpad_up) {
+      upPressed = false;
+    }
+    if (gamepad1.dpad_down && !downPressed) {
+      baseRPM -= 100;
+      downPressed = true;
+    } else if (!gamepad1.dpad_down) {
+      downPressed = false;
     }
     telemetries();
   }
@@ -91,9 +109,10 @@ public class LeaveWallAndShootRED extends OpMode {
     try {
       Camera.AprilTag tag = camera.getAprilTag(Camera.AprilTagPosition.GOAL);
       double x = tag.ftcPose.x;
+      tagX = x;
       tagRange = tag.ftcPose.range;
       telemetry.addData("X", x);
-      turn = Range.clip(x * 0.025, -0.15, 0.15);
+      turn = Range.clip(x / 30, -0.15, 0.15);
     } catch (Camera.CameraNotAttachedException e) {
       telemetry.addData("Camera", "Not attached");
     } catch (Camera.CameraNotStreamingException e) {
@@ -119,7 +138,8 @@ public class LeaveWallAndShootRED extends OpMode {
       shooterRpm = baseRPM + 200;
     }
     robot.shooter.setRPM(shooterRpm);
-    if (robot.shooter.atSpeedRPM(shooterRpm)) {
+    boolean xReady = Math.abs(tagX) <= xTolerance;
+    if (robot.shooter.atSpeedRPM(shooterRpm) && xReady) {
       robot.indexer.setPower(indexerClockwise ? 0.1 : -0.1);
       robot.intake.setPowerAll(1);
     } else {
@@ -133,6 +153,7 @@ public class LeaveWallAndShootRED extends OpMode {
     telemetry.addLine(String.format("FL (%6.1f) (%6.1f) FR", robot.frontLeft.getRPM(), robot.frontRight.getRPM()));
     telemetry.addLine(String.format("RL (%6.1f) (%6.1f) RR", robot.rearLeft.getRPM(), robot.rearRight.getRPM()));
     telemetry.addData("Target Shooter RPM", shooterRpm);
+    telemetry.addData("Tag Range", tagRange);
     telemetry.addLine(String.format("Shooter RPM: (%6.1f)", robot.shooter.getRPM()));
     telemetry.addData("At Speed", robot.shooter.atSpeedRPM(shooterRpm));
     telemetry.addData("Indexer Power", robot.indexer.getPower());
