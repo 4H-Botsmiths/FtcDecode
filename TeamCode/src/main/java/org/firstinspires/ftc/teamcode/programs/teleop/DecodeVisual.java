@@ -183,20 +183,28 @@ public class DecodeVisual extends OpMode {
     r -= gamepad1.left_trigger * (gamepad1.right_stick_x / 3);
 
     if (gamepad1.right_bumper) {
+      boolean rumble = true;
       // Align-assist: while RB is held, read the GOAL AprilTag and adjust rotation (z)
       // to center the tag. Also provide driver rumble until within tolerance.
       r += (tagX / 30) * (tagFound ? 0.66 : 0.33);
       y += tagRange < 50 ? -0.4 : 0;
-      if (Math.abs(tagX) > xTolerance || Math.abs(targetRange - tagRange) > rangeTolerance) {
+      if (Math.abs(tagX) > xTolerance || tagRange < 50) {
         // Outside tolerance: keep rotating toward center and rumble as feedback.
         xReady = false;
-        gamepad1.rumble(1, 1, Gamepad.RUMBLE_DURATION_CONTINUOUS);
         // Gain/clip: proportional correction from tag X offset, clipped to avoid overshoot.
         // NOTE: tagX currently in inches; tune gain accordingly if you convert units.
       } else {
         // Centered enough: stop rumble and mark alignment ready for operator auto-feed.
         gamepad1.stopRumble();
         xReady = true;
+        if (tagFound) {
+          rumble = false;
+        }
+      }
+      if (rumble) {
+        gamepad1.rumble(1, 1, Gamepad.RUMBLE_DURATION_CONTINUOUS);
+      } else {
+        gamepad1.stopRumble();
       }
     } else {
       // Align-assist not active.
