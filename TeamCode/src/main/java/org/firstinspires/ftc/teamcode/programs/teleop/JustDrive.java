@@ -1,0 +1,69 @@
+package org.firstinspires.ftc.teamcode.programs.teleop;
+
+import com.qualcomm.robotcore.eventloop.opmode.Disabled;
+import com.qualcomm.robotcore.eventloop.opmode.OpMode;
+import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
+import com.qualcomm.robotcore.hardware.DcMotor;
+import com.qualcomm.robotcore.hardware.DcMotorEx;
+import org.firstinspires.ftc.teamcode.hardware.Robot;
+
+@TeleOp(name = "Just Drive", group = "C")
+public class JustDrive extends OpMode {
+  public Robot robot;
+
+  // 
+  /*
+   * Code to run ONCE when the driver hits INIT
+   */
+  @Override
+  public void init() {
+    telemetry.addData("Status", "Initializing");
+    telemetry.update();
+    this.robot = new Robot(hardwareMap);
+    telemetry.addData("Status", "Initialized");
+    telemetry.update();
+  }
+
+  /*
+   * Code to run REPEATEDLY after the driver hits INIT, but before they hit PLAY
+   */
+  @Override
+  public void init_loop() {
+  }
+
+  /*
+   * Code to run ONCE when the driver hits PLAY
+   */
+  @Override
+  public void start() {
+  }
+
+  /*
+   * Code to run REPEATEDLY after the driver hits PLAY but before they hit STOP
+   */
+  @Override
+  public void loop() {
+    double x = gamepad1.left_stick_x / 3;
+    x *= 2;
+    x += gamepad1.right_trigger * (gamepad1.left_stick_x / 3);
+    x -= gamepad1.left_trigger * (gamepad1.left_stick_x / 3);
+    double y = -gamepad1.left_stick_y / 3;
+    y *= 2;
+    y += gamepad1.right_trigger * (-gamepad1.left_stick_y / 3);
+    y -= gamepad1.left_trigger * (-gamepad1.left_stick_y / 3);
+    double z = gamepad1.right_stick_x / 3;
+    z *= 2;
+    z += gamepad1.right_trigger * (gamepad1.right_stick_x / 3);
+    z -= gamepad1.left_trigger * (gamepad1.right_stick_x / 3);
+
+    robot.drive(x, y, z);
+  }
+
+  /*
+   * Code to run ONCE after the driver hits STOP
+   */
+  @Override
+  public void stop() {
+  }
+
+}
