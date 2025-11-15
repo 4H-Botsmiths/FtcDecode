@@ -76,7 +76,7 @@ public class BackAndShoot extends OpMode {
       robot.drive(0, 0, Range.clip(x * 0.025, -0.15, 0.15));
       robot.shooter.setRPM(3000);
       if (robot.shooter.atSpeedRPM(3000)) {
-        robot.indexer.setPower(1);
+        robot.indexer.setPower(0.1);
         robot.intake.setPowerAll(1);
       } else {
         robot.indexer.setPower(0);
