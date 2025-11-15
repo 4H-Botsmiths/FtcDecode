@@ -80,6 +80,11 @@ public class LeaveWallAndShootBLUE extends OpMode {
       robot.drive(0, 0, -0.25);
       return;
     }
+    if (timer.milliseconds() > 29000) {
+      // Brief pause to stabilize
+      robot.drive(-0.66, 0, 0);
+      return;
+    }
 
     try {
       Camera.AprilTag tag = camera.getAprilTag(Camera.AprilTagPosition.GOAL);
