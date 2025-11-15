@@ -100,11 +100,11 @@ public class ShootFromBack extends OpMode {
   @Override
   public void loop() {
     telemetries();
-    if (timer.milliseconds() < 500) {
+    if (timer.milliseconds() < 250) {
       robot.drive(0, 0.33, 0);
       return;
     }
-    if (timer.milliseconds() < 1500) {
+    if (timer.milliseconds() < 1250) {
       if (redTeam) {
         robot.drive(0, 0, -0.1);
       } else if (blueTeam) {
