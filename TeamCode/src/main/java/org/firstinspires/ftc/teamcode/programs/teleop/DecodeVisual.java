@@ -169,18 +169,32 @@ public class DecodeVisual extends OpMode {
     // Build field-centric-ish inputs (x=strafe, y=forward, z=rotate) with trigger-based scaling.
     // The math below starts with 1/3 scaling, doubles to ~2/3 base speed, then adds/subtracts
     // additional portions based on RT/LT to allow the driver to fine-tune speed on the fly.
-    double x = gamepad1.left_stick_x / 3;
-    x *= 2;
-    x += gamepad1.right_trigger * (gamepad1.left_stick_x / 3);
-    x -= gamepad1.left_trigger * (gamepad1.left_stick_x / 3);
-    double y = -gamepad1.left_stick_y / 3;
-    y *= 2;
-    y += gamepad1.right_trigger * (-gamepad1.left_stick_y / 3);
-    y -= gamepad1.left_trigger * (-gamepad1.left_stick_y / 3);
-    double r = gamepad1.right_stick_x / 3;
-    r *= 2;
-    r += gamepad1.right_trigger * (gamepad1.right_stick_x / 3);
-    r -= gamepad1.left_trigger * (gamepad1.right_stick_x / 3);
+    double x = 0;
+    double y = 0;
+    double r = 0;
+    if (gamepad1.left_bumper) {
+      robot.frontLeft.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
+      robot.frontRight.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
+      robot.rearLeft.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
+      robot.rearRight.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
+    } else {
+      robot.frontLeft.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.FLOAT);
+      robot.frontRight.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.FLOAT);
+      robot.rearLeft.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.FLOAT);
+      robot.rearRight.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.FLOAT);
+      x = gamepad1.left_stick_x / 3;
+      x *= 2;
+      x += gamepad1.right_trigger * (gamepad1.left_stick_x / 3);
+      x -= gamepad1.left_trigger * (gamepad1.left_stick_x / 3);
+      y = -gamepad1.left_stick_y / 3;
+      y *= 2;
+      y += gamepad1.right_trigger * (-gamepad1.left_stick_y / 3);
+      y -= gamepad1.left_trigger * (-gamepad1.left_stick_y / 3);
+      r = gamepad1.right_stick_x / 3;
+      r *= 2;
+      r += gamepad1.right_trigger * (gamepad1.right_stick_x / 3);
+      r -= gamepad1.left_trigger * (gamepad1.right_stick_x / 3);
+    }
 
     if (gamepad1.right_bumper) {
       boolean rumble = true;
