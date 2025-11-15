@@ -107,7 +107,7 @@ public class DecodeVisual extends OpMode {
   private boolean cameraActive = false;
   private boolean tagFound = false;
   private double tagX = 0;
-  private double tagRange = 0;
+  private double tagRange = 85;
 
   public void cameraLoop() {
     // Currently no periodic camera actions needed; handled on-demand in driver/operator loops.
@@ -137,7 +137,7 @@ public class DecodeVisual extends OpMode {
         cameraActive = false;
         tagFound = false;
         tagX = 0;
-        tagRange = 0;
+        tagRange = 85;
       } catch (Camera.CameraNotAttachedException e) {
         telemetry.speak("WARNING: Camera not attached!");
       }
@@ -186,9 +186,7 @@ public class DecodeVisual extends OpMode {
       // Align-assist: while RB is held, read the GOAL AprilTag and adjust rotation (z)
       // to center the tag. Also provide driver rumble until within tolerance.
       r += (tagX / 30) * (tagFound ? 0.66 : 0.33);
-      if (tagRange > 0) {
-        y += tagRange < 50 ? -0.4 : 0;
-      }
+      y += tagRange < 50 ? -0.4 : 0;
       if (Math.abs(tagX) > xTolerance || Math.abs(targetRange - tagRange) > rangeTolerance) {
         // Outside tolerance: keep rotating toward center and rumble as feedback.
         xReady = false;
@@ -288,6 +286,7 @@ public class DecodeVisual extends OpMode {
     telemetry.addLine(String.format("RL (%6.1f) (%6.1f) RR", robot.rearLeft.getRPM(), robot.rearRight.getRPM()));
     telemetry.addData("Target Shooter RPM", baseRPM);
     telemetry.addLine(String.format("Shooter RPM: %6.1f", robot.shooter.getRPM()));
+    telemetry.addData("Tag Found", tagFound);
     telemetry.addLine(String.format("Tag X: (%6.1f) Tag Range: (%6.1f)", tagX, tagRange));
     //telemetry.addLine(String.format("Intake Power: (%6.1f)", robot.intake.getPowers()));
     telemetry.addLine(String.format("Indexer Power: (%6.1f)", robot.indexer.getPower()));
