@@ -228,7 +228,7 @@ public class DecodeVisual extends OpMode {
    * - Camera streaming is resumed if needed and paused when exiting auto-shoot to save resources.
    */
 
-  private int baseRPM = 3500;
+  private int baseRPM = 3000;
   boolean upPressed = false;
   boolean downPressed = false;
 
