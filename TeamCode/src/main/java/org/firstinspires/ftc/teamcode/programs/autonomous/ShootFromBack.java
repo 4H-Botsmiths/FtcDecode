@@ -78,6 +78,7 @@ public class ShootFromBack extends OpMode {
       blueTeam = true;
       redTeam = false;
     }
+    telemetry.addData("Team", redTeam ? "RED" : blueTeam ? "BLUE" : "None");
     telemetries();
   }
 
@@ -106,9 +107,9 @@ public class ShootFromBack extends OpMode {
     }
     if (timer.milliseconds() < 1250) {
       if (redTeam) {
-        robot.drive(0, 0, -0.1);
-      } else if (blueTeam) {
         robot.drive(0, 0, 0.1);
+      } else if (blueTeam) {
+        robot.drive(0, 0, -0.1);
       } else {
         robot.drive(0, 0, 0);
       }
