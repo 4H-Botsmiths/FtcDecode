@@ -102,7 +102,7 @@ public class LeaveWallAndShootBLUE extends OpMode {
     final int targetRpm = 3000;
     robot.shooter.setRPM(targetRpm);
     if (robot.shooter.atSpeedRPM(targetRpm)) {
-      robot.indexer.setPower(indexerClockwise ? 1 : -1);
+      robot.indexer.setPower(indexerClockwise ? 0.1 : -0.1);
       robot.intake.setPowerAll(1);
     } else {
       robot.indexer.setPower(0);
