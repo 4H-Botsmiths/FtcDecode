@@ -13,6 +13,9 @@ public class LeaveWallAndShootBLUE extends OpMode {
   public Camera camera;
 
   private final ElapsedTime timer = new ElapsedTime();
+  private int baseRPM = 3000;
+  private int shooterRpm = 0;
+  private double tagRange = 85;
 
   /*
    * Code to run ONCE when the driver hits INIT
@@ -89,6 +92,7 @@ public class LeaveWallAndShootBLUE extends OpMode {
     try {
       Camera.AprilTag tag = camera.getAprilTag(Camera.AprilTagPosition.GOAL);
       double x = tag.ftcPose.x;
+      tagRange = tag.ftcPose.range;
       telemetry.addData("X", x);
       turn = Range.clip(x * 0.025, -0.15, 0.15);
     } catch (Camera.CameraNotAttachedException e) {
@@ -103,10 +107,20 @@ public class LeaveWallAndShootBLUE extends OpMode {
     // Hold position, only rotate to align
     robot.drive(0, 0, turn);
 
-    // Spin up and feed when at speed
-    final int targetRpm = 3000;
-    robot.shooter.setRPM(targetRpm);
-    if (robot.shooter.atSpeedRPM(targetRpm)) {
+    // Spin up and feed when at speed using range-based RPM
+    if (tagRange < 60) {
+      shooterRpm = baseRPM;
+    } else if (tagRange < 70) {
+      shooterRpm = baseRPM - 100;
+    } else if (tagRange < 80) {
+      shooterRpm = baseRPM - 200;
+    } else if (tagRange < 90) {
+      shooterRpm = baseRPM - 50;
+    } else {
+      shooterRpm = baseRPM + 200;
+    }
+    robot.shooter.setRPM(shooterRpm);
+    if (robot.shooter.atSpeedRPM(shooterRpm)) {
       robot.indexer.setPower(indexerClockwise ? 0.1 : -0.1);
       robot.intake.setPowerAll(1);
     } else {
@@ -119,8 +133,9 @@ public class LeaveWallAndShootBLUE extends OpMode {
     telemetry.addData("Indexer Direction", indexerClockwise ? "Clockwise" : "Counter-Clockwise");
     telemetry.addLine(String.format("FL (%6.1f) (%6.1f) FR", robot.frontLeft.getRPM(), robot.frontRight.getRPM()));
     telemetry.addLine(String.format("RL (%6.1f) (%6.1f) RR", robot.rearLeft.getRPM(), robot.rearRight.getRPM()));
+    telemetry.addData("Target Shooter RPM", shooterRpm);
     telemetry.addLine(String.format("Shooter RPM: (%6.1f)", robot.shooter.getRPM()));
-    telemetry.addData("At Speed", robot.shooter.atSpeedRPM(3000));
+    telemetry.addData("At Speed", robot.shooter.atSpeedRPM(shooterRpm));
     telemetry.addData("Indexer Power", robot.indexer.getPower());
     telemetry.addData("Intake Power", robot.intake.getPowers()[0]);
   }
