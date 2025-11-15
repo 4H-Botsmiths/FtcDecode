@@ -102,7 +102,7 @@ public class LeaveWallAndShootRED extends OpMode {
       return;
     }
     if (timer.milliseconds() > 29000) {
-      robot.drive(0.66, 0, 0);
+      robot.drive(0.33, 0, 0);
       return;
     }
 
