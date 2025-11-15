@@ -15,6 +15,8 @@ import org.firstinspires.ftc.teamcode.hardware.Robot;
 public class BackAndShoot extends OpMode {
   public Robot robot;
   public Camera camera;
+  boolean goLeft = false;
+  boolean goRight = false;
 
   // 
   /*
@@ -54,14 +56,26 @@ public class BackAndShoot extends OpMode {
     } else if (!gamepad1.dpad_down) {
       downPressed = false;
     }
+    if (gamepad1.x) {
+      goLeft = true;
+      goRight = false;
+    } else if (gamepad1.b) {
+      goRight = true;
+      goLeft = false;
+    }
+    telemetry.addData("Go Left", goLeft);
+    telemetry.addData("Go Right", goRight);
     telemetry.update();
   }
+
+  ElapsedTime timer = new ElapsedTime();
 
   /*
    * Code to run ONCE when the driver hits PLAY
    */
   @Override
   public void start() {
+    timer.reset();
   }
 
   double range = 0;
@@ -76,6 +90,17 @@ public class BackAndShoot extends OpMode {
    */
   @Override
   public void loop() {
+    if (timer.milliseconds() > 29000) {
+      // Back away from wall
+      if (goLeft) {
+        robot.drive(-0.33, 0, 0);
+      } else if (goRight) {
+        robot.drive(0.33, 0, 0);
+      } else {
+        robot.drive(0, 0, 0);
+      }
+      return;
+    }
     try {
       Camera.AprilTag tag = camera.getAprilTag(Camera.AprilTagPosition.GOAL);
       range = tag.ftcPose.range;
@@ -89,7 +114,7 @@ public class BackAndShoot extends OpMode {
     } catch (Camera.TagNotFoundException e) {
       telemetry.addData("Range", "Tag not found");
     }
-    if (range < 75) {
+    if (range < 60) {
       robot.drive(0, -0.25, 0);
     } else {
       double turn = Range.clip(x / 30, -0.15, 0.15);
