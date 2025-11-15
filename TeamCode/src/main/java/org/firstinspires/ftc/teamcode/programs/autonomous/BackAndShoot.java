@@ -51,6 +51,7 @@ public class BackAndShoot extends OpMode {
 
   double range = 0;
   double x = 0;
+  int baseRPM = 3000;
 
   /*
    * Code to run REPEATEDLY after the driver hits PLAY but before they hit STOP
@@ -74,8 +75,20 @@ public class BackAndShoot extends OpMode {
       robot.drive(0, -0.25, 0);
     } else {
       robot.drive(0, 0, Range.clip(x * 0.025, -0.15, 0.15));
-      robot.shooter.setRPM(3000);
-      if (robot.shooter.atSpeedRPM(3000)) {
+      int shooterRpm;
+      if (range < 60) {
+        shooterRpm = baseRPM;
+      } else if (range < 70) {
+        shooterRpm = baseRPM - 100;
+      } else if (range < 80) {
+        shooterRpm = baseRPM - 200;
+      } else if (range < 90) {
+        shooterRpm = baseRPM - 50;
+      } else {
+        shooterRpm = baseRPM + 200;
+      }
+      robot.shooter.setRPM(shooterRpm);
+      if (robot.shooter.atSpeedRPM(shooterRpm)) {
         robot.indexer.setPower(0.1);
         robot.intake.setPowerAll(1);
       } else {
