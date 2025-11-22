@@ -104,6 +104,22 @@ public class ShooterPIDFTuningTest extends LinearOpMode {
     telemetry.addLine("See OpMode comments for controls");
     telemetry.update();
 
+    while (!opModeIsActive() && !isStopRequested()) {
+      boolean upPressed = false;
+      boolean downPressed = false;
+      if (gamepad1.dpad_up && !upPressed) {
+        targetRPM += 100;
+        upPressed = true;
+      } else if (!gamepad1.dpad_up) {
+        upPressed = false;
+      }
+      if (gamepad1.dpad_down && !downPressed) {
+        targetRPM -= 100;
+        downPressed = true;
+      } else if (!gamepad1.dpad_down) {
+        downPressed = false;
+      }
+    }
     waitForStart();
 
     while (opModeIsActive()) {
@@ -155,8 +171,8 @@ public class ShooterPIDFTuningTest extends LinearOpMode {
 
     // Continuous run test
     if (gamepad1.x) {
-      shooterRunning = true;
       resetStatistics();
+      shooterRunning = true;
       sleep(200); // Debounce
     }
 
@@ -184,9 +200,9 @@ public class ShooterPIDFTuningTest extends LinearOpMode {
     if (gamepad1.start) {
       PIDFCoefficients shooterPIDF = new PIDFCoefficients(
           35.0, // P - High for quick load response (corrected scale)
-          6.0,  // I - Strong for consistent performance (corrected scale)
-          2.0,  // D - Moderate to prevent overshoot (corrected scale)
-          23.0  // F - Feedforward for 3000 RPM baseline (32767/1400, corrected scale)
+          6.0, // I - Strong for consistent performance (corrected scale)
+          2.0, // D - Moderate to prevent overshoot (corrected scale)
+          23.0 // F - Feedforward for 3000 RPM baseline (32767/1400, corrected scale)
       );
       robot.leftShooter.setPIDFCoefficients(shooterPIDF);
       robot.rightShooter.setPIDFCoefficients(shooterPIDF);
@@ -239,10 +255,10 @@ public class ShooterPIDFTuningTest extends LinearOpMode {
   }
 
   private void startSpinUpMeasurement() {
+    resetStatistics();
     measuringSpinUp = true;
     spinUpTimer.reset();
     peakRPM = 0;
-    resetStatistics();
   }
 
   private void updateStatistics() {
