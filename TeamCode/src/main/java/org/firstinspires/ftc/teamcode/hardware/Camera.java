@@ -193,6 +193,9 @@ public class Camera {
 
   public class AprilTag extends AprilTagDetection {
     public AprilTagPosition position = AprilTagPosition.UNKNOWN;
+    public OBELISK_MOTIF obeliskMotif = null;
+
+    public GOAL_COLOR goalColor = null;
 
     public AprilTag(AprilTagDetection detection) {
       super(detection.id, detection.hamming, detection.decisionMargin, detection.center, detection.corners,
@@ -203,10 +206,36 @@ public class Camera {
       }
       if (detection.id == 20 || detection.id == 24) {
         position = AprilTagPosition.GOAL;
-      }
-      if (detection.id == 21 || detection.id == 22 || detection.id == 23) {
-        position = AprilTagPosition.OBELISK;
+        goalColor = detection.id == 20 ? GOAL_COLOR.BLUE : GOAL_COLOR.RED;
+        if (detection.id == 21 || detection.id == 22 || detection.id == 23) {
+          position = AprilTagPosition.OBELISK;
+          obeliskMotif = OBELISK_MOTIF.values()[detection.id - 21];
+        }
       }
     }
   }
-} // end class
+
+  public enum OBELISK_MOTIF {
+    PURPLE_PURPLE_GREEN(23),
+    GREEN_PURPLE_PURPLE(21),
+    PURPLE_GREEN_PURPLE(22);
+
+    public final int id;
+
+    OBELISK_MOTIF(int id) {
+      this.id = id;
+    }
+  }
+
+  public enum GOAL_COLOR {
+    BLUE(20),
+    RED(24);
+
+    public final int id;
+
+    GOAL_COLOR(int id) {
+      this.id = id;
+    }
+  }
+}
+// end class
