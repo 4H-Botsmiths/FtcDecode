@@ -49,21 +49,34 @@ public class Indexer {
    * @param position desired position
    */
   public void setPosition(Position position) {
+    if (isBusy() || position == currentPosition) {
+      return; // Don't allow changing position while moving
+    }
+    if (isBlocked()) {
+      switch (currentPosition) {
+        case LEFT:
+          leftBallColor = BallColor.NONE;
+          break;
+        case RIGHT:
+          rightBallColor = BallColor.NONE;
+          break;
+        case TOP:
+          topBallColor = BallColor.NONE;
+          break;
+        default:
+          break;
+      }
+      return; // Don't allow changing position while blocked
+    }
     switch (position) {
       case RESET:
         indexerServo.setPosition(convertPosition(0));
         break;
       case LEFT:
         indexerServo.setPosition(convertPosition(-0.6));
-        if (positionTimer.milliseconds() > MOVE_DROP_TIME) {
-          leftBallColor = BallColor.NONE;
-        }
         break;
       case RIGHT:
         indexerServo.setPosition(convertPosition(0.6));
-        if (positionTimer.milliseconds() > MOVE_DROP_TIME) {
-          rightBallColor = BallColor.NONE;
-        }
         break;
       case TOP:
         if (currentPosition == Position.LEFT) {
@@ -78,14 +91,9 @@ public class Indexer {
           // Both sides are full, don't do anything
           return;
         }
-        if (positionTimer.milliseconds() > MOVE_DROP_TIME) {
-          topBallColor = BallColor.NONE;
-        }
         break;
     }
-    if (position != currentPosition) {
-      positionTimer.reset();
-    }
+    positionTimer.reset();
     currentPosition = position;
   }
 
