@@ -20,8 +20,8 @@ public class GoingUp extends OpMode {
   @Override
   public void init() {
     // Instantiate motors from Expansion Hub ports 2 & 3 (style matches Robot.java)
-    leftLift = new Motor(hardwareMap.get(DcMotorEx.class, DeviceNames.CH_MOTOR_2.getDeviceName())); // 28 PPR typical
-    rightLift = new Motor(hardwareMap.get(DcMotorEx.class, DeviceNames.CH_MOTOR_3.getDeviceName()));
+    leftLift = new Motor(hardwareMap.get(DcMotorEx.class, DeviceNames.EH_MOTOR_2.getDeviceName())); // 28 PPR typical
+    rightLift = new Motor(hardwareMap.get(DcMotorEx.class, DeviceNames.EH_MOTOR_3.getDeviceName()));
 
     // Reverse one motor if mechanically mirrored so positive power raises lift
     rightLift.setDirection(DcMotorSimple.Direction.REVERSE);
