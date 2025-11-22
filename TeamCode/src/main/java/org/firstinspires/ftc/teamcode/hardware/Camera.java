@@ -207,10 +207,10 @@ public class Camera {
       if (detection.id == 20 || detection.id == 24) {
         position = AprilTagPosition.GOAL;
         goalColor = detection.id == 20 ? GOAL_COLOR.BLUE : GOAL_COLOR.RED;
-        if (detection.id == 21 || detection.id == 22 || detection.id == 23) {
-          position = AprilTagPosition.OBELISK;
-          obeliskMotif = OBELISK_MOTIF.values()[detection.id - 21];
-        }
+      }
+      if (detection.id == 21 || detection.id == 22 || detection.id == 23) {
+        position = AprilTagPosition.OBELISK;
+        obeliskMotif = OBELISK_MOTIF.values()[detection.id - 21];
       }
     }
   }
