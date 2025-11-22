@@ -191,9 +191,9 @@ public class ShooterPIDFTuningTest extends LinearOpMode {
 
     if (gamepad1.start) {
       PIDFCoefficients shooterPIDF = new PIDFCoefficients(
-          35.0, // P - High for quick load response (corrected scale)
-          6.0, // I - Strong for consistent performance (corrected scale)
-          2.0, // D - Moderate to prevent overshoot (corrected scale)
+          45.0, // P - High for quick load response (corrected scale)
+          8.0, // I - Strong for consistent performance (corrected scale)
+          3.0, // D - Moderate to prevent overshoot (corrected scale)
           23.0 // F - Feedforward for 3000 RPM baseline (32767/1400, corrected scale)
       );
       robot.leftShooter.setPIDFCoefficients(shooterPIDF);
