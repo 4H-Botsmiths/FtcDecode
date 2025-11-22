@@ -305,6 +305,8 @@ public class DecodeVisual extends OpMode {
       robot.indexer.right();
     } else if (gamepad2.left_stick_y < -0.5) {
       robot.indexer.top();
+    } else if (gamepad2.left_stick_y > 0.5) {
+      robot.indexer.load();
     }
   }
 
