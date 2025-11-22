@@ -12,6 +12,8 @@ import org.firstinspires.ftc.vision.apriltag.AprilTagProcessor;
 
 import java.util.List;
 import java.util.stream.Collectors;
+import java.util.Map;
+import java.util.HashMap;
 
 /*
  * This OpMode illustrates the basics of AprilTag recognition and pose estimation, using
@@ -210,18 +212,19 @@ public class Camera {
       }
       if (detection.id == 21 || detection.id == 22 || detection.id == 23) {
         position = AprilTagPosition.OBELISK;
-        obeliskMotif = OBELISK_MOTIF.values()[detection.id - 21];
+        obeliskMotif = OBELISK_MOTIF.fromId(detection.id);
       }
     }
   }
 
   public enum OBELISK_MOTIF {
-    PURPLE_PURPLE_GREEN(23, Indexer.BallColor.PURPLE, Indexer.BallColor.PURPLE, Indexer.BallColor.GREEN),
     GREEN_PURPLE_PURPLE(21, Indexer.BallColor.GREEN, Indexer.BallColor.PURPLE, Indexer.BallColor.PURPLE),
-    PURPLE_GREEN_PURPLE(22, Indexer.BallColor.PURPLE, Indexer.BallColor.GREEN, Indexer.BallColor.PURPLE);
+    PURPLE_GREEN_PURPLE(22, Indexer.BallColor.PURPLE, Indexer.BallColor.GREEN, Indexer.BallColor.PURPLE),
+    PURPLE_PURPLE_GREEN(23, Indexer.BallColor.PURPLE, Indexer.BallColor.PURPLE, Indexer.BallColor.GREEN);
 
     public final int id;
     private final Indexer.BallColor[] pattern;
+    private static final Map<Integer, OBELISK_MOTIF> BY_ID = new HashMap<>();
 
     OBELISK_MOTIF(int id, Indexer.BallColor... pattern) {
       this.id = id;
@@ -230,6 +233,16 @@ public class Camera {
 
     public Indexer.BallColor[] getPattern() {
       return pattern.clone();
+    }
+
+    static {
+      for (OBELISK_MOTIF motif : values()) {
+        BY_ID.put(motif.id, motif);
+      }
+    }
+
+    public static OBELISK_MOTIF fromId(int id) {
+      return BY_ID.get(id);
     }
   }
 
