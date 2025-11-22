@@ -172,6 +172,9 @@ public class ShooterPIDFTuningTest extends LinearOpMode {
       downPressed = true;
       targetRPM = Math.max(1000, targetRPM - 100);
       sleep(200); // Debounce
+    } else {
+      upPressed = false;
+      downPressed = false;
     }
 
     // Real ball feed test - runs intake to feed balls
