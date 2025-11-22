@@ -281,7 +281,7 @@ public class Indexer {
    * Checks if the indexer is currently moving.
    * @return true if the indexer is moving, false otherwise
    */
-  public boolean indexerBusy() {
+  public boolean isBusy() {
     return positionTimer.milliseconds() < MOVE_TIME;
   }
 
@@ -289,7 +289,7 @@ public class Indexer {
    * Checks if the indexer is currently blocked (i.e., has had enough time to move and drop a ball).
    * @return true if the indexer is blocked, false otherwise
    */
-  public boolean indexerBlocked() {
+  public boolean isBlocked() {
     return positionTimer.milliseconds() > MOVE_DROP_TIME;
   }
 }
