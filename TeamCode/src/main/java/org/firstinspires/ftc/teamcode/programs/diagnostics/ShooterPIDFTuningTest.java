@@ -236,11 +236,12 @@ public class ShooterPIDFTuningTest extends LinearOpMode {
       }
 
       // Safety timeout - stop intake after 3 seconds
-      if (recoveryTimer.seconds() > 3.0) {
+      //Removed as it made testing slower
+      /*if (recoveryTimer.seconds() > 3.0) {
         robot.intake.stopAll();
         intakeRunning = false;
         measuringRecovery = false;
-      }
+      }*/
     }
   }
 
