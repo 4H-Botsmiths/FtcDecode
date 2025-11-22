@@ -121,8 +121,9 @@ public class Indexer {
 
   /**
    * Alias for `setPosition(Position.RESET)`
+   * @apiNote This method is only used internally, use `load()` instead.
    */
-  public void reset() {
+  private void reset() {
     setPosition(Position.RESET);
   }
 
