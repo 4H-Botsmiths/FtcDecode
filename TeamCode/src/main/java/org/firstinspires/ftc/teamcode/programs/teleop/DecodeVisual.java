@@ -317,7 +317,7 @@ public class DecodeVisual extends OpMode {
     telemetry.addData("Tag Found", tagFound);
     telemetry.addLine(String.format("Tag X: (%6.1f) Tag Range: (%6.1f)", tagX, tagRange));
     //telemetry.addLine(String.format("Intake Power: (%6.1f)", robot.intake.getPowers()));
-    telemetry.addLine(String.format("Indexer Position: (%6.1f)", robot.indexer.getCurrentPosition()));
+    telemetry.addLine(String.format("Indexer Position: (%s)", robot.indexer.getCurrentPosition()));
     // Camera helper will add its own telemetry (detections, pose, etc.).
     camera.telemetryAprilTag(telemetry);
   }
