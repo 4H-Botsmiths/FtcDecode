@@ -156,7 +156,7 @@ public class Indexer {
     // Reset the indexer to prepare for loading
     reset();
     // Wait a little bit for the indexer to reach the position
-    if (positionTimer.milliseconds() > MOVE_TIME) {
+    if (!isBusy()) {
       // Check the colors of the balls
       BallColor instantaneousLeftBallColor = detectColor(Position.LEFT);
       leftBallColor = instantaneousLeftBallColor != BallColor.NONE ? instantaneousLeftBallColor : leftBallColor;
