@@ -57,6 +57,11 @@ Where:
 
 ## Calculating Initial PIDF Values
 
+### IMPORTANT: Understanding FTC's PIDF Scale
+FTC's velocity PIDF system uses a different internal scale than normalized (0-1) control systems.
+The default REV motor PIDF values are typically P=10, I=3, D=0, F=0 (not 0.01, 0.003, etc.).
+This is roughly 1000x larger than what you'd expect from normalized formulas.
+
 ### Step 1: Calculate Maximum Velocity
 ```
 Max velocity (ticks/sec) = (Max RPM × PPR) / 60
@@ -70,70 +75,69 @@ Typical velocity (ticks/sec) = (200 × 383.748) / 60
 ### Step 2: Calculate F (Feedforward)
 F is the most important coefficient for velocity control.
 
-**Formula**: `Kf = (Max motor power) / (Max velocity)`
+**Correct Formula for FTC**: `Kf = 32767 / max_velocity_ticks_per_sec`
 
-For FTC motors using normalized power (-1.0 to +1.0):
+This uses FTC's internal scale where 32767 represents maximum motor power.
+
 ```
-Kf = 1.0 / 1918.74
-Kf ≈ 0.000521
+Kf = 32767 / 1918.74
+Kf ≈ 17.07
 
 For typical operations at 200 RPM:
-Kf = 1.0 / 1279.16
-Kf ≈ 0.000782
+Kf = 32767 / 1279.16  
+Kf ≈ 25.61
 ```
 
-**Recommendation**: Start with F calculated for your typical operating speed (200 RPM):
+**Recommendation**: Use F based on your peak velocity (300 RPM) so it works across the full range:
 ```
-Kf = 0.000782  (or approximately 0.0008)
+Kf = 17.0
 ```
+
+**Note**: The default F=0 in REV motors is why your current setup "works ok but not great" - 
+adding proper feedforward will dramatically improve velocity tracking!
 
 ### Step 3: Calculate P (Proportional)
 P should be set to provide quick response without oscillation.
 
-**Rule of thumb**: `Kp ≈ 10 × Kf` to `Kp ≈ 100 × Kf`
+**Rule of thumb for FTC**: Start with default P=10, adjust in range of 7-15
 
 For your motors:
 ```
-Kp ≈ 10 × 0.000782 = 0.00782  (conservative)
-Kp ≈ 20 × 0.000782 = 0.01564  (moderate)
-Kp ≈ 50 × 0.000782 = 0.03910  (aggressive)
+Kp = 10.0  (conservative, default)
+Kp = 12.0  (moderate, recommended for improved response)
+Kp = 15.0  (aggressive, may oscillate)
 ```
 
-**Recommendation**: Start with moderate value:
+**Recommendation**: Start with slightly improved value:
 ```
-Kp = 0.015
+Kp = 12.0
 ```
 
 ### Step 4: Set I (Integral)
 I helps eliminate steady-state error but can cause instability.
 
-**Rule of thumb**: `Ki ≈ Kp / 10` to `Ki ≈ Kp / 100`
+**Rule of thumb for FTC**: Start with default I=3, adjust in range of 1-5
 
 For your motors:
 ```
-Ki ≈ 0.015 / 10 = 0.0015  (moderate)
-Ki ≈ 0.015 / 100 = 0.00015  (conservative)
+Ki = 3.0  (default, works well)
+Ki = 4.0  (if motor doesn't quite reach target)
+Ki = 2.0  (if motor overshoots)
 ```
 
-**Recommendation**: Start conservative:
+**Recommendation**: Start with default:
 ```
-Ki = 0.0001 to 0.0005
+Ki = 3.0
 ```
 
 ### Step 5: Set D (Derivative)
-D dampens oscillation but can make system sluggish.
+D dampens oscillation but can make system sluggish. Usually not needed for velocity control.
 
-**Rule of thumb**: `Kd ≈ Kp / 10` to `Kp / 100`
+**Rule of thumb for FTC**: Start with D=0, add only if needed (0.5-2.0 range)
 
-For your motors:
+**Recommendation**: Start with zero:
 ```
-Kd ≈ 0.015 / 10 = 0.0015  (moderate)
-Kd ≈ 0.015 / 100 = 0.00015  (conservative)
-```
-
-**Recommendation**: Start with zero or very small:
-```
-Kd = 0.0 to 0.0005
+Kd = 0.0
 ```
 
 ## Recommended Starting Values
@@ -141,21 +145,25 @@ Kd = 0.0 to 0.0005
 Based on your motor specifications (300 RPM peak, 200 RPM typical operation):
 
 ```java
-// For velocity control at typical 200 RPM operations
-Kp = 0.015
-Ki = 0.0003
-Kd = 0.0002
-Kf = 0.0008
+// Recommended improved values (adds feedforward to defaults)
+Kp = 12.0   // Proportional (improved from default 10)
+Ki = 3.0    // Integral (default, works well)
+Kd = 0.0    // Derivative (not needed)
+Kf = 17.0   // Feedforward (32767/1918.74, CRITICAL!)
 ```
 
-Alternative conservative starting point:
+Alternative conservative starting point (default + feedforward):
 ```java
-// More conservative, less likely to oscillate
-Kp = 0.010
-Ki = 0.0001
-Kd = 0.0000
-Kf = 0.0008
+// Conservative (just add F to default REV values)
+Kp = 10.0   // Default proportional
+Ki = 3.0    // Default integral  
+Kd = 0.0    // Default derivative
+Kf = 17.0   // Add feedforward (was missing!)
 ```
+
+**Why F=17 is Critical**: Your current defaults (P=10, I=3, D=0, F=0) work "ok but not great"
+because F=0 means no feedforward. Adding F=17 will dramatically improve velocity tracking
+by providing baseline power proportional to target velocity.
 
 ## How to Set PIDF Values in Code
 
@@ -174,12 +182,13 @@ rearLeft.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
 rearRight.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
 
 // Define PIDF coefficients for velocity control
-// Tuned for ~200 RPM typical operation (can peak at 300 RPM)
+// Tuned for ~200-300 RPM operation
+// Note: FTC velocity PIDF uses larger scale (P=10, not 0.01)
 PIDFCoefficients pidfCoefficients = new PIDFCoefficients(
-    0.015,  // P - Proportional gain
-    0.0003, // I - Integral gain
-    0.0002, // D - Derivative gain
-    0.0008  // F - Feedforward gain
+    12.0,  // P - Proportional gain (improved from default 10)
+    3.0,   // I - Integral gain (default, works well)
+    0.0,   // D - Derivative gain (not needed)
+    17.0   // F - Feedforward gain (32767/1918.74, CRITICAL!)
 );
 
 // Apply PIDF coefficients to each drive motor
@@ -262,36 +271,40 @@ Create a test OpMode to verify your PIDF values:
 ## Common Issues and Solutions
 
 ### Motor oscillates/vibrates at constant speed
-- **Cause**: P or I too high
-- **Fix**: Reduce P by 20-30%, or reduce I to near zero
+- **Cause**: P too high
+- **Fix**: Reduce P from 12 to 9-10
 
 ### Motor doesn't reach target speed
 - **Cause**: F too low or I too low
-- **Fix**: Increase F by 10-20%, or add small I value
+- **Fix**: Increase F from 17 to 18-20, or increase I from 3 to 4-5
 
 ### Motor overshoots when changing speeds
-- **Cause**: P too high, D too low, or F too high
-- **Fix**: Reduce P, add small D, or reduce F slightly
+- **Cause**: P too high
+- **Fix**: Reduce P from 12 to 10 or lower
 
 ### Motor responds too slowly
-- **Cause**: P too low or F too low
-- **Fix**: Increase P by 20-30%, or increase F by 10%
+- **Cause**: P or F too low
+- **Fix**: Increase P from 12 to 13-15, or increase F from 17 to 18-20
 
 ### Different behavior under load vs. no load
 - **Cause**: F not optimized, or I needed
-- **Fix**: Tune F for loaded condition, add small I value
+- **Fix**: Fine-tune F for loaded condition, ensure I=3 or increase to 4
 
 ## Advanced Considerations
 
 ### Why F Changes with Operating Speed
 The feedforward coefficient F is speed-dependent because:
-- At 200 RPM: `F = 1.0 / 1279.16 ≈ 0.000782`
-- At 300 RPM: `F = 1.0 / 1918.74 ≈ 0.000521`
+- At 300 RPM (peak): `F = 32767 / 1918.74 ≈ 17.07`
+- At 200 RPM (typical): `F = 32767 / 1279.16 ≈ 25.61`
 
-If you operate at different speeds frequently, you might need to:
-1. Use the F value for your most common operating speed
-2. Increase P to compensate for F inaccuracy at other speeds
-3. Accept slight performance variation at extreme speeds
+Use F based on your **maximum** velocity (300 RPM) so it works across the full range.
+The P and I terms will compensate for the slight F inaccuracy at lower speeds.
+
+### Understanding the Scale Difference
+**Critical**: FTC's velocity PIDF uses internal scale where 32767 = max motor power.
+This is why default REV values are P=10, I=3 (not 0.01, 0.003).
+The formula `F = 1.0 / max_velocity` is for normalized systems and gives values 
+~1000x too small for FTC!
 
 ### Motor Load Variation
 If your robot weight or traction changes significantly:

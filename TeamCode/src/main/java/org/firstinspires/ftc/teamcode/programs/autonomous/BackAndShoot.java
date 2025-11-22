@@ -1,4 +1,4 @@
-package org.firstinspires.ftc.teamcode.programs.teleop;
+package org.firstinspires.ftc.teamcode.programs.autonomous;
 
 import com.qualcomm.robotcore.eventloop.opmode.Disabled;
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
@@ -15,6 +15,8 @@ import org.firstinspires.ftc.teamcode.hardware.Robot;
 public class BackAndShoot extends OpMode {
   public Robot robot;
   public Camera camera;
+  boolean goLeft = false;
+  boolean goRight = false;
 
   // 
   /*
@@ -26,6 +28,7 @@ public class BackAndShoot extends OpMode {
     telemetry.update();
     this.robot = new Robot(hardwareMap);
     this.camera = new Camera(hardwareMap);
+    this.robot.indexer.forcePreload();
     try {
       this.camera.initAprilTag();
     } catch (Camera.CameraNotAttachedException e) {
@@ -40,23 +43,65 @@ public class BackAndShoot extends OpMode {
    */
   @Override
   public void init_loop() {
+    // Allow quick base RPM tuning via dpad during INIT
+    telemetry.addData("Base RPM", baseRPM);
+    if (gamepad1.dpad_up && !upPressed) {
+      baseRPM += 100;
+      upPressed = true;
+    } else if (!gamepad1.dpad_up) {
+      upPressed = false;
+    }
+    if (gamepad1.dpad_down && !downPressed) {
+      baseRPM -= 100;
+      downPressed = true;
+    } else if (!gamepad1.dpad_down) {
+      downPressed = false;
+    }
+    if (gamepad1.x) {
+      goLeft = true;
+      goRight = false;
+    } else if (gamepad1.b) {
+      goRight = true;
+      goLeft = false;
+    }
+    telemetry.addData("Go Left", goLeft);
+    telemetry.addData("Go Right", goRight);
+    telemetry.update();
   }
+
+  ElapsedTime timer = new ElapsedTime();
 
   /*
    * Code to run ONCE when the driver hits PLAY
    */
   @Override
   public void start() {
+    timer.reset();
   }
 
   double range = 0;
   double x = 0;
+  int baseRPM = 3000;
+  boolean upPressed = false;
+  boolean downPressed = false;
+  double xTolerance = 5;
 
   /*
    * Code to run REPEATEDLY after the driver hits PLAY but before they hit STOP
    */
   @Override
   public void loop() {
+    if (timer.milliseconds() > 29000) {
+      // Back away from wall
+      if (goLeft) {
+        robot.drive(-0.33, 0, 0);
+      } else if (goRight) {
+        robot.drive(0.33, 0, 0);
+      } else {
+        robot.drive(0, 0, 0);
+      }
+      return;
+    }
     try {
       Camera.AprilTag tag = camera.getAprilTag(Camera.AprilTagPosition.GOAL);
       range = tag.ftcPose.range;
@@ -70,16 +115,32 @@ public class BackAndShoot extends OpMode {
     } catch (Camera.TagNotFoundException e) {
       telemetry.addData("Range", "Tag not found");
     }
-    if (range < 85) {
+    if (range < 60) {
       robot.drive(0, -0.25, 0);
     } else {
-      robot.drive(0, 0, Range.clip(x * 0.025, -0.15, 0.15));
-      robot.shooter.setRPM(3000);
-      if (robot.shooter.atSpeedRPM(3000)) {
-        robot.indexer.setPower(1);
+      double turn = Range.clip(x / 30, -0.15, 0.15);
+      boolean xReady = Math.abs(x) <= xTolerance;
+      robot.drive(0, 0, turn);
+      int shooterRpm;
+      if (range < 60) {
+        shooterRpm = baseRPM;
+      } else if (range < 70) {
+        shooterRpm = baseRPM - 100;
+      } else if (range < 80) {
+        shooterRpm = baseRPM - 200;
+      } else if (range < 90) {
+        shooterRpm = baseRPM - 50;
+      } else {
+        shooterRpm = baseRPM + 200;
+      }
+      robot.shooter.setRPM(shooterRpm);
+      if (robot.shooter.atSpeedRPM(shooterRpm) && xReady) {
+        if (!robot.indexer.isBlocked()) {
+          //We don't care if this returns false, it just means that it's out of balls but we want to just keep running the program so that it doesn't stop before the ball is actually shot
+          robot.indexer.unknown();
+        }
         robot.intake.setPowerAll(1);
       } else {
-        robot.indexer.setPower(0);
         robot.intake.setPowerAll(0);
 
       }

@@ -12,6 +12,8 @@ import org.firstinspires.ftc.vision.apriltag.AprilTagProcessor;
 
 import java.util.List;
 import java.util.stream.Collectors;
+import java.util.Map;
+import java.util.HashMap;
 
 /*
  * This OpMode illustrates the basics of AprilTag recognition and pose estimation, using
@@ -50,7 +52,7 @@ public class Camera {
 
     // Create the AprilTag processor by using a builder.
     aprilTag = new AprilTagProcessor.Builder()
-        //TODO: .setLensIntrinsics(615.0, 615.0, 320.0, 240.0) // Focal lengths fx, fy; Principal point cx, cy
+        .setLensIntrinsics(541.591, 541.591, 328.0, 235.051) // Focal lengths fx, fy; Principal point cx, cy
         .build();
     // Create the vision portal by using a builder.
     visionPortal = new VisionPortal.Builder()
@@ -193,6 +195,9 @@ public class Camera {
 
   public class AprilTag extends AprilTagDetection {
     public AprilTagPosition position = AprilTagPosition.UNKNOWN;
+    public OBELISK_MOTIF obeliskMotif = null;
+
+    public GOAL_COLOR goalColor = null;
 
     public AprilTag(AprilTagDetection detection) {
       super(detection.id, detection.hamming, detection.decisionMargin, detection.center, detection.corners,
@@ -203,10 +208,53 @@ public class Camera {
       }
       if (detection.id == 20 || detection.id == 24) {
         position = AprilTagPosition.GOAL;
+        goalColor = detection.id == 20 ? GOAL_COLOR.BLUE : GOAL_COLOR.RED;
       }
       if (detection.id == 21 || detection.id == 22 || detection.id == 23) {
         position = AprilTagPosition.OBELISK;
+        obeliskMotif = OBELISK_MOTIF.fromId(detection.id);
       }
     }
   }
-} // end class
+
+  public enum OBELISK_MOTIF {
+    GREEN_PURPLE_PURPLE(21, Indexer.BallColor.GREEN, Indexer.BallColor.PURPLE, Indexer.BallColor.PURPLE),
+    PURPLE_GREEN_PURPLE(22, Indexer.BallColor.PURPLE, Indexer.BallColor.GREEN, Indexer.BallColor.PURPLE),
+    PURPLE_PURPLE_GREEN(23, Indexer.BallColor.PURPLE, Indexer.BallColor.PURPLE, Indexer.BallColor.GREEN);
+
+    public final int id;
+    private final Indexer.BallColor[] pattern;
+    private static final Map<Integer, OBELISK_MOTIF> BY_ID = new HashMap<>();
+
+    OBELISK_MOTIF(int id, Indexer.BallColor... pattern) {
+      this.id = id;
+      this.pattern = pattern;
+    }
+
+    public Indexer.BallColor[] getPattern() {
+      return pattern.clone();
+    }
+
+    static {
+      for (OBELISK_MOTIF motif : values()) {
+        BY_ID.put(motif.id, motif);
+      }
+    }
+
+    public static OBELISK_MOTIF fromId(int id) {
+      return BY_ID.get(id);
+    }
+  }
+
+  public enum GOAL_COLOR {
+    BLUE(20),
+    RED(24);
+
+    public final int id;
+
+    GOAL_COLOR(int id) {
+      this.id = id;
+    }
+  }
+}
+// end class

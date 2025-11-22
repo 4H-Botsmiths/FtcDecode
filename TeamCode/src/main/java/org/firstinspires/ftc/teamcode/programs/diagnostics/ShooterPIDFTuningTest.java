@@ -87,6 +87,15 @@ public class ShooterPIDFTuningTest extends LinearOpMode {
     robot.leftShooter.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
     robot.rightShooter.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
 
+    PIDFCoefficients shooterPIDF = new PIDFCoefficients(
+        35.0, // P - High for quick load response (corrected scale)
+        6.0, // I - Strong for consistent performance (corrected scale)
+        2.0, // D - Moderate to prevent overshoot (corrected scale)
+        23.0 // F - Feedforward for 3000 RPM baseline (32767/1400, corrected scale)
+    );
+    robot.leftShooter.setPIDFCoefficients(shooterPIDF);
+    robot.rightShooter.setPIDFCoefficients(shooterPIDF);
+
     // Display current PIDF coefficients
     telemetry.addLine("=== Shooter PIDF Tuning Test ===");
     telemetry.addLine();
@@ -134,6 +143,9 @@ public class ShooterPIDFTuningTest extends LinearOpMode {
     robot.intake.stopAll();
   }
 
+  boolean upPressed = false;
+  boolean downPressed = false;
+
   private void handleGamepadInput() {
     // Toggle shooter on/off
     if (gamepad1.a && !shooterRunning) {
@@ -155,18 +167,23 @@ public class ShooterPIDFTuningTest extends LinearOpMode {
 
     // Continuous run test
     if (gamepad1.x) {
-      shooterRunning = true;
       resetStatistics();
+      shooterRunning = true;
       sleep(200); // Debounce
     }
 
     // Adjust target RPM
-    if (gamepad1.dpad_up) {
+    if (gamepad1.dpad_up && !upPressed) {
+      upPressed = true;
       targetRPM = Math.min(4000, targetRPM + 100);
       sleep(200); // Debounce
-    } else if (gamepad1.dpad_down) {
+    } else if (gamepad1.dpad_down && !downPressed) {
+      downPressed = true;
       targetRPM = Math.max(1000, targetRPM - 100);
       sleep(200); // Debounce
+    } else {
+      upPressed = false;
+      downPressed = false;
     }
 
     // Real ball feed test - runs intake to feed balls
@@ -183,10 +200,20 @@ public class ShooterPIDFTuningTest extends LinearOpMode {
 
     if (gamepad1.start) {
       PIDFCoefficients shooterPIDF = new PIDFCoefficients(
-          0.040, // P - High for quick load response
-          0.0015, // I - Strong for consistent performance
-          0.0008, // D - Moderate to prevent overshoot
-          0.0007 // F - Feedforward for 3000 RPM baseline
+          45.0, // P - High for quick load response (corrected scale)
+          8.0, // I - Strong for consistent performance (corrected scale)
+          3.0, // D - Moderate to prevent overshoot (corrected scale)
+          23.0 // F - Feedforward for 3000 RPM baseline (32767/1400, corrected scale)
+      );
+      robot.leftShooter.setPIDFCoefficients(shooterPIDF);
+      robot.rightShooter.setPIDFCoefficients(shooterPIDF);
+    }
+    if (gamepad1.back) {
+      PIDFCoefficients shooterPIDF = new PIDFCoefficients(
+          28.0, // P - High for quick load response (corrected scale)
+          4.0, // I - Strong for consistent performance (corrected scale)
+          1.5, // D - Moderate to prevent overshoot (corrected scale)
+          23.0 // F - Feedforward for 3000 RPM baseline (32767/1400, corrected scale)
       );
       robot.leftShooter.setPIDFCoefficients(shooterPIDF);
       robot.rightShooter.setPIDFCoefficients(shooterPIDF);
@@ -220,11 +247,12 @@ public class ShooterPIDFTuningTest extends LinearOpMode {
       }
 
       // Safety timeout - stop intake after 3 seconds
-      if (recoveryTimer.seconds() > 3.0) {
+      //Removed as it made testing slower
+      /*if (recoveryTimer.seconds() > 3.0) {
         robot.intake.stopAll();
         intakeRunning = false;
         measuringRecovery = false;
-      }
+      }*/
     }
   }
 
@@ -239,10 +267,10 @@ public class ShooterPIDFTuningTest extends LinearOpMode {
   }
 
   private void startSpinUpMeasurement() {
+    resetStatistics();
     measuringSpinUp = true;
     spinUpTimer.reset();
     peakRPM = 0;
-    resetStatistics();
   }
 
   private void updateStatistics() {

@@ -7,8 +7,8 @@ import com.qualcomm.robotcore.util.Range;
 import org.firstinspires.ftc.teamcode.hardware.Camera;
 import org.firstinspires.ftc.teamcode.hardware.Robot;
 
-@Autonomous(name = "Leave Wall and Shoot RED", group = "A", preselectTeleOp = "Decode Camera TeleOp")
-public class LeaveWallAndShootRED extends OpMode {
+@Autonomous(name = "Shoot From Back", group = "A", preselectTeleOp = "Decode Camera TeleOp")
+public class ShootFromBack extends OpMode {
   public Robot robot;
   public Camera camera;
 
@@ -20,6 +20,8 @@ public class LeaveWallAndShootRED extends OpMode {
   private boolean upPressed = false;
   private boolean downPressed = false;
   private double xTolerance = 5;
+  boolean blueTeam = false;
+  boolean redTeam = false;
   Camera.OBELISK_MOTIF obeliskMotif = Camera.OBELISK_MOTIF.PURPLE_PURPLE_GREEN;
   int patternIndex = 0;
 
@@ -72,6 +74,14 @@ public class LeaveWallAndShootRED extends OpMode {
     } else if (!gamepad1.dpad_down) {
       downPressed = false;
     }
+    if (gamepad1.b) {
+      redTeam = true;
+      blueTeam = false;
+    } else if (gamepad1.x) {
+      blueTeam = true;
+      redTeam = false;
+    }
+    telemetry.addData("Team", redTeam ? "RED" : blueTeam ? "BLUE" : "None");
     telemetries();
   }
 
@@ -92,18 +102,27 @@ public class LeaveWallAndShootRED extends OpMode {
   @Override
   public void loop() {
     telemetries();
-    if (timer.milliseconds() < 4000) {
-      // Drive forward for the first ~2.5 seconds (no backing up)
-      robot.drive(0, 0.25, 0);
+    if (timer.milliseconds() < 250) {
+      robot.drive(0, 0.33, 0);
       return;
     }
-    if (timer.milliseconds() < 4500) {
+    if (timer.milliseconds() < 1250) {
+      if (redTeam) {
+        robot.drive(0, 0, 0.1);
+      } else if (blueTeam) {
+        robot.drive(0, 0, -0.1);
+      } else {
+        robot.drive(0, 0, 0);
+      }
+      return;
+    }
+    if (timer.milliseconds() > 21000) {
+      requestOpModeStop();
+      return;
+    }
+    if (timer.milliseconds() > 20000) {
       // Brief pause to stabilize
-      robot.drive(0, 0, 0.25);
-      return;
-    }
-    if (timer.milliseconds() > 29000) {
-      robot.drive(0.33, 0, 0);
+      robot.drive(0, 0.33, 0);
       return;
     }
 

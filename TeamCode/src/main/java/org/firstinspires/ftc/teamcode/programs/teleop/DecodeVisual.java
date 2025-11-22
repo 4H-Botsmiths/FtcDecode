@@ -96,23 +96,54 @@ public class DecodeVisual extends OpMode {
    */
   @Override
   public void loop() {
+    cameraLoop();
     // Driver control
     driverLoop();
     // Operator control
     operatorLoop();
     telemetries();
+  }
 
-    if (!gamepad1.right_bumper && !gamepad2.right_bumper) {
+  private boolean cameraActive = false;
+  private boolean tagFound = false;
+  private double tagX = 0;
+  private double tagRange = 85;
+
+  public void cameraLoop() {
+    // Currently no periodic camera actions needed; handled on-demand in driver/operator loops.
+    if (gamepad1.right_bumper || gamepad2.right_bumper) {
+      try {
+        try {
+          Camera.AprilTag tag = camera.getAprilTag(Camera.AprilTagPosition.GOAL);
+          tagX = tag.ftcPose.x;
+          tagRange = tag.ftcPose.range;
+          tagFound = true;
+          cameraActive = true;
+        } catch (Camera.CameraNotStreamingException e) {
+          // If the camera is paused or briefly unavailable, try to resume streaming.
+          camera.resume();
+        } catch (Camera.TagNotFoundException e) {
+          // For now, keep the tag coordinate that was last seen.
+          //tagX = 0;
+          tagFound = false;
+        }
+      } catch (Camera.CameraNotAttachedException e) {
+        telemetry.speak("WARNING: Camera not attached!");
+      }
+    } else {
       try {
         // Pause the camera to save resources during active driving.
         camera.pause();
+        cameraActive = false;
+        tagFound = false;
+        tagX = 0;
+        tagRange = 85;
       } catch (Camera.CameraNotAttachedException e) {
         telemetry.speak("WARNING: Camera not attached!");
       }
     }
   }
 
-  double tagX = 0;
   // Target alignment tolerance on the X-axis when aiming at the goal tag.
   // NOTE: ftcPose.x is in inches (left/right). This tolerance is labeled as "Pixels" but isn't in pixels.
   // Consider converting to inches or computing a pixel offset from detection center.
@@ -132,72 +163,70 @@ public class DecodeVisual extends OpMode {
   double rangeTolerance = 5;
   double targetRange = 85;
 
-  boolean driverAnnounced = false;
   boolean xReady = false;
 
   public void driverLoop() {
     // Build field-centric-ish inputs (x=strafe, y=forward, z=rotate) with trigger-based scaling.
     // The math below starts with 1/3 scaling, doubles to ~2/3 base speed, then adds/subtracts
     // additional portions based on RT/LT to allow the driver to fine-tune speed on the fly.
-    double x = gamepad1.left_stick_x / 3;
-    x *= 2;
-    x += gamepad1.right_trigger * (gamepad1.left_stick_x / 3);
-    x -= gamepad1.left_trigger * (gamepad1.left_stick_x / 3);
-    double y = -gamepad1.left_stick_y / 3;
-    y *= 2;
-    y += gamepad1.right_trigger * (-gamepad1.left_stick_y / 3);
-    y -= gamepad1.left_trigger * (-gamepad1.left_stick_y / 3);
-    double z = gamepad1.right_stick_x / 3;
-    z *= 2;
-    z += gamepad1.right_trigger * (gamepad1.right_stick_x / 3);
-    z -= gamepad1.left_trigger * (gamepad1.right_stick_x / 3);
+    double x = 0;
+    double y = 0;
+    double r = 0;
+    if (gamepad1.left_bumper) {
+      robot.frontLeft.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
+      robot.frontRight.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
+      robot.rearLeft.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
+      robot.rearRight.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
+    } else {
+      robot.frontLeft.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.FLOAT);
+      robot.frontRight.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.FLOAT);
+      robot.rearLeft.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.FLOAT);
+      robot.rearRight.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.FLOAT);
+      x = gamepad1.left_stick_x / 3;
+      x *= 2;
+      x += gamepad1.right_trigger * (gamepad1.left_stick_x / 3);
+      x -= gamepad1.left_trigger * (gamepad1.left_stick_x / 3);
+      y = -gamepad1.left_stick_y / 3;
+      y *= 2;
+      y += gamepad1.right_trigger * (-gamepad1.left_stick_y / 3);
+      y -= gamepad1.left_trigger * (-gamepad1.left_stick_y / 3);
+      r = gamepad1.right_stick_x / 3;
+      r *= 2;
+      r += gamepad1.right_trigger * (gamepad1.right_stick_x / 3);
+      r -= gamepad1.left_trigger * (gamepad1.right_stick_x / 3);
+    }
 
     if (gamepad1.right_bumper) {
+      boolean rumble = true;
       // Align-assist: while RB is held, read the GOAL AprilTag and adjust rotation (z)
       // to center the tag. Also provide driver rumble until within tolerance.
-      try {
-        try {
-          Camera.AprilTag tag = camera.getAprilTag(Camera.AprilTagPosition.GOAL);
-          tagX = tag.ftcPose.x;
-          tagRange = tag.ftcPose.range;
-        } catch (Camera.CameraNotStreamingException e) {
-          // If the camera is paused or briefly unavailable, try to resume streaming.
-          camera.resume();
-        } catch (Camera.TagNotFoundException e) {
-          // For now, keep the tag coordinate that was last seen.
-          //tagX = 0;
-        }
-      } catch (CameraNotAttachedException e) {
-        telemetry.addLine("ERROR: CAMERA NOT ATTACHED!");
-      }
-      if (!driverAnnounced) {
-        telemetry.speak("Driver Ready");
-        driverAnnounced = true;
-      }
-      z += Range.clip(tagX * 0.025, -0.15, 0.15);
-      y += Range.clip((tagRange - targetRange) * 0.025, -0.15, 0.15);
-      if (Math.abs(tagX) > xTolerance || Math.abs(targetRange - tagRange) > rangeTolerance) {
+      r += (tagX / 30) * (tagFound ? 0.66 : 0.33);
+      y += tagRange < 50 ? -0.4 : 0;
+      if (Math.abs(tagX) > xTolerance || tagRange < 50) {
         // Outside tolerance: keep rotating toward center and rumble as feedback.
         xReady = false;
-        gamepad1.rumble(1, 1, Gamepad.RUMBLE_DURATION_CONTINUOUS);
         // Gain/clip: proportional correction from tag X offset, clipped to avoid overshoot.
         // NOTE: tagX currently in inches; tune gain accordingly if you convert units.
       } else {
         // Centered enough: stop rumble and mark alignment ready for operator auto-feed.
         gamepad1.stopRumble();
         xReady = true;
+        if (tagFound) {
+          rumble = false;
+        }
+      }
+      if (rumble) {
+        gamepad1.rumble(1, 1, Gamepad.RUMBLE_DURATION_CONTINUOUS);
+      } else {
+        gamepad1.stopRumble();
       }
     } else {
       // Align-assist not active.
-      tagX = 0;
-      tagRange = 0;
       xReady = false;
       gamepad1.stopRumble();
     }
-    // Reset so we re-announce the next time align-assist is entered.
-    driverAnnounced = false;
     // Drive the robot with final x/y/z inputs.
-    robot.drive(x, y, z);
+    robot.drive(x, y, r);
   }
 
   /**
@@ -213,21 +242,19 @@ public class DecodeVisual extends OpMode {
    * - Camera streaming is resumed if needed and paused when exiting auto-shoot to save resources.
    */
 
-  boolean operatorAnnounced = false;
-  private int RPM = 3000;
+  private int baseRPM = 3000;
   boolean upPressed = false;
   boolean downPressed = false;
-  double tagRange = 0;
 
   public void operatorLoop() {
     if (gamepad2.dpad_up && !upPressed) {
-      RPM += 100;
+      baseRPM += 100;
       upPressed = true;
     } else if (!gamepad2.dpad_up) {
       upPressed = false;
     }
     if (gamepad2.dpad_down && !downPressed) {
-      RPM -= 100;
+      baseRPM -= 100;
       downPressed = true;
     } else if (!gamepad2.dpad_down) {
       downPressed = false;
@@ -237,14 +264,18 @@ public class DecodeVisual extends OpMode {
     double shooterRpm = 0;
     if (gamepad2.right_bumper) {
       // Auto-shoot mode: derive target shooter RPM from tag range and gate intake until ready.
-      if (!operatorAnnounced) {
-        telemetry.speak("Operator Ready");
-        operatorAnnounced = true;
-      }
-      operatorAnnounced = true;
-
       // Placeholder mapping from range (in) -> shooter RPM. Replace with calibrated function/table.
-      shooterRpm = RPM;//tagRange > 0 ? 3000 : 0; //(tagRange / 100) * SHOOTER_MAX_RPM : SHOOTER_MAX_RPM; // TODO: MATH - calibrate mapping
+      if (tagRange < 60) {
+        shooterRpm = baseRPM; //3000;
+      } else if (tagRange < 70) {
+        shooterRpm = baseRPM - 100; //2900;
+      } else if (tagRange < 80) {
+        shooterRpm = baseRPM - 200; //2800;
+      } else if (tagRange < 90) {
+        shooterRpm = baseRPM - 50; //2950;
+      } else {
+        shooterRpm = baseRPM + 200; //3200;
+      }
       if (robot.shooter.atSpeedRPM(shooterRpm)) {
         // At speed: stop operator rumble.
         gamepad2.stopRumble();
@@ -258,7 +289,6 @@ public class DecodeVisual extends OpMode {
       }
     } else {
       // Exit auto-shoot: stop rumble feedback, pause camera to save processing, and reset state.
-      operatorAnnounced = false;
       gamepad2.stopRumble();
 
     }
@@ -269,18 +299,27 @@ public class DecodeVisual extends OpMode {
     // Apply mechanism outputs
     robot.intake.setPowerAll(intakePower);
     robot.shooter.setRPM(shooterRpm);
-    robot.indexer.setPower(gamepad2.left_stick_x);
+    if (gamepad2.left_stick_x < -0.5) {
+      robot.indexer.left();
+    } else if (gamepad2.left_stick_x > 0.5) {
+      robot.indexer.right();
+    } else if (gamepad2.left_stick_y < -0.5) {
+      robot.indexer.top();
+    } else if (gamepad2.left_stick_y > 0.5) {
+      robot.indexer.load();
+    }
   }
 
   public void telemetries() {
     // Drivetrain RPMs (per-wheel), shooter speed, and vision-derived alignment/shooting info
     telemetry.addLine(String.format("FL (%6.1f) (%6.1f) FR", robot.frontLeft.getRPM(), robot.frontRight.getRPM()));
     telemetry.addLine(String.format("RL (%6.1f) (%6.1f) RR", robot.rearLeft.getRPM(), robot.rearRight.getRPM()));
-    telemetry.addData("Target Shooter RPM", RPM);
+    telemetry.addData("Target Shooter RPM", baseRPM);
     telemetry.addLine(String.format("Shooter RPM: %6.1f", robot.shooter.getRPM()));
+    telemetry.addData("Tag Found", tagFound);
     telemetry.addLine(String.format("Tag X: (%6.1f) Tag Range: (%6.1f)", tagX, tagRange));
     //telemetry.addLine(String.format("Intake Power: (%6.1f)", robot.intake.getPowers()));
-    telemetry.addLine(String.format("Indexer Power: (%6.1f)", robot.indexer.getPower()));
+    telemetry.addLine(String.format("Indexer Position: (%s)", robot.indexer.getCurrentPosition()));
     // Camera helper will add its own telemetry (detections, pose, etc.).
     camera.telemetryAprilTag(telemetry);
   }
@@ -294,7 +333,6 @@ public class DecodeVisual extends OpMode {
     robot.drive(0, 0, 0);
     robot.shooter.setRPM(0);
     robot.intake.setPowerAll(0);
-    robot.indexer.setPower(0);
   }
 
 }

@@ -1,10 +1,12 @@
 package org.firstinspires.ftc.teamcode.hardware;
 
+import com.qualcomm.robotcore.hardware.ColorSensor;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.DcMotorEx;
 import com.qualcomm.robotcore.hardware.DcMotorSimple;
 import com.qualcomm.robotcore.hardware.HardwareMap;
 import com.qualcomm.robotcore.hardware.PIDFCoefficients;
+import com.qualcomm.robotcore.hardware.Servo;
 import com.qualcomm.robotcore.util.Range;
 import com.qualcomm.robotcore.hardware.CRServo;
 
@@ -22,8 +24,10 @@ public class Robot {
   public final CRServo intakeServoRight;
   public final Intake intake;
 
-  /** Positive power is counter-clockwise. Negative power is clockwise */
-  public final CRServo indexer;
+  public final Servo indexerServo;
+  public final ColorSensor leftColorSensor;
+  public final ColorSensor rightColorSensor;
+  public final Indexer indexer;
 
   public Robot(HardwareMap hardwareMap) {
     // Initialize hardware here
@@ -51,37 +55,40 @@ public class Robot {
     //
     // CALCULATING PIDF VALUES FOR SHOOTER MOTORS:
     //
+    // IMPORTANT: FTC velocity PIDF uses a different scale than normalized (0-1) control!
+    // Just like drive motors, we must use FTC's scale where 32767 = max motor power.
+    //
     // Step 1: Calculate velocity in ticks/second
     //   Shooter velocity = (3000 RPM × 28 PPR) / 60 seconds = 1400 ticks/sec
     //
     // Step 2: Calculate F (Feedforward)
-    //   F = maximum_power / shooter_velocity
-    //   F = 1.0 / 1400 = 0.000714
-    //   Recommended: Kf = 0.0007
+    //   For FTC velocity control: F = 32767 / velocity_ticks_per_sec
+    //   F = 32767 / 1400 ≈ 23.4
+    //   Recommended: Kf = 23.0
     //
     // Step 3: Calculate P (Proportional) - HIGHER for shooters!
-    //   Rule of thumb: Kp ≈ 30 to 80 times Kf (vs. 10-100 for drive)
-    //   For quick load response: Kp = 60 × 0.0007 = 0.042
-    //   Recommended starting value: Kp = 0.040
+    //   Shooters need faster load response than drive motors
+    //   For quick load response: Start with Kp = 30-40
+    //   Recommended starting value: Kp = 35.0
     //   Why higher? Responds faster when ball hits, gets to speed quicker
     //
     // Step 4: Calculate I (Integral) - HIGHER for shooters!
-    //   Rule of thumb: Ki ≈ Kp / 20 to Kp / 50 (vs. Kp/10-100 for drive)
-    //   For consistent shots: Ki = 0.040 / 27 = 0.00148
-    //   Recommended starting value: Ki = 0.0015
+    //   Shooters need to maintain speed under continuous ball loading
+    //   For consistent shots: Start with Ki = 5-8
+    //   Recommended starting value: Ki = 6.0
     //   Why higher? Fights ball resistance better, maintains speed under load
     //
     // Step 5: Calculate D (Derivative) - MODERATE for shooters
-    //   Rule of thumb: Kd ≈ Kp / 40 to Kp / 100
-    //   For minimal overshoot: Kd = 0.040 / 50 = 0.0008
-    //   Recommended starting value: Kd = 0.0008
+    //   Prevents overshoot during rapid spin-up
+    //   For minimal overshoot: Start with Kd = 1-3
+    //   Recommended starting value: Kd = 2.0
     //   Why moderate? Prevents overshoot on startup without slowing response
     //
     // RECOMMENDED STARTING VALUES (for ~3000 RPM shooter):
-    //   Kp = 0.040   // High responsiveness to ball load
-    //   Ki = 0.0015  // Strong correction for consistency
-    //   Kd = 0.0008  // Moderate overshoot prevention
-    //   Kf = 0.0007  // Feedforward for 3000 RPM baseline
+    //   Kp = 35.0   // High responsiveness to ball load
+    //   Ki = 6.0    // Strong correction for consistency
+    //   Kd = 2.0    // Moderate overshoot prevention
+    //   Kf = 23.0   // Feedforward for 3000 RPM baseline
     //
     // TO APPLY THESE VALUES, uncomment and customize the code below:
     /*
@@ -94,11 +101,12 @@ public class Robot {
     // - Fast response when ball creates resistance
     // - Quick spin-up without overshoot (0.3-0.5 seconds to 3000 RPM)
     // - Consistent velocity shot-to-shot (±30 RPM)
+    // Note: FTC velocity PIDF uses larger scale (P=35, not 0.04)
     PIDFCoefficients shooterPIDF = new PIDFCoefficients(
-    0.040,  // P - High for quick load response
-    0.0015, // I - Strong for consistent performance
-    0.0008, // D - Moderate to prevent overshoot
-    0.0007  // F - Feedforward for 3000 RPM baseline
+    35.0,  // P - High for quick load response
+    6.0,   // I - Strong for consistent performance
+    2.0,   // D - Moderate to prevent overshoot
+    23.0   // F - Feedforward for 3000 RPM baseline (32767/1400)
     );
     
     // Apply PIDF to both shooter motors
@@ -111,10 +119,16 @@ public class Robot {
 
     // TUNING TIPS FOR SHOOTERS:
     // 1. Start with F only (P=I=D=0), tune until close to 3000 RPM
-    // 2. Add P=0.040 to improve load response and startup speed
-    // 3. Add I=0.0015 for shot-to-shot consistency
-    // 4. Add D=0.0008 to eliminate any overshoot
+    //    - For FTC velocity control, F should be around 32767 / 1400 ≈ 23
+    // 2. Add P=35 to improve load response and startup speed
+    // 3. Add I=6 for shot-to-shot consistency
+    // 4. Add D=2 to eliminate any overshoot
     // 5. Test with actual ball shots under match conditions!
+    //
+    // WHY PREVIOUS VALUES WERE TOO LOW:
+    // Previous values (P=0.040, I=0.0015, D=0.0008, F=0.0007) used wrong scale.
+    // FTC's velocity PIDF uses scale where 32767 = max power, so values should be
+    // roughly 1000x larger: P=35, I=6, D=2, F=23 (not 0.04, 0.0015, 0.0008, 0.0007).
     //
     // PERFORMANCE TARGETS:
     // - Spin-up time: 0.3-0.5 seconds (0 to 3000 RPM)
@@ -178,32 +192,38 @@ public class Robot {
     //
     // CALCULATING PIDF VALUES FOR YOUR MOTORS:
     //
+    // IMPORTANT: FTC velocity PIDF uses a different scale than normalized (0-1) control!
+    // Default REV motor PIDF values are typically P=10, I=3, D=0, F=0 (not 0.01, 0.003, etc.)
+    //
     // Step 1: Calculate maximum velocity in ticks/second
     //   Max velocity = (300 RPM × 383.748 PPR) / 60 seconds = 1918.74 ticks/sec
     //   Typical velocity = (200 RPM × 383.748 PPR) / 60 seconds = 1279.16 ticks/sec
     //
     // Step 2: Calculate F (Feedforward) - Start here!
-    //   F = maximum_power / maximum_velocity
-    //   For typical 200 RPM operations: F = 1.0 / 1279.16 ≈ 0.000782
-    //   Recommended starting value: Kf = 0.0008
+    //   For FTC velocity control: F = 32767 / max_velocity_ticks_per_sec
+    //   F = 32767 / 1918.74 ≈ 17.07
+    //   Recommended starting value: Kf = 17.0
+    //   (This provides baseline power proportional to target velocity)
     //
     // Step 3: Calculate P (Proportional)
-    //   Rule of thumb: Kp ≈ 10 to 100 times Kf
-    //   Recommended starting value: Kp = 0.015 (about 20 × Kf)
+    //   Start with default working value: Kp = 10.0
+    //   Increase if response is too slow (try 12-15)
+    //   Decrease if motor oscillates (try 7-9)
     //
     // Step 4: Calculate I (Integral)
-    //   Rule of thumb: Ki ≈ Kp / 10 to Kp / 100
-    //   Recommended starting value: Ki = 0.0003 (conservative)
+    //   Start with default working value: Ki = 3.0
+    //   Increase to 4-5 if motor doesn't reach target speed
+    //   Decrease to 1-2 if motor overshoots or oscillates
     //
     // Step 5: Calculate D (Derivative)
-    //   Rule of thumb: Kd ≈ Kp / 10 to Kp / 100
-    //   Recommended starting value: Kd = 0.0002 (small, or start at 0)
+    //   Start with: Kd = 0.0 (usually not needed for velocity control)
+    //   Add small value (0.5-2.0) only if oscillation occurs
     //
-    // RECOMMENDED STARTING VALUES (for 200 RPM typical operation):
-    //   Kp = 0.015   // Proportional gain
-    //   Ki = 0.0003  // Integral gain
-    //   Kd = 0.0002  // Derivative gain
-    //   Kf = 0.0008  // Feedforward gain (most important!)
+    // RECOMMENDED STARTING VALUES (for 200-300 RPM operation):
+    //   Kp = 12.0    // Proportional gain (improved from default 10)
+    //   Ki = 3.0     // Integral gain (keep default, works well)
+    //   Kd = 0.0     // Derivative gain (not needed)
+    //   Kf = 17.0    // Feedforward gain (CRITICAL - was missing!)
     //
     // TO APPLY THESE VALUES, uncomment and customize the code below:
     /*
@@ -214,12 +234,15 @@ public class Robot {
     rearRight.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
     
     // Define PIDF coefficients
-    // These values are tuned for ~200 RPM typical operation (can peak at 300 RPM)
+    // These values are tuned for ~200-300 RPM operation
+    // Note: FTC velocity PIDF uses larger scale than normalized control
+    // Default REV values are P=10, I=3, D=0, F=0
+    // We add F=17 for feedforward and increase P slightly for better response
     PIDFCoefficients drivePIDF = new PIDFCoefficients(
-    0.015,  // P - Proportional gain
-    0.0003, // I - Integral gain
-    0.0002, // D - Derivative gain
-    0.0008  // F - Feedforward gain
+    12.0,  // P - Proportional gain (increased from default 10 for better response)
+    3.0,   // I - Integral gain (default, works well)
+    0.0,   // D - Derivative gain (not needed for velocity control)
+    17.0   // F - Feedforward gain (CRITICAL for velocity control: 32767/1918.74)
     );
     
     // Apply PIDF to each drive motor
@@ -236,15 +259,27 @@ public class Robot {
 
     // TUNING TIPS:
     // 1. Start with F only (set P=I=D=0), tune until motor approximately reaches target
-    // 2. Add P to improve response time and accuracy
-    // 3. Add I only if motor doesn't quite reach target speed
-    // 4. Add D only if motor oscillates or overshoots
+    //    - For FTC velocity control, F should be around 32767 / max_ticks_per_sec
+    //    - This gives F ≈ 17 for your motors (was 0 in defaults, causing poor tracking!)
+    // 2. Add P to improve response time and accuracy (start with P=10, adjust 7-15 range)
+    // 3. Add I only if motor doesn't quite reach target speed (default I=3 works well)
+    // 4. Add D only if motor oscillates or overshoots (usually D=0 for velocity control)
     // 5. Test under actual robot load conditions!
+    //
+    // WHY PREVIOUS VALUES WERE TOO LOW:
+    // The previous PIDF values (P=0.015, I=0.0003, D=0.0002, F=0.0008) were calculated
+    // using formulas for normalized (0-1) control systems. FTC's velocity PIDF uses
+    // a different internal scale where typical values are P=10, I=3, F=17, not 0.01!
+    // This is roughly 1000x larger scale than assumed. The correct F formula is:
+    //   F = 32767 / max_velocity_ticks_per_sec  (NOT 1.0 / max_velocity)
     //
     // For detailed tuning instructions, see: TeamDocs/PIDF_Tuning_Guide.md
     // ==================================================================================
 
-    this.indexer = hardwareMap.get(CRServo.class, DeviceNames.CH_SERVO_1.getDeviceName());
+    this.indexerServo = hardwareMap.get(Servo.class, DeviceNames.CH_SERVO_1.getDeviceName());
+    this.leftColorSensor = hardwareMap.get(ColorSensor.class, DeviceNames.CH_I2C_0.getDeviceName());
+    this.rightColorSensor = hardwareMap.get(ColorSensor.class, DeviceNames.EH_I2C_0.getDeviceName());
+    this.indexer = new Indexer(this.indexerServo, this.leftColorSensor, this.rightColorSensor);
   }
 
   public static final int DRIVE_MAX_RPM = 300;
