@@ -1,10 +1,12 @@
 package org.firstinspires.ftc.teamcode.hardware;
 
+import com.qualcomm.robotcore.hardware.ColorSensor;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.DcMotorEx;
 import com.qualcomm.robotcore.hardware.DcMotorSimple;
 import com.qualcomm.robotcore.hardware.HardwareMap;
 import com.qualcomm.robotcore.hardware.PIDFCoefficients;
+import com.qualcomm.robotcore.hardware.Servo;
 import com.qualcomm.robotcore.util.Range;
 import com.qualcomm.robotcore.hardware.CRServo;
 
@@ -22,8 +24,10 @@ public class Robot {
   public final CRServo intakeServoRight;
   public final Intake intake;
 
-  /** Positive power is counter-clockwise. Negative power is clockwise */
-  public final CRServo indexer;
+  public final Servo indexerServo;
+  public final ColorSensor leftColorSensor;
+  public final ColorSensor rightColorSensor;
+  public final Indexer indexer;
 
   public Robot(HardwareMap hardwareMap) {
     // Initialize hardware here
@@ -272,7 +276,10 @@ public class Robot {
     // For detailed tuning instructions, see: TeamDocs/PIDF_Tuning_Guide.md
     // ==================================================================================
 
-    this.indexer = hardwareMap.get(CRServo.class, DeviceNames.CH_SERVO_1.getDeviceName());
+    this.indexerServo = hardwareMap.get(Servo.class, DeviceNames.CH_SERVO_1.getDeviceName());
+    this.leftColorSensor = hardwareMap.get(ColorSensor.class, DeviceNames.CH_I2C_0.getDeviceName());
+    this.rightColorSensor = hardwareMap.get(ColorSensor.class, DeviceNames.EH_I2C_0.getDeviceName());
+    this.indexer = new Indexer(this.indexerServo, this.leftColorSensor, this.rightColorSensor);
   }
 
   public static final int DRIVE_MAX_RPM = 300;
