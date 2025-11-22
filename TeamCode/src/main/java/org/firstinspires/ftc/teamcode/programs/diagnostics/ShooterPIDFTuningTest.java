@@ -104,22 +104,6 @@ public class ShooterPIDFTuningTest extends LinearOpMode {
     telemetry.addLine("See OpMode comments for controls");
     telemetry.update();
 
-    while (!opModeIsActive() && !isStopRequested()) {
-      boolean upPressed = false;
-      boolean downPressed = false;
-      if (gamepad1.dpad_up && !upPressed) {
-        targetRPM += 100;
-        upPressed = true;
-      } else if (!gamepad1.dpad_up) {
-        upPressed = false;
-      }
-      if (gamepad1.dpad_down && !downPressed) {
-        targetRPM -= 100;
-        downPressed = true;
-      } else if (!gamepad1.dpad_down) {
-        downPressed = false;
-      }
-    }
     waitForStart();
 
     while (opModeIsActive()) {
@@ -150,6 +134,9 @@ public class ShooterPIDFTuningTest extends LinearOpMode {
     robot.intake.stopAll();
   }
 
+  boolean upPressed = false;
+  boolean downPressed = false;
+
   private void handleGamepadInput() {
     // Toggle shooter on/off
     if (gamepad1.a && !shooterRunning) {
@@ -177,10 +164,12 @@ public class ShooterPIDFTuningTest extends LinearOpMode {
     }
 
     // Adjust target RPM
-    if (gamepad1.dpad_up) {
+    if (gamepad1.dpad_up && !upPressed) {
+      upPressed = true;
       targetRPM = Math.min(4000, targetRPM + 100);
       sleep(200); // Debounce
-    } else if (gamepad1.dpad_down) {
+    } else if (gamepad1.dpad_down && !downPressed) {
+      downPressed = true;
       targetRPM = Math.max(1000, targetRPM - 100);
       sleep(200); // Debounce
     }
