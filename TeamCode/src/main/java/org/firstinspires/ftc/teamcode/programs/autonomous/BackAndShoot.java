@@ -135,7 +135,10 @@ public class BackAndShoot extends OpMode {
       }
       robot.shooter.setRPM(shooterRpm);
       if (robot.shooter.atSpeedRPM(shooterRpm) && xReady) {
-        robot.indexer.unknown();
+        if (!robot.indexer.isBlocked()) {
+          //We don't care if this returns false, it just means that it's out of balls but we want to just keep running the program so that it dosen't stop before the ball is actually shot
+          robot.indexer.unknown();
+        }
         robot.intake.setPowerAll(1);
       } else {
         robot.intake.setPowerAll(0);
