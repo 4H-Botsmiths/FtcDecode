@@ -296,8 +296,8 @@ public class Indexer {
   }
 
   /**
-   * Checks if the indexer is currently blocked (i.e., has had enough time to move and drop a ball).
-   * @return true if the indexer is blocked, false otherwise
+   * Checks if the indexer is currently blocked (i.e., has not yet had enough time to move and drop a ball).  
+   * @return true if the indexer is currently blocked (still moving/dropping), false otherwise
    */
   public boolean isBlocked() {
     return positionTimer.milliseconds() < MOVE_DROP_TIME;
