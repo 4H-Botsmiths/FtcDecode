@@ -55,6 +55,8 @@ public class ShooterSpeedTester extends LinearOpMode {
         robot.indexer.right();
       } else if (gamepad1.left_stick_y < -0.5) {
         robot.indexer.top();
+      } else if (gamepad1.left_stick_y > 0.5) {
+        robot.indexer.load();
       }
       robot.shooter.setRPM(gamepad1.b ? RPM : 0);
 
