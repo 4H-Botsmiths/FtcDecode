@@ -49,8 +49,13 @@ public class ShooterSpeedTester extends LinearOpMode {
       }
 
       robot.intake.setPowerAll(gamepad1.right_trigger - gamepad1.left_trigger);
-      robot.indexer.setPower(gamepad1.left_stick_x);
-
+      if (gamepad2.left_stick_x < -0.5) {
+        robot.indexer.left();
+      } else if (gamepad2.left_stick_x > 0.5) {
+        robot.indexer.right();
+      } else if (gamepad2.left_stick_y < -0.5) {
+        robot.indexer.top();
+      }
       robot.shooter.setRPM(gamepad1.b ? RPM : 0);
 
       telemetry.addData("Target RPM", RPM);
