@@ -292,7 +292,7 @@ public class Indexer {
    * @return true if the indexer is blocked, false otherwise
    */
   public boolean isBlocked() {
-    return positionTimer.milliseconds() > MOVE_DROP_TIME;
+    return positionTimer.milliseconds() < MOVE_DROP_TIME;
   }
 
   /**
