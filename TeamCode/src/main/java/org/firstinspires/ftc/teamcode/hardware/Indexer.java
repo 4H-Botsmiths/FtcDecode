@@ -256,7 +256,7 @@ public class Indexer {
    * @param allowUnknown whether to allow moving to the top position if the desired color is not found on the sides
    * @return true if the position was set, false otherwise
    */
-  boolean green(boolean allowUnknown) {
+  public boolean green(boolean allowUnknown) {
     return setPosition(BallColor.GREEN, allowUnknown);
   }
 
@@ -265,7 +265,7 @@ public class Indexer {
    * @param allowUnknown whether to allow moving to the top position if the desired color is not found on the sides
    * @return true if the position was set, false otherwise
    */
-  boolean purple(boolean allowUnknown) {
+  public boolean purple(boolean allowUnknown) {
     return setPosition(BallColor.PURPLE, allowUnknown);
   }
 
@@ -273,11 +273,23 @@ public class Indexer {
    * Alias for `setPosition(BallColor.UNKNOWN, true)`
    * @return true if the position was set, false otherwise
    */
-  boolean unknown() {
+  public boolean unknown() {
     return setPosition(BallColor.UNKNOWN, true);
   }
 
-  boolean indexerBusy() {
+  /**
+   * Checks if the indexer is currently moving.
+   * @return true if the indexer is moving, false otherwise
+   */
+  public boolean indexerBusy() {
     return positionTimer.milliseconds() < MOVE_TIME;
+  }
+
+  /**
+   * Checks if the indexer is currently blocked (i.e., has had enough time to move and drop a ball).
+   * @return true if the indexer is blocked, false otherwise
+   */
+  public boolean indexerBlocked() {
+    return positionTimer.milliseconds() > MOVE_DROP_TIME;
   }
 }
