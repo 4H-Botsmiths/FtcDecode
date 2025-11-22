@@ -87,6 +87,15 @@ public class ShooterPIDFTuningTest extends LinearOpMode {
     robot.leftShooter.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
     robot.rightShooter.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
 
+    PIDFCoefficients shooterPIDF = new PIDFCoefficients(
+        35.0, // P - High for quick load response (corrected scale)
+        6.0, // I - Strong for consistent performance (corrected scale)
+        2.0, // D - Moderate to prevent overshoot (corrected scale)
+        23.0 // F - Feedforward for 3000 RPM baseline (32767/1400, corrected scale)
+    );
+    robot.leftShooter.setPIDFCoefficients(shooterPIDF);
+    robot.rightShooter.setPIDFCoefficients(shooterPIDF);
+
     // Display current PIDF coefficients
     telemetry.addLine("=== Shooter PIDF Tuning Test ===");
     telemetry.addLine();
@@ -194,6 +203,16 @@ public class ShooterPIDFTuningTest extends LinearOpMode {
           45.0, // P - High for quick load response (corrected scale)
           8.0, // I - Strong for consistent performance (corrected scale)
           3.0, // D - Moderate to prevent overshoot (corrected scale)
+          23.0 // F - Feedforward for 3000 RPM baseline (32767/1400, corrected scale)
+      );
+      robot.leftShooter.setPIDFCoefficients(shooterPIDF);
+      robot.rightShooter.setPIDFCoefficients(shooterPIDF);
+    }
+    if (gamepad1.back) {
+      PIDFCoefficients shooterPIDF = new PIDFCoefficients(
+          28.0, // P - High for quick load response (corrected scale)
+          4.0, // I - Strong for consistent performance (corrected scale)
+          1.5, // D - Moderate to prevent overshoot (corrected scale)
           23.0 // F - Feedforward for 3000 RPM baseline (32767/1400, corrected scale)
       );
       robot.leftShooter.setPIDFCoefficients(shooterPIDF);
