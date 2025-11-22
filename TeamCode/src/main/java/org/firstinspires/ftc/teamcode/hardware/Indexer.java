@@ -181,10 +181,12 @@ public class Indexer {
       case RIGHT:
         sensor = rightColorSensor;
         break;
-      default:
+      case TOP:
         return detectColor(Position.LEFT) != BallColor.NONE || detectColor(Position.RIGHT) != BallColor.NONE
             ? BallColor.UNKNOWN
             : BallColor.NONE;
+      default:
+        return BallColor.NONE;
     }
     int red = sensor.red();
     int green = sensor.green();
