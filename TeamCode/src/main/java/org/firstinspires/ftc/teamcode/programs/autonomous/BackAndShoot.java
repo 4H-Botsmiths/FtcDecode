@@ -1,4 +1,4 @@
-package org.firstinspires.ftc.teamcode.programs.teleop;
+package org.firstinspires.ftc.teamcode.programs.autonomous;
 
 import com.qualcomm.robotcore.eventloop.opmode.Disabled;
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
@@ -134,10 +134,9 @@ public class BackAndShoot extends OpMode {
       }
       robot.shooter.setRPM(shooterRpm);
       if (robot.shooter.atSpeedRPM(shooterRpm) && xReady) {
-        robot.indexer.setPower(0.1);
+        robot.indexer.unknown();
         robot.intake.setPowerAll(1);
       } else {
-        robot.indexer.setPower(0);
         robot.intake.setPowerAll(0);
 
       }

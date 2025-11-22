@@ -299,7 +299,13 @@ public class DecodeVisual extends OpMode {
     // Apply mechanism outputs
     robot.intake.setPowerAll(intakePower);
     robot.shooter.setRPM(shooterRpm);
-    robot.indexer.setPower(gamepad2.left_stick_x * (gamepad2.left_stick_button ? 1 : 0.25));
+    if (gamepad2.left_stick_x < -0.5) {
+      robot.indexer.left();
+    } else if (gamepad2.left_stick_x > 0.5) {
+      robot.indexer.right();
+    } else if (gamepad2.left_stick_y < -0.5) {
+      robot.indexer.top();
+    }
   }
 
   public void telemetries() {
@@ -311,7 +317,7 @@ public class DecodeVisual extends OpMode {
     telemetry.addData("Tag Found", tagFound);
     telemetry.addLine(String.format("Tag X: (%6.1f) Tag Range: (%6.1f)", tagX, tagRange));
     //telemetry.addLine(String.format("Intake Power: (%6.1f)", robot.intake.getPowers()));
-    telemetry.addLine(String.format("Indexer Power: (%6.1f)", robot.indexer.getPower()));
+    telemetry.addLine(String.format("Indexer Position: (%6.1f)", robot.indexer.getCurrentPosition()));
     // Camera helper will add its own telemetry (detections, pose, etc.).
     camera.telemetryAprilTag(telemetry);
   }
@@ -325,7 +331,6 @@ public class DecodeVisual extends OpMode {
     robot.drive(0, 0, 0);
     robot.shooter.setRPM(0);
     robot.intake.setPowerAll(0);
-    robot.indexer.setPower(0);
   }
 
 }

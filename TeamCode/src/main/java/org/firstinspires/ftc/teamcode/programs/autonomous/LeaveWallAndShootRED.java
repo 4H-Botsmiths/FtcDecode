@@ -1,4 +1,4 @@
-package org.firstinspires.ftc.teamcode.programs.teleop;
+package org.firstinspires.ftc.teamcode.programs.autonomous;
 
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
@@ -20,6 +20,8 @@ public class LeaveWallAndShootRED extends OpMode {
   private boolean upPressed = false;
   private boolean downPressed = false;
   private double xTolerance = 5;
+  Camera.OBELISK_MOTIF obeliskMotif = Camera.OBELISK_MOTIF.PURPLE_PURPLE_GREEN;
+  int patternIndex = 0;
 
   /*
    * Code to run ONCE when the driver hits INIT
@@ -47,7 +49,7 @@ public class LeaveWallAndShootRED extends OpMode {
   public void init_loop() {
     try {
       Camera.AprilTag tag = camera.getAprilTag(Camera.AprilTagPosition.OBELISK);
-      indexerClockwise = tag.id != 23;
+      obeliskMotif = tag.obeliskMotif;
     } catch (Camera.CameraNotAttachedException e) {
       telemetry.addData("Camera", "Not attached");
     } catch (Camera.CameraNotStreamingException e) {
@@ -79,8 +81,6 @@ public class LeaveWallAndShootRED extends OpMode {
   public void start() {
     timer.reset();
   }
-
-  boolean indexerClockwise = true;
 
   /*
    * Code to run REPEATEDLY after the driver hits PLAY but before they hit STOP
@@ -139,24 +139,26 @@ public class LeaveWallAndShootRED extends OpMode {
     }
     robot.shooter.setRPM(shooterRpm);
     boolean xReady = Math.abs(tagX) <= xTolerance;
-    if (robot.shooter.atSpeedRPM(shooterRpm) && xReady) {
-      robot.indexer.setPower(indexerClockwise ? 0.1 : -0.1);
+    if (robot.shooter.atSpeedRPM(shooterRpm) && xReady && patternIndex < obeliskMotif.getPattern().length) {
+      if (!robot.indexer.isBlocked()) {
+        robot.indexer.setPosition(obeliskMotif.getPattern()[patternIndex], true);
+        patternIndex++;
+      }
       robot.intake.setPowerAll(1);
     } else {
-      robot.indexer.setPower(0);
       robot.intake.setPowerAll(0);
     }
   }
 
   void telemetries() {
-    telemetry.addData("Indexer Direction", indexerClockwise ? "Clockwise" : "Counter-Clockwise");
+    telemetry.addData("Obelisk Motif", obeliskMotif.toString());
     telemetry.addLine(String.format("FL (%6.1f) (%6.1f) FR", robot.frontLeft.getRPM(), robot.frontRight.getRPM()));
     telemetry.addLine(String.format("RL (%6.1f) (%6.1f) RR", robot.rearLeft.getRPM(), robot.rearRight.getRPM()));
     telemetry.addData("Target Shooter RPM", shooterRpm);
     telemetry.addData("Tag Range", tagRange);
     telemetry.addLine(String.format("Shooter RPM: (%6.1f)", robot.shooter.getRPM()));
     telemetry.addData("At Speed", robot.shooter.atSpeedRPM(shooterRpm));
-    telemetry.addData("Indexer Power", robot.indexer.getPower());
+    telemetry.addData("Indexer Position", robot.indexer.getCurrentPosition());
     telemetry.addData("Intake Power", robot.intake.getPowers()[0]);
   }
 
