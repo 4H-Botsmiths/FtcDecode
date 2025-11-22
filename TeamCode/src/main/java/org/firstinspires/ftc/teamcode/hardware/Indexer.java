@@ -40,6 +40,8 @@ public class Indexer {
   private Position currentPosition = Position.RESET;
   /** How long it takes to move between positions in milliseconds */
   private final int MOVE_TIME = 500;
+  /** How long it takes to move between positions and get the ball into the intake in milliseconds */
+  private final int MOVE_DROP_TIME = MOVE_TIME + 500;
   ElapsedTime positionTimer = new ElapsedTime();
 
   /**
@@ -53,11 +55,15 @@ public class Indexer {
         break;
       case LEFT:
         indexerServo.setPosition(convertPosition(-0.6));
-        leftBallColor = BallColor.NONE;
+        if (positionTimer.milliseconds() > MOVE_DROP_TIME) {
+          leftBallColor = BallColor.NONE;
+        }
         break;
       case RIGHT:
         indexerServo.setPosition(convertPosition(0.6));
-        rightBallColor = BallColor.NONE;
+        if (positionTimer.milliseconds() > MOVE_DROP_TIME) {
+          rightBallColor = BallColor.NONE;
+        }
         break;
       case TOP:
         if (currentPosition == Position.LEFT) {
@@ -72,7 +78,9 @@ public class Indexer {
           // Both sides are full, don't do anything
           return;
         }
-        topBallColor = BallColor.NONE;
+        if (positionTimer.milliseconds() > MOVE_DROP_TIME) {
+          topBallColor = BallColor.NONE;
+        }
         break;
     }
     if (position != currentPosition) {
