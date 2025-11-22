@@ -216,14 +216,20 @@ public class Camera {
   }
 
   public enum OBELISK_MOTIF {
-    PURPLE_PURPLE_GREEN(23),
-    GREEN_PURPLE_PURPLE(21),
-    PURPLE_GREEN_PURPLE(22);
+    PURPLE_PURPLE_GREEN(23, Indexer.BallColor.PURPLE, Indexer.BallColor.PURPLE, Indexer.BallColor.GREEN),
+    GREEN_PURPLE_PURPLE(21, Indexer.BallColor.GREEN, Indexer.BallColor.PURPLE, Indexer.BallColor.PURPLE),
+    PURPLE_GREEN_PURPLE(22, Indexer.BallColor.PURPLE, Indexer.BallColor.GREEN, Indexer.BallColor.PURPLE);
 
     public final int id;
+    private final Indexer.BallColor[] pattern;
 
-    OBELISK_MOTIF(int id) {
+    OBELISK_MOTIF(int id, Indexer.BallColor... pattern) {
       this.id = id;
+      this.pattern = pattern;
+    }
+
+    public Indexer.BallColor[] getPattern() {
+      return pattern.clone();
     }
   }
 
