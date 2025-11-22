@@ -46,13 +46,11 @@ public class Indexer {
 
   /**
    * Sets the position of the indexer.
+   * @apiNote This method will not change the position if the indexer is currently blocked (i.e., has not yet had enough time to move and drop a ball). However, it will still move if it was set to a previous position but has not had enough time to get there yet.
    * @param position desired position
    */
   public void setPosition(Position position) {
-    if (isBusy() || position == currentPosition) {
-      return; // Don't allow changing position while moving
-    }
-    if (isBlocked()) {
+    if (!isBusy() && isBlocked()) {
       switch (currentPosition) {
         case LEFT:
           leftBallColor = BallColor.NONE;
@@ -93,7 +91,9 @@ public class Indexer {
         }
         break;
     }
-    positionTimer.reset();
+    if (position != currentPosition) {
+      positionTimer.reset();
+    }
     currentPosition = position;
   }
 
