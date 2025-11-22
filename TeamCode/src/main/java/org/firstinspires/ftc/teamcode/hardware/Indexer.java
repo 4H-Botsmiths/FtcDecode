@@ -135,9 +135,9 @@ public class Indexer {
     setPosition(Position.RESET);
   }
 
-  BallColor leftBallColor = BallColor.NONE;
-  BallColor rightBallColor = BallColor.NONE;
-  BallColor topBallColor = BallColor.NONE;
+  private BallColor leftBallColor = BallColor.NONE;
+  private BallColor rightBallColor = BallColor.NONE;
+  private BallColor topBallColor = BallColor.NONE;
 
   /**
    * Loads balls into the indexer and detects their colors.
