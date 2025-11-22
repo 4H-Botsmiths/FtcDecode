@@ -292,4 +292,14 @@ public class Indexer {
   public boolean isBlocked() {
     return positionTimer.milliseconds() > MOVE_DROP_TIME;
   }
+
+  /**
+   * Forces the indexer to assume it has preloaded balls of specific colors.
+   * This should be called when initializing autonomous programs if the robot starts with preloaded balls.
+   */
+  public void forcePreload() {
+    leftBallColor = BallColor.PURPLE;
+    rightBallColor = BallColor.GREEN;
+    topBallColor = BallColor.PURPLE;
+  }
 }

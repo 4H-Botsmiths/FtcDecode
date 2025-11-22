@@ -34,6 +34,7 @@ public class ShootFromBack extends OpMode {
     telemetry.update();
     this.robot = new Robot(hardwareMap);
     this.camera = new Camera(hardwareMap);
+    this.robot.indexer.forcePreload();
     try {
       this.camera.initAprilTag();
     } catch (Camera.CameraNotAttachedException e) {
