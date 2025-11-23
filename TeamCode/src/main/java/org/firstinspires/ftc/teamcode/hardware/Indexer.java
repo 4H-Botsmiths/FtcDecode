@@ -50,7 +50,7 @@ public class Indexer {
    * @param position desired position
    */
   public void setPosition(Position position) {
-    if (!isBusy() && isBlocked()) {
+    if (!isBusy()) { //Wait a little but before marking the ball as none so that the servo has a chance to actually move
       switch (currentPosition) {
         case LEFT:
           leftBallColor = BallColor.NONE;
@@ -63,7 +63,9 @@ public class Indexer {
           break;
         default:
           break;
-      }
+      }      
+    }
+    if (isBlocked()) {
       return; // Don't allow changing position while blocked
     }
     switch (position) {
@@ -77,6 +79,7 @@ public class Indexer {
         indexerServo.setPosition(convertPosition(0.6));
         break;
       case TOP:
+        //TODO: if this function is called and told to go to the TOP position, it cascades down to the color check. The easy thing to do is to just check for top and return, but if its being called again it could be usefull to re-apply the top position, the only problem with this is that top could be -1 OR 1, but it technically also could have been miss-set in which case some extra logic may be needed (or maybe just less than/greater than 0 check)
         if (currentPosition == Position.LEFT) {
           indexerServo.setPosition(convertPosition(-1));
         } else if (currentPosition == Position.RIGHT) {
