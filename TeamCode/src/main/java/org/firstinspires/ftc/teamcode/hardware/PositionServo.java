@@ -33,6 +33,11 @@ public class PositionServo {
     return scaleServoPositionToAngle(servo.getPosition());
   }
 
+  /**
+   * Scales the servo position (0 to 1) to an angle based on the servo mode and range
+   * @param position the servo position (0 to 1)
+   * @return the angle corresponding to the servo position
+   */
   private double scaleServoPositionToAngle(double position) {
     switch (mode) {
       case CENTERED:
@@ -44,6 +49,11 @@ public class PositionServo {
     }
   }
 
+  /**
+   * Scales an angle to a servo position (0 to 1) based on the servo mode and range
+   * @param angle the angle to scale
+   * @return the servo position corresponding to the angle
+   */
   private double scaleAngleToServoPosition(double angle) {
     switch (mode) {
       case CENTERED:
