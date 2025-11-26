@@ -1,11 +1,10 @@
 package org.firstinspires.ftc.teamcode.hardware;
 
 import com.qualcomm.robotcore.hardware.ColorSensor;
-import com.qualcomm.robotcore.hardware.Servo;
 import com.qualcomm.robotcore.util.ElapsedTime;
 
 public class Indexer {
-  private final Servo indexerServo;
+  private final PositionServo indexerServo;
   private final ColorSensor leftColorSensor;
   private final ColorSensor rightColorSensor;
 
@@ -15,7 +14,7 @@ public class Indexer {
    * @param leftColorSensor the color sensor on the left side
    * @param rightColorSensor the color sensor on the right side
    */
-  public Indexer(Servo indexerServo, ColorSensor leftColorSensor, ColorSensor rightColorSensor) {
+  public Indexer(PositionServo indexerServo, ColorSensor leftColorSensor, ColorSensor rightColorSensor) {
     this.indexerServo = indexerServo;
     this.leftColorSensor = leftColorSensor;
     this.rightColorSensor = rightColorSensor;
@@ -46,6 +45,11 @@ public class Indexer {
 
   /**
    * Sets the position of the indexer.
+   * With the current servo being limited to 300 degrees of rotation, the positions are as follows:
+   * 0º - LEFT
+   * 60º - RESET (1/6 of a circle)
+   * 120º - RIGHT (1/3 of a circle)
+   * -120º - TOP (-1/3 of a circle)
    * @apiNote This method will not change the position if the indexer is currently blocked (i.e., has not yet had enough time to move and drop a ball). However, it will still move if it was set to a previous position but has not had enough time to get there yet.
    * @param position desired position
    */
@@ -63,36 +67,48 @@ public class Indexer {
           break;
         default:
           break;
-      }      
+      }
     }
     if (isBlocked()) {
       return; // Don't allow changing position while blocked
     }
     switch (position) {
       case RESET:
-        indexerServo.setPosition(convertPosition(0));
+        indexerServo.setPosition(60); //Our servo can't do a full rotation, so we have to use 100/6 instead of 0.
+        // indexerServo.setPosition(0); // Full Rotation Servo Version
         break;
       case LEFT:
-        indexerServo.setPosition(convertPosition(-0.6));
+        indexerServo.setPosition(0);
+        // indexerServo.setPosition(-60); // Full Rotation Servo Version
         break;
       case RIGHT:
-        indexerServo.setPosition(convertPosition(0.6));
+        indexerServo.setPosition(120);
+        // indexerServo.setPosition(60); // Full Rotation Servo Version
         break;
       case TOP:
-        //TODO: if this function is called and told to go to the TOP position, it cascades down to the color check. The easy thing to do is to just check for top and return, but if its being called again it could be usefull to re-apply the top position, the only problem with this is that top could be -1 OR 1, but it technically also could have been miss-set in which case some extra logic may be needed (or maybe just less than/greater than 0 check)
-        if (currentPosition == Position.LEFT) {
-          indexerServo.setPosition(convertPosition(-1));
-        } else if (currentPosition == Position.RIGHT) {
-          indexerServo.setPosition(convertPosition(1));
-        } else if (rightBallColor == BallColor.NONE) {
-          indexerServo.setPosition(convertPosition(1));
-        } else if (leftBallColor == BallColor.NONE) {
-          indexerServo.setPosition(convertPosition(-1));
-        } else {
-          // Both sides are full, don't do anything
-          return;
+        indexerServo.setPosition(-120);
+        /* Full Rotation Servo Version:
+        switch (currentPosition) {
+          case TOP:
+            return; // Already at top, do nothing
+          case LEFT:
+            indexerServo.setPosition(-180);
+            break;
+          case RIGHT:
+            indexerServo.setPosition(180);
+            break;
+          default:
+            if (rightBallColor == BallColor.NONE) {
+              indexerServo.setPosition(180);
+            } else if (leftBallColor == BallColor.NONE) {
+              indexerServo.setPosition(-180);
+            } else {
+              // Both sides are full, don't do anything
+              return;
+            }
+            break;
         }
-        break;
+        */
     }
     if (position != currentPosition) {
       positionTimer.reset();
@@ -106,15 +122,6 @@ public class Indexer {
    */
   public Position getCurrentPosition() {
     return currentPosition;
-  }
-
-  /**
-   * Converts a -1 to 1 range to a 0 to 1 range for servo positioning.
-   * @param position -1 to 1 range
-   * @return 0 to 1 range
-   */
-  private double convertPosition(double position) {
-    return (position + 1) / 2;
   }
 
   /**
@@ -311,6 +318,7 @@ public class Indexer {
    * This should be called when initializing autonomous programs if the robot starts with preloaded balls.
    */
   public void forcePreload() {
+    reset();
     leftBallColor = BallColor.PURPLE;
     rightBallColor = BallColor.GREEN;
     topBallColor = BallColor.PURPLE;

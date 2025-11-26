@@ -24,7 +24,7 @@ public class Robot {
   public final CRServo intakeServoRight;
   public final Intake intake;
 
-  public final Servo indexerServo;
+  public final PositionServo indexerServo;
   public final ColorSensor leftColorSensor;
   public final ColorSensor rightColorSensor;
   public final Indexer indexer;
@@ -183,7 +183,8 @@ public class Robot {
     // For detailed tuning instructions, see: TeamDocs/PIDF_Tuning_Guide.md
     // ==================================================================================
 
-    this.indexerServo = hardwareMap.get(Servo.class, DeviceNames.CH_SERVO_1.getDeviceName());
+    this.indexerServo = new PositionServo(hardwareMap.get(Servo.class, DeviceNames.CH_SERVO_1.getDeviceName()), 300,
+        PositionServo.ServoMode.CENTERED);
     this.leftColorSensor = hardwareMap.get(ColorSensor.class, DeviceNames.CH_I2C_0.getDeviceName());
     this.rightColorSensor = hardwareMap.get(ColorSensor.class, DeviceNames.EH_I2C_0.getDeviceName());
     this.indexer = new Indexer(this.indexerServo, this.leftColorSensor, this.rightColorSensor);
