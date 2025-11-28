@@ -38,9 +38,9 @@ public class Indexer {
 
   private Position currentPosition = Position.RESET;
   /** How long it takes to move between positions in milliseconds */
-  private final int MOVE_TIME = 500;
+  private final double MOVE_TIME = 1.25;
   /** How long it takes to move between positions and get the ball into the intake in milliseconds */
-  private final int MOVE_DROP_TIME = MOVE_TIME + 500;
+  private final double MOVE_DROP_TIME = MOVE_TIME + 1.75;
   ElapsedTime positionTimer = new ElapsedTime();
 
   /**
@@ -318,7 +318,8 @@ public class Indexer {
    * This should be called when initializing autonomous programs if the robot starts with preloaded balls.
    */
   public void forcePreload() {
-    reset();
+    indexerServo.setPosition(60); //Our servo can't do a full rotation, so we have to use 100/6 instead of 0.
+    // indexerServo.setPosition(0); // Full Rotation Servo Version
     leftBallColor = BallColor.PURPLE;
     rightBallColor = BallColor.GREEN;
     topBallColor = BallColor.PURPLE;
