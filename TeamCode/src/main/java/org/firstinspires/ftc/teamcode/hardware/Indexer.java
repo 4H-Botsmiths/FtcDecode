@@ -346,4 +346,17 @@ public class Indexer {
     rightBallColor = BallColor.GREEN;
     topBallColor = BallColor.PURPLE;
   }
+
+  public BallColor getBallColor(Position position) {
+    switch (position) {
+      case LEFT:
+        return leftBallColor;
+      case RIGHT:
+        return rightBallColor;
+      case TOP:
+        return topBallColor;
+      default:
+        return BallColor.NONE;
+    }
+  }
 }
