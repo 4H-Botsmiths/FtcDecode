@@ -1,12 +1,13 @@
 package org.firstinspires.ftc.teamcode.hardware;
 
-import com.qualcomm.robotcore.hardware.ColorSensor;
+import com.qualcomm.hardware.rev.RevColorSensorV3;
 import com.qualcomm.robotcore.util.ElapsedTime;
+import org.firstinspires.ftc.robotcore.external.navigation.DistanceUnit;
 
 public class Indexer {
   private final PositionServo indexerServo;
-  private final ColorSensor leftColorSensor;
-  private final ColorSensor rightColorSensor;
+  private final RevColorSensorV3 leftColorSensor;
+  private final RevColorSensorV3 rightColorSensor;
   private final Intake intake;
 
   /**
@@ -15,7 +16,9 @@ public class Indexer {
    * @param leftColorSensor the color sensor on the left side
    * @param rightColorSensor the color sensor on the right side
    */
-  public Indexer(PositionServo indexerServo, ColorSensor leftColorSensor, ColorSensor rightColorSensor, Intake intake) {
+
+  public Indexer(PositionServo indexerServo, RevColorSensorV3 leftColorSensor, RevColorSensorV3 rightColorSensor,
+      Intake intake) {
     this.indexerServo = indexerServo;
     this.leftColorSensor = leftColorSensor;
     this.rightColorSensor = rightColorSensor;
@@ -203,7 +206,7 @@ public class Indexer {
    * @return detected ball color
    */
   public BallColor detectColor(Position position) {
-    ColorSensor sensor;
+    RevColorSensorV3 sensor;
     switch (position) {
       case LEFT:
         sensor = leftColorSensor;
@@ -226,7 +229,7 @@ public class Indexer {
     int total = red + green + blue;
 
     // If it's too dark overall, treat it as no ball
-    if (total < 150) {
+    if (sensor.getDistance(DistanceUnit.MM) > 50 || total < 150) {
       return BallColor.NONE;
     }
 
