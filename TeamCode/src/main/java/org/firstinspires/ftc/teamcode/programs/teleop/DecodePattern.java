@@ -116,6 +116,7 @@ public class DecodePattern extends OpMode {
    * - 'B' to decrement classified artifacts
    * - 'Y' to reset classified artifacts to 0
    * - DPad Left/Right to adjust base shooter RPM
+   * - Right Stick Y to control lift power
    */
   public void operatorLoop() {
     if (gamepad2.a && !aPressed) {
@@ -158,6 +159,12 @@ public class DecodePattern extends OpMode {
     }
     if (!gamepad2.dpad_right) {
       dpadRightPressed = false;
+    }
+
+    if (Math.abs(gamepad2.right_stick_y) > 0.2) {
+      robot.lift.setPower(-gamepad2.right_stick_y);
+    } else {
+      robot.lift.setPower(0);
     }
   }
 
