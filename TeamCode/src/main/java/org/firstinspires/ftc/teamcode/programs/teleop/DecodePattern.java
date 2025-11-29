@@ -229,6 +229,7 @@ public class DecodePattern extends OpMode {
    *   - When aligned (x within tolerance), at speed, and in range, auto-feed balls
    */
   public void driverLoop() {
+    boolean vibrate = false;
     double x = 0;
     double y = 0;
     double r = 0;
@@ -239,7 +240,11 @@ public class DecodePattern extends OpMode {
       robot.rearLeft.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
       robot.rearRight.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
       if (!gamepad1.right_bumper && gamepad1.right_trigger < 0.5) {
-        robot.statusLed.setRed(robot.indexer.load());
+        boolean loaded = robot.indexer.load();
+        robot.statusLed.setRed(loaded);
+        if (loaded) {
+          vibrate = true;
+        }
       } else {
         robot.statusLed.setRed(false);
       }
@@ -303,12 +308,8 @@ public class DecodePattern extends OpMode {
 
       //-----------------------------------------Feedback-----------------------------------------
       if (!rangeReady || !xReady || !shooterReady) {
-        gamepad1.rumble(1, 1, Gamepad.RUMBLE_DURATION_CONTINUOUS);
-      } else {
-        gamepad1.stopRumble();
+        vibrate = true;
       }
-    } else {
-      gamepad1.stopRumble();
     }
     robot.drive(x, y, r);
 
@@ -329,6 +330,13 @@ public class DecodePattern extends OpMode {
       robot.intake.setPowerAll(0);
     } else {
       robot.indexer.reset();
+    }
+
+    //-----------------------------------------Rumble-----------------------------------------
+    if (vibrate) {
+      gamepad1.rumble(1, 1, Gamepad.RUMBLE_DURATION_CONTINUOUS);
+    } else {
+      gamepad1.stopRumble();
     }
   }
 
