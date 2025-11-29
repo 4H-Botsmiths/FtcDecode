@@ -16,8 +16,8 @@ public class ColorTester extends LinearOpMode {
   @Override
   public void runOpMode() {
     // Adjust these names to match your configuration
-    leftColorSensor = hardwareMap.get(RevColorSensorV3.class, DeviceNames.CH_I2C_0.getDeviceName());
-    rightColorSensor = hardwareMap.get(RevColorSensorV3.class, DeviceNames.EH_I2C_0.getDeviceName());
+    leftColorSensor = hardwareMap.get(RevColorSensorV3.class, DeviceNames.EH_I2C_0.getDeviceName());
+    rightColorSensor = hardwareMap.get(RevColorSensorV3.class, DeviceNames.CH_I2C_0.getDeviceName());
 
     telemetry.addLine("Color Tester Initialized");
     telemetry.addLine("Press PLAY to start sampling.");
