@@ -92,10 +92,8 @@ public class ShootFromBack extends OpMode {
   @Override
   public void start() {
     timer.reset();
-    shootTimer.reset();
   }
 
-  private ElapsedTime shootTimer = new ElapsedTime();
   /*
    * Code to run REPEATEDLY after the driver hits PLAY but before they hit STOP
    */
@@ -163,14 +161,12 @@ public class ShootFromBack extends OpMode {
     robot.shooter.setRPM(shooterRpm);
     boolean xReady = Math.abs(tagX) <= xTolerance;
     if (robot.shooter.atSpeedRPM(shooterRpm) && xReady && patternIndex < obeliskMotif.getPattern().length) {
-      if (!robot.indexer.isShooting()) {
+      if (!robot.indexer.isShooting() || patternIndex == 0) {
         robot.indexer.setPosition(obeliskMotif.getPattern()[patternIndex], true);
         patternIndex++;
-        shootTimer.reset();
       }
     } else if (patternIndex >= obeliskMotif.getPattern().length) {
       // All done shooting
-      robot.shooter.setRPM(0);
       robot.indexer.setPosition(Indexer.Position.RESET);
     }
   }

@@ -40,10 +40,10 @@ public class Indexer {
 
   private Position currentPosition = Position.RESET;
   /** How long it takes to move between positions in milliseconds */
-  private final double MOVE_TIME = 1.25;
+  private final int MOVE_TIME = 1250;
   /** How long it takes to move between positions and get the ball into the intake in milliseconds */
-  private final double MOVE_DROP_TIME = MOVE_TIME + 1.75;
-  private final double MOVE_DROP_SHOOT_TIME = MOVE_DROP_TIME + 2.5;
+  private final int MOVE_DROP_TIME = MOVE_TIME + 1750;
+  private final int MOVE_DROP_SHOOT_TIME = MOVE_DROP_TIME + 2500;
   ElapsedTime positionTimer = new ElapsedTime();
 
   /**
