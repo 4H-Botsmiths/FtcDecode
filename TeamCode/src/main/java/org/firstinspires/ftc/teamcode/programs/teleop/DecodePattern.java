@@ -120,6 +120,8 @@ public class DecodePattern extends OpMode {
   public void operatorLoop() {
     if (gamepad2.a && !aPressed) {
       classifiedArtifacts = Math.max(0, Math.min(9, classifiedArtifacts + 1));
+      aPressed = true;
+      telemetry.speak(String.valueOf(classifiedArtifacts));
     }
     if (!gamepad2.a) {
       aPressed = false;
@@ -127,12 +129,16 @@ public class DecodePattern extends OpMode {
 
     if (gamepad2.b && !bPressed) {
       classifiedArtifacts = Math.max(0, Math.min(9, classifiedArtifacts - 1));
+      bPressed = true;
+      telemetry.speak(String.valueOf(classifiedArtifacts));
     }
     if (!gamepad2.b) {
       bPressed = false;
     }
     if (gamepad2.y && !yPressed) {
       classifiedArtifacts = 0;
+      yPressed = true;
+      telemetry.speak(String.valueOf(classifiedArtifacts));
     }
     if (!gamepad2.y) {
       yPressed = false;
@@ -300,7 +306,11 @@ public class DecodePattern extends OpMode {
       Indexer.BallColor desiredColor = classifiedArtifacts < 9 ? obeliskMotif.getPattern()[patternIndex]
           : Indexer.BallColor.UNKNOWN;
       if (!robot.indexer.isShooting()) {
-        robot.indexer.setPosition(desiredColor, true);
+        boolean success = robot.indexer.setPosition(desiredColor, true);
+        if (!success) {
+          robot.indexer.setPosition(Indexer.BallColor.UNKNOWN, true);
+          telemetry.speak("Unknown ball color!");
+        }
         classifiedArtifacts++;
       }
     } else if (gamepad1.right_bumper) {
