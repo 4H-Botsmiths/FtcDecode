@@ -6,6 +6,7 @@ import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.DcMotorEx;
 import com.qualcomm.robotcore.hardware.Gamepad;
+import com.qualcomm.robotcore.util.ElapsedTime;
 import com.qualcomm.robotcore.util.Range;
 import org.firstinspires.ftc.teamcode.hardware.Camera;
 import org.firstinspires.ftc.teamcode.hardware.Robot;
@@ -220,6 +221,8 @@ public class DecodePattern extends OpMode {
   private boolean rangeReady = false;
   private boolean shooterReady = false;
 
+  private ElapsedTime timeAtSpeed = new ElapsedTime();
+
   /**
    * Driver control loop:
    * - Standard mecanum drive from left/right sticks and triggers
@@ -307,6 +310,8 @@ public class DecodePattern extends OpMode {
       }
       if (robot.shooter.atSpeedRPM(shooterRpm)) {
         shooterReady = true;
+      } else {
+        timeAtSpeed.reset();
       }
 
       //-----------------------------------------Feedback-----------------------------------------
@@ -322,7 +327,7 @@ public class DecodePattern extends OpMode {
       int patternIndex = classifiedArtifacts % 3;
       Indexer.BallColor desiredColor = classifiedArtifacts < 9 ? obeliskMotif.getPattern()[patternIndex]
           : Indexer.BallColor.UNKNOWN;
-      if (!robot.indexer.isShooting()) {
+      if (!robot.indexer.isShooting() && timeAtSpeed.seconds() > 2) {
         boolean success = robot.indexer.setPosition(desiredColor, true);
         if (!success) {
           success = robot.indexer.setPosition(Indexer.BallColor.UNKNOWN, true);
