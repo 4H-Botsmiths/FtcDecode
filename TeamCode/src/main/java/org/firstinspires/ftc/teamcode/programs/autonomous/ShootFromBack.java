@@ -54,6 +54,7 @@ public class ShootFromBack extends OpMode {
     try {
       Camera.AprilTag tag = camera.getAprilTag(Camera.AprilTagPosition.OBELISK);
       obeliskMotif = tag.obeliskMotif;
+      blackboard.put(Camera.OBELISK_STORAGE_KEY, obeliskMotif.id);
     } catch (Camera.CameraNotAttachedException e) {
       telemetry.addData("Camera", "Not attached");
     } catch (Camera.CameraNotStreamingException e) {
