@@ -2,15 +2,14 @@ package org.firstinspires.ftc.teamcode.programs.autonomous;
 
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
-import com.qualcomm.robotcore.eventloop.opmode.Disabled;
 import com.qualcomm.robotcore.util.ElapsedTime;
 import com.qualcomm.robotcore.util.Range;
 import org.firstinspires.ftc.teamcode.hardware.Camera;
 import org.firstinspires.ftc.teamcode.hardware.Robot;
+import org.firstinspires.ftc.teamcode.hardware.Indexer;
 
-@Autonomous(name = "Leave Wall and Shoot RED", group = "A", preselectTeleOp = "Decode Camera TeleOp")
-@Disabled()
-public class LeaveWallAndShootRED extends OpMode {
+@Autonomous(name = "Leave Wall and Shoot", group = "A", preselectTeleOp = "Decode Camera TeleOp")
+public class LeaveWallAndShoot extends OpMode {
   public Robot robot;
   public Camera camera;
 
@@ -22,6 +21,8 @@ public class LeaveWallAndShootRED extends OpMode {
   private boolean upPressed = false;
   private boolean downPressed = false;
   private double xTolerance = 5;
+  boolean blueTeam = false;
+  boolean redTeam = false;
   Camera.OBELISK_MOTIF obeliskMotif = Camera.OBELISK_MOTIF.PURPLE_PURPLE_GREEN;
   int patternIndex = 0;
 
@@ -74,6 +75,14 @@ public class LeaveWallAndShootRED extends OpMode {
     } else if (!gamepad1.dpad_down) {
       downPressed = false;
     }
+    if (gamepad1.b) {
+      redTeam = true;
+      blueTeam = false;
+    } else if (gamepad1.x) {
+      blueTeam = true;
+      redTeam = false;
+    }
+    telemetry.addData("Team", redTeam ? "RED" : blueTeam ? "BLUE" : "None");
     telemetries();
   }
 
@@ -100,12 +109,25 @@ public class LeaveWallAndShootRED extends OpMode {
       return;
     }
     if (timer.milliseconds() < 4500) {
-      // Brief pause to stabilize
-      robot.drive(0, 0, 0.25);
+      // Brief pause to stabilize and rotate based on alliance
+      if (redTeam) {
+        robot.drive(0, 0, 0.25);
+      } else if (blueTeam) {
+        robot.drive(0, 0, -0.25);
+      } else {
+        robot.drive(0, 0, 0);
+      }
       return;
     }
     if (timer.milliseconds() > 29000) {
-      robot.drive(0.33, 0, 0);
+      // Late-match park/retreat based on alliance
+      if (redTeam) {
+        robot.drive(0.33, 0, 0);
+      } else if (blueTeam) {
+        robot.drive(-0.33, 0, 0);
+      } else {
+        robot.drive(0, 0, 0);
+      }
       return;
     }
 
@@ -143,11 +165,15 @@ public class LeaveWallAndShootRED extends OpMode {
     robot.shooter.setRPM(shooterRpm);
     boolean xReady = Math.abs(tagX) <= xTolerance;
     if (robot.shooter.atSpeedRPM(shooterRpm) && xReady && patternIndex < obeliskMotif.getPattern().length) {
-      if (!robot.indexer.isBlocked()) {
+      if (!robot.indexer.isBlocked() || patternIndex == 0) {
         robot.indexer.setPosition(obeliskMotif.getPattern()[patternIndex], true);
         patternIndex++;
       }
       robot.intake.setPowerAll(1);
+    } else if (patternIndex >= obeliskMotif.getPattern().length && !robot.indexer.isShooting()) {
+      // All done shooting
+      robot.indexer.setPosition(Indexer.Position.RESET);
+      robot.intake.setPowerAll(0);
     } else {
       robot.intake.setPowerAll(0);
     }
