@@ -117,7 +117,11 @@ public class ShootFromBack extends OpMode {
       }
       return;
     }
-    if (timer.milliseconds() > 29000) {
+    if (timer.milliseconds() > 24000) {
+      requestOpModeStop();
+      return;
+    }
+    if (timer.milliseconds() > 23000) {
       // Brief pause to stabilize
       robot.drive(0, 0.33, 0);
       return;
