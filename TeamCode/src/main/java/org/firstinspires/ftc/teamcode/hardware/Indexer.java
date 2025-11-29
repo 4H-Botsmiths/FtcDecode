@@ -7,6 +7,7 @@ public class Indexer {
   private final PositionServo indexerServo;
   private final ColorSensor leftColorSensor;
   private final ColorSensor rightColorSensor;
+  private final Intake intake;
 
   /**
    * Creates a new Indexer.
@@ -14,10 +15,11 @@ public class Indexer {
    * @param leftColorSensor the color sensor on the left side
    * @param rightColorSensor the color sensor on the right side
    */
-  public Indexer(PositionServo indexerServo, ColorSensor leftColorSensor, ColorSensor rightColorSensor) {
+  public Indexer(PositionServo indexerServo, ColorSensor leftColorSensor, ColorSensor rightColorSensor, Intake intake) {
     this.indexerServo = indexerServo;
     this.leftColorSensor = leftColorSensor;
     this.rightColorSensor = rightColorSensor;
+    this.intake = intake;
   }
 
   /** Enum for the positions of the indexer. */
@@ -41,6 +43,7 @@ public class Indexer {
   private final double MOVE_TIME = 1.25;
   /** How long it takes to move between positions and get the ball into the intake in milliseconds */
   private final double MOVE_DROP_TIME = MOVE_TIME + 1.75;
+  private final double MOVE_DROP_SHOOT_TIME = MOVE_DROP_TIME + 2.5;
   ElapsedTime positionTimer = new ElapsedTime();
 
   /**
@@ -114,6 +117,11 @@ public class Indexer {
       positionTimer.reset();
     }
     currentPosition = position;
+    if (currentPosition == Position.RESET) {
+      intake.setPowerAll(0);
+    } else {
+      intake.setPowerAll(1.0);
+    }
   }
 
   /**
@@ -311,6 +319,14 @@ public class Indexer {
    */
   public boolean isBlocked() {
     return positionTimer.milliseconds() < MOVE_DROP_TIME;
+  }
+
+  /**
+   * Checks if the indexer is currently in the shooting phase (i.e., has not yet had enough time to move, drop, and shoot a ball).  
+   * @return true if the indexer is currently shooting, false otherwise
+   */
+  public boolean isShooting() {
+    return positionTimer.milliseconds() < MOVE_DROP_SHOOT_TIME;
   }
 
   /**

@@ -187,7 +187,7 @@ public class Robot {
         PositionServo.ServoMode.CENTERED);
     this.leftColorSensor = hardwareMap.get(ColorSensor.class, DeviceNames.CH_I2C_0.getDeviceName());
     this.rightColorSensor = hardwareMap.get(ColorSensor.class, DeviceNames.EH_I2C_0.getDeviceName());
-    this.indexer = new Indexer(this.indexerServo, this.leftColorSensor, this.rightColorSensor);
+    this.indexer = new Indexer(this.indexerServo, this.leftColorSensor, this.rightColorSensor, this.intake);
   }
 
   public static final int DRIVE_MAX_RPM = 300;
