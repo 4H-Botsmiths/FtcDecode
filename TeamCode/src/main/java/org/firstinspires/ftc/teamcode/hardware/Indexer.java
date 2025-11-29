@@ -183,9 +183,33 @@ public class Indexer {
     if (!isBusy() && loading) {
       // Check the colors of the balls
       BallColor instantaneousLeftBallColor = detectColor(Position.LEFT);
-      leftBallColor = instantaneousLeftBallColor != BallColor.NONE ? instantaneousLeftBallColor : leftBallColor;
+      switch (instantaneousLeftBallColor) {
+        case PURPLE:
+        case GREEN:
+          leftBallColor = instantaneousLeftBallColor;
+          break;
+        case UNKNOWN:
+          if (leftBallColor != BallColor.GREEN && leftBallColor != BallColor.PURPLE) {
+            leftBallColor = BallColor.UNKNOWN;
+          }
+          break;
+        default:
+          break;
+      }
       BallColor instantaneousRightBallColor = detectColor(Position.RIGHT);
-      rightBallColor = instantaneousRightBallColor != BallColor.NONE ? instantaneousRightBallColor : rightBallColor;
+      switch (instantaneousRightBallColor) {
+        case PURPLE:
+        case GREEN:
+          rightBallColor = instantaneousRightBallColor;
+          break;
+        case UNKNOWN:
+          if (rightBallColor != BallColor.GREEN && rightBallColor != BallColor.PURPLE) {
+            rightBallColor = BallColor.UNKNOWN;
+          }
+          break;
+        default:
+          break;
+      }
       BallColor instantaneousTopBallColor = detectColor(Position.TOP);
       topBallColor = instantaneousTopBallColor != BallColor.NONE ? instantaneousTopBallColor : topBallColor;
       if (leftBallColor != BallColor.NONE && rightBallColor != BallColor.NONE && topBallColor != BallColor.NONE) {
