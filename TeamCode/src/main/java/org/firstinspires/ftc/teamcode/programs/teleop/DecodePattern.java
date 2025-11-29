@@ -330,9 +330,6 @@ public class DecodePattern extends OpMode {
             telemetry.speak("Unknown ball color!");
           }
         }
-        if (success) {
-          classifiedArtifacts = Math.max(0, Math.min(9, classifiedArtifacts + 1));
-        }
       }
     } else if (gamepad1.right_bumper) {
       robot.intake.setPowerAll(0);
