@@ -81,7 +81,7 @@ public class BackAndShoot extends OpMode {
 
   double range = 0;
   double x = 0;
-  int baseRPM = 3000;
+  int baseRPM = 2500;
   boolean upPressed = false;
   boolean downPressed = false;
   double xTolerance = 5;

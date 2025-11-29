@@ -14,7 +14,7 @@ public class LeaveWallAndShoot extends OpMode {
   public Camera camera;
 
   private final ElapsedTime timer = new ElapsedTime();
-  private int baseRPM = 3000;
+  private int baseRPM = 2500;
   private int shooterRpm = 0;
   private double tagRange = 85;
   private double tagX = 0;
