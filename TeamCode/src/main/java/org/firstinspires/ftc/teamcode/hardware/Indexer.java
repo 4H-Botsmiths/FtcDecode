@@ -120,6 +120,7 @@ public class Indexer {
     if (currentPosition == Position.RESET) {
       intake.setPowerAll(0);
     } else {
+      loading = false;
       intake.setPowerAll(1.0);
     }
   }
@@ -165,6 +166,8 @@ public class Indexer {
   private BallColor rightBallColor = BallColor.NONE;
   private BallColor topBallColor = BallColor.NONE;
 
+  private boolean loading = false;
+
   /**
    * Loads balls into the indexer and detects their colors.
    * @apiNote This method should be called when the indexer is NOT YET in the `RESET` position as this is how it knows to reset which balls are where
@@ -174,7 +177,7 @@ public class Indexer {
     // Reset the indexer to prepare for loading
     reset();
     // Wait a little bit for the indexer to reach the position
-    if (!isBusy()) {
+    if (!isBusy() && loading) {
       // Check the colors of the balls
       BallColor instantaneousLeftBallColor = detectColor(Position.LEFT);
       leftBallColor = instantaneousLeftBallColor != BallColor.NONE ? instantaneousLeftBallColor : leftBallColor;
@@ -186,6 +189,7 @@ public class Indexer {
         return true;
       }
     } else {
+      loading = true;
       leftBallColor = BallColor.NONE;
       rightBallColor = BallColor.NONE;
       topBallColor = BallColor.NONE;
