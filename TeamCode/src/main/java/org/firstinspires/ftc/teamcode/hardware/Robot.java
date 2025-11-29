@@ -5,6 +5,7 @@ import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.DcMotorEx;
 import com.qualcomm.robotcore.hardware.DcMotorSimple;
 import com.qualcomm.robotcore.hardware.HardwareMap;
+import com.qualcomm.robotcore.hardware.LED;
 import com.qualcomm.robotcore.hardware.PIDFCoefficients;
 import com.qualcomm.robotcore.hardware.Servo;
 import com.qualcomm.robotcore.util.Range;
@@ -32,6 +33,8 @@ public class Robot {
   public final ColorSensor leftColorSensor;
   public final ColorSensor rightColorSensor;
   public final Indexer indexer;
+
+  public final Light statusLed;
 
   public Robot(HardwareMap hardwareMap) {
     // Initialize hardware here
@@ -197,6 +200,9 @@ public class Robot {
     this.rightLift = new Motor(hardwareMap.get(DcMotorEx.class, DeviceNames.EH_MOTOR_3.getDeviceName()), 28);
     this.lift = new Lift(this.leftLift, this.rightLift);
     lift.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
+
+    this.statusLed = new Light(hardwareMap.get(LED.class, DeviceNames.CH_DIGITAL_0.getDeviceName()),
+        hardwareMap.get(LED.class, DeviceNames.CH_DIGITAL_1.getDeviceName()));
   }
 
   public static final int DRIVE_MAX_RPM = 300;
