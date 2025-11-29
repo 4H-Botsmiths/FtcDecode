@@ -77,7 +77,7 @@ public class Indexer {
     }
     switch (position) {
       case RESET:
-        indexerServo.setPosition(50); //Our servo can't do a full rotation, so we have to use 100/6 instead of 0.
+        indexerServo.setPosition(70); //Our servo can't do a full rotation, so we have to use 100/6 instead of 0.
         // indexerServo.setPosition(0); // Full Rotation Servo Version
         break;
       case LEFT:
@@ -248,7 +248,7 @@ public class Indexer {
           left();
         } else if (rightBallColor == BallColor.PURPLE) {
           right();
-        } else if ((leftBallColor != BallColor.NONE /*|| rightBallColor != BallColor.NONE //Add this back in if we get a continuous rotation servo*/)
+        } else if ((leftBallColor == BallColor.NONE /*|| rightBallColor == BallColor.NONE //Add this back in if we get a continuous rotation servo*/)
             && allowUnknown
             && topBallColor != BallColor.NONE) {
           top();
@@ -261,7 +261,7 @@ public class Indexer {
           left();
         } else if (rightBallColor == BallColor.GREEN) {
           right();
-        } else if ((leftBallColor != BallColor.NONE /*|| rightBallColor != BallColor.NONE //Add this back in if we get a continuous rotation servo*/)
+        } else if ((leftBallColor == BallColor.NONE /*|| rightBallColor == BallColor.NONE //Add this back in if we get a continuous rotation servo*/)
             && allowUnknown
             && topBallColor != BallColor.NONE) {
           top();
