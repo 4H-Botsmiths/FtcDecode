@@ -6,6 +6,7 @@ import com.qualcomm.robotcore.util.ElapsedTime;
 import com.qualcomm.robotcore.util.Range;
 import org.firstinspires.ftc.teamcode.hardware.Camera;
 import org.firstinspires.ftc.teamcode.hardware.Robot;
+import org.firstinspires.ftc.teamcode.hardware.Indexer;
 
 @Autonomous(name = "Shoot From Back", group = "A", preselectTeleOp = "Decode Camera TeleOp")
 public class ShootFromBack extends OpMode {
@@ -162,18 +163,15 @@ public class ShootFromBack extends OpMode {
     robot.shooter.setRPM(shooterRpm);
     boolean xReady = Math.abs(tagX) <= xTolerance;
     if (robot.shooter.atSpeedRPM(shooterRpm) && xReady && patternIndex < obeliskMotif.getPattern().length) {
-      if (!robot.indexer.isBlocked()) {
-        if (shootTimer.milliseconds() < 2000) {
-          // Wait before first shot
-          return;
-        }
+      if (!robot.indexer.isShooting()) {
         robot.indexer.setPosition(obeliskMotif.getPattern()[patternIndex], true);
         patternIndex++;
         shootTimer.reset();
       }
-      robot.intake.setPowerAll(1);
-    } else {
-      robot.intake.setPowerAll(0);
+    } else if (patternIndex >= obeliskMotif.getPattern().length) {
+      // All done shooting
+      robot.shooter.setRPM(0);
+      robot.indexer.setPosition(Indexer.Position.RESET);
     }
   }
 

@@ -297,7 +297,7 @@ public class DecodeVisual extends OpMode {
      * Also appends camera-specific AprilTag telemetry (poses, detections).
      */
     // Apply mechanism outputs
-    robot.intake.setPowerAll(intakePower);
+    //robot.intake.setPowerAll(intakePower);
     robot.shooter.setRPM(shooterRpm);
     if (gamepad2.left_stick_x < -0.5) {
       robot.indexer.left();
@@ -332,7 +332,7 @@ public class DecodeVisual extends OpMode {
     // Ensure all actuators are commanded to a safe idle state.
     robot.drive(0, 0, 0);
     robot.shooter.setRPM(0);
-    robot.intake.setPowerAll(0);
+    //robot.intake.setPowerAll(0);
   }
 
 }
