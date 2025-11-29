@@ -1,5 +1,6 @@
 package org.firstinspires.ftc.teamcode.hardware;
 
+import com.qualcomm.hardware.rev.RevColorSensorV3;
 import com.qualcomm.robotcore.hardware.ColorSensor;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.DcMotorEx;
@@ -30,8 +31,8 @@ public class Robot {
   public final Intake intake;
 
   public final PositionServo indexerServo;
-  public final ColorSensor leftColorSensor;
-  public final ColorSensor rightColorSensor;
+  public final RevColorSensorV3 leftColorSensor;
+  public final RevColorSensorV3 rightColorSensor;
   public final Indexer indexer;
 
   public final Light statusLed;
@@ -192,8 +193,8 @@ public class Robot {
 
     this.indexerServo = new PositionServo(hardwareMap.get(Servo.class, DeviceNames.CH_SERVO_1.getDeviceName()), 300,
         PositionServo.ServoMode.CENTERED);
-    this.leftColorSensor = hardwareMap.get(ColorSensor.class, DeviceNames.CH_I2C_0.getDeviceName());
-    this.rightColorSensor = hardwareMap.get(ColorSensor.class, DeviceNames.EH_I2C_0.getDeviceName());
+    this.leftColorSensor = hardwareMap.get(RevColorSensorV3.class, DeviceNames.CH_I2C_0.getDeviceName());
+    this.rightColorSensor = hardwareMap.get(RevColorSensorV3.class, DeviceNames.EH_I2C_0.getDeviceName());
     this.indexer = new Indexer(this.indexerServo, this.leftColorSensor, this.rightColorSensor, this.intake);
 
     this.leftLift = new Motor(hardwareMap.get(DcMotorEx.class, DeviceNames.EH_MOTOR_2.getDeviceName()), 28);
