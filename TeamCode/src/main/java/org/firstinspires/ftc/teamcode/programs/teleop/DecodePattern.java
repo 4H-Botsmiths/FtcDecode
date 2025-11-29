@@ -233,14 +233,19 @@ public class DecodePattern extends OpMode {
     double y = 0;
     double r = 0;
     if (gamepad1.left_bumper) {
+      robot.statusLed.setGreen(true);
       robot.frontLeft.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
       robot.frontRight.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
       robot.rearLeft.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
       robot.rearRight.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
       if (!gamepad1.right_bumper && gamepad1.right_trigger < 0.5) {
-        robot.indexer.load();
+        robot.statusLed.setRed(robot.indexer.load());
+      } else {
+        robot.statusLed.setRed(false);
       }
     } else {
+      robot.statusLed.setGreen(false);
+      robot.statusLed.setRed(true);
       robot.frontLeft.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.FLOAT);
       robot.frontRight.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.FLOAT);
       robot.rearLeft.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.FLOAT);
