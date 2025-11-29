@@ -20,6 +20,10 @@ public class Robot {
   public final Motor rearLeft;
   public final Motor rearRight;
 
+  public final Motor leftLift;
+  public final Motor rightLift;
+  public final Lift lift;
+
   public final CRServo intakeServoLeft;
   public final CRServo intakeServoRight;
   public final Intake intake;
@@ -188,6 +192,11 @@ public class Robot {
     this.leftColorSensor = hardwareMap.get(ColorSensor.class, DeviceNames.CH_I2C_0.getDeviceName());
     this.rightColorSensor = hardwareMap.get(ColorSensor.class, DeviceNames.EH_I2C_0.getDeviceName());
     this.indexer = new Indexer(this.indexerServo, this.leftColorSensor, this.rightColorSensor, this.intake);
+
+    this.leftLift = new Motor(hardwareMap.get(DcMotorEx.class, DeviceNames.EH_MOTOR_2.getDeviceName()), 28);
+    this.rightLift = new Motor(hardwareMap.get(DcMotorEx.class, DeviceNames.EH_MOTOR_3.getDeviceName()), 28);
+    this.lift = new Lift(this.leftLift, this.rightLift);
+    lift.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
   }
 
   public static final int DRIVE_MAX_RPM = 300;
