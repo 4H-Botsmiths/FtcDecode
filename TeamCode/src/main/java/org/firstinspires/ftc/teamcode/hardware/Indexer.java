@@ -77,7 +77,7 @@ public class Indexer {
     }
     switch (position) {
       case RESET:
-        indexerServo.setPosition(60); //Our servo can't do a full rotation, so we have to use 100/6 instead of 0.
+        indexerServo.setPosition(50); //Our servo can't do a full rotation, so we have to use 100/6 instead of 0.
         // indexerServo.setPosition(0); // Full Rotation Servo Version
         break;
       case LEFT:
@@ -248,9 +248,9 @@ public class Indexer {
           left();
         } else if (rightBallColor == BallColor.PURPLE) {
           right();
-        } else if (topBallColor == BallColor.PURPLE
-            || (leftBallColor != BallColor.NONE || rightBallColor != BallColor.NONE) && allowUnknown
-                && topBallColor != BallColor.NONE) {
+        } else if ((leftBallColor != BallColor.NONE /*|| rightBallColor != BallColor.NONE //Add this back in if we get a continuous rotation servo*/)
+            && allowUnknown
+            && topBallColor != BallColor.NONE) {
           top();
         } else {
           return false;
@@ -261,19 +261,19 @@ public class Indexer {
           left();
         } else if (rightBallColor == BallColor.GREEN) {
           right();
-        } else if (topBallColor == BallColor.GREEN
-            || (leftBallColor != BallColor.NONE || rightBallColor != BallColor.NONE) && allowUnknown
-                && topBallColor != BallColor.NONE) {
+        } else if ((leftBallColor != BallColor.NONE /*|| rightBallColor != BallColor.NONE //Add this back in if we get a continuous rotation servo*/)
+            && allowUnknown
+            && topBallColor != BallColor.NONE) {
           top();
         } else {
           return false;
         }
         return true;
       case UNKNOWN:
-        if (leftBallColor != BallColor.NONE) {
-          left();
-        } else if (rightBallColor != BallColor.NONE) {
+        if (rightBallColor != BallColor.NONE) {
           right();
+        } else if (leftBallColor != BallColor.NONE) {
+          left();
         } else if (topBallColor != BallColor.NONE) {
           top();
         } else {
