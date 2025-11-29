@@ -359,6 +359,9 @@ public class DecodePattern extends OpMode {
     telemetry.addData("Obelisk Motif", obeliskMotif);
     telemetry.addData("Next Ball Color",
         classifiedArtifacts < 9 ? obeliskMotif.getPattern()[classifiedArtifacts % 3] : Indexer.BallColor.UNKNOWN);
+    telemetry.addData("Balls in Indexer", "Left: %s | Top: %s | Right: %s",
+        robot.indexer.getBallColor(Indexer.Position.LEFT), robot.indexer.getBallColor(Indexer.Position.TOP),
+        robot.indexer.getBallColor(Indexer.Position.RIGHT));
     telemetry.addData("Base Shooter RPM", baseRPM);
     telemetry.addLine(String.format("Shooter RPM: %6.1f", robot.shooter.getRPM()));
     telemetry.addData("Tag Found", tagFound);
