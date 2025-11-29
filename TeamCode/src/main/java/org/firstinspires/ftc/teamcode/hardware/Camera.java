@@ -24,6 +24,8 @@ import java.util.HashMap;
  */
 public class Camera {
 
+  public static final String OBELISK_STORAGE_KEY = "Obelisk Pattern";
+
   /*
    * Variables used for switching cameras.
    */
