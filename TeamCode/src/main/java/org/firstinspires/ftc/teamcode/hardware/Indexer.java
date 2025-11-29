@@ -80,7 +80,7 @@ public class Indexer {
     }
     switch (position) {
       case RESET:
-        indexerServo.setPosition(70); //Our servo can't do a full rotation, so we have to use 100/6 instead of 0.
+        indexerServo.setPosition(80); //Our servo can't do a full rotation, so we have to use 100/6 instead of 0.
         // indexerServo.setPosition(0); // Full Rotation Servo Version
         break;
       case LEFT:
