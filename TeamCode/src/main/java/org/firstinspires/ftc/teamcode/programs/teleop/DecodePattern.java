@@ -88,7 +88,7 @@ public class DecodePattern extends OpMode {
     }
   }
 
-  int classifiedArtifacts = 3;
+  int classifiedArtifacts = 0;
   private int baseRPM = 2500;
 
   /**
@@ -221,7 +221,7 @@ public class DecodePattern extends OpMode {
   private boolean rangeReady = false;
   private boolean shooterReady = false;
 
-  private ElapsedTime timeAtSpeed = new ElapsedTime();
+  private ElapsedTime shootDelay = new ElapsedTime();
 
   /**
    * Driver control loop:
@@ -310,8 +310,6 @@ public class DecodePattern extends OpMode {
       }
       if (robot.shooter.atSpeedRPM(shooterRpm)) {
         shooterReady = true;
-      } else {
-        timeAtSpeed.reset();
       }
 
       //-----------------------------------------Feedback-----------------------------------------
@@ -327,7 +325,7 @@ public class DecodePattern extends OpMode {
       int patternIndex = classifiedArtifacts % 3;
       Indexer.BallColor desiredColor = classifiedArtifacts < 9 ? obeliskMotif.getPattern()[patternIndex]
           : Indexer.BallColor.UNKNOWN;
-      if (!robot.indexer.isShooting() && timeAtSpeed.seconds() > 2) {
+      if (!robot.indexer.isShooting()) {
         boolean success = robot.indexer.setPosition(desiredColor, true);
         if (!success) {
           success = robot.indexer.setPosition(Indexer.BallColor.UNKNOWN, true);

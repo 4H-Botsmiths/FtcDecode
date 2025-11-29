@@ -46,7 +46,7 @@ public class Indexer {
   private final int MOVE_TIME = 1000;
   /** How long it takes to move between positions and get the ball into the intake in milliseconds */
   private final int MOVE_DROP_TIME = MOVE_TIME + 1500;
-  private final int MOVE_DROP_SHOOT_TIME = MOVE_DROP_TIME + 1000;
+  private final int MOVE_DROP_SHOOT_TIME = MOVE_DROP_TIME + 1500;
   ElapsedTime positionTimer = new ElapsedTime();
 
   /**
@@ -60,22 +60,7 @@ public class Indexer {
    * @param position desired position
    */
   public void setPosition(Position position) {
-    if (!isBusy()) { //Wait a little but before marking the ball as none so that the servo has a chance to actually move
-      switch (currentPosition) {
-        case LEFT:
-          leftBallColor = BallColor.NONE;
-          break;
-        case RIGHT:
-          rightBallColor = BallColor.NONE;
-          break;
-        case TOP:
-          topBallColor = BallColor.NONE;
-          break;
-        default:
-          break;
-      }
-    }
-    if (isBlocked() && !isBusy()) {
+    if (isBlocked()) {
       return; // Don't allow changing position while blocked
     }
     switch (position) {
@@ -85,14 +70,17 @@ public class Indexer {
         break;
       case LEFT:
         indexerServo.setPosition(0);
+        leftBallColor = BallColor.NONE;
         // indexerServo.setPosition(-60); // Full Rotation Servo Version
         break;
       case RIGHT:
         indexerServo.setPosition(120);
+        rightBallColor = BallColor.NONE;
         // indexerServo.setPosition(60); // Full Rotation Servo Version
         break;
       case TOP:
         indexerServo.setPosition(-120);
+        topBallColor = BallColor.NONE;
         /* Full Rotation Servo Version:
         switch (currentPosition) {
           case TOP:
