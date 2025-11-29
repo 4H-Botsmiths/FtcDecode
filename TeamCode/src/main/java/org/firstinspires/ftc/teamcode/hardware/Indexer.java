@@ -157,7 +157,7 @@ public class Indexer {
    * Alias for `setPosition(Position.RESET)`
    * @apiNote This method is only used internally, use `load()` instead.
    */
-  private void reset() {
+  public void reset() {
     setPosition(Position.RESET);
   }
 
@@ -244,8 +244,9 @@ public class Indexer {
           left();
         } else if (rightBallColor == BallColor.PURPLE) {
           right();
-        } else if ((leftBallColor != BallColor.NONE || rightBallColor != BallColor.NONE) && allowUnknown
-            && topBallColor != BallColor.NONE) {
+        } else if (topBallColor == BallColor.PURPLE
+            || (leftBallColor != BallColor.NONE || rightBallColor != BallColor.NONE) && allowUnknown
+                && topBallColor != BallColor.NONE) {
           top();
         } else {
           return false;
@@ -256,8 +257,9 @@ public class Indexer {
           left();
         } else if (rightBallColor == BallColor.GREEN) {
           right();
-        } else if ((leftBallColor != BallColor.NONE || rightBallColor != BallColor.NONE) && allowUnknown
-            && topBallColor != BallColor.NONE) {
+        } else if (topBallColor == BallColor.GREEN
+            || (leftBallColor != BallColor.NONE || rightBallColor != BallColor.NONE) && allowUnknown
+                && topBallColor != BallColor.NONE) {
           top();
         } else {
           return false;
