@@ -5,6 +5,7 @@ import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 import org.firstinspires.ftc.robotcore.external.navigation.DistanceUnit;
 import org.firstinspires.ftc.teamcode.hardware.Indexer;
+import org.firstinspires.ftc.teamcode.hardware.DeviceNames;
 
 @Autonomous(name = "Color Tester", group = "Diagnostics")
 public class ColorTester extends LinearOpMode {
@@ -15,8 +16,8 @@ public class ColorTester extends LinearOpMode {
   @Override
   public void runOpMode() {
     // Adjust these names to match your configuration
-    leftColorSensor = hardwareMap.get(RevColorSensorV3.class, "leftColorSensor");
-    rightColorSensor = hardwareMap.get(RevColorSensorV3.class, "rightColorSensor");
+    leftColorSensor = hardwareMap.get(RevColorSensorV3.class, DeviceNames.CH_I2C_0.getDeviceName());
+    rightColorSensor = hardwareMap.get(RevColorSensorV3.class, DeviceNames.EH_I2C_0.getDeviceName());
 
     telemetry.addLine("Color Tester Initialized");
     telemetry.addLine("Press PLAY to start sampling.");
