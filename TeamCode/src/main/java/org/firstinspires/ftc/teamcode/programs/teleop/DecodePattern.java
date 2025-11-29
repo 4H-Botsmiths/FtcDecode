@@ -14,38 +14,19 @@ import org.firstinspires.ftc.teamcode.hardware.Camera.CameraNotAttachedException
 import org.firstinspires.ftc.teamcode.hardware.Indexer;
 
 @TeleOp(name = "Decode Pattern TeleOp", group = "A")
-/**
- * TeleOp: Driver/Operator control loop with camera-assisted alignment and shooting.
- *
- * High-level overview
- * - Uses a {@link Robot} abstraction for drivetrain and mechanisms, and a {@link Camera} wrapper
- *   for AprilTag detection via the FTC VisionPortal.
- * - Driver (gamepad1): normal mecanum drive on sticks; hold Right Bumper to enable tag-aligned "assist"
- *   that slowly rotates the robot to center the goal AprilTag (x-axis only) and rumbles until aligned.
- * - Operator (gamepad2): manual intake with LT (reverse) by default; hold Right Bumper to enter
- *   auto-shoot mode which estimates shooter RPM from tag range and auto-feeds when at speed and aligned.
- *   While not ready to shoot, the operator's gamepad rumbles for feedback.
- * - Pre-start (INIT loop): shows camera state and AprilTag telemetry to verify detections before PLAY.
- *
- * Notes and assumptions
- * - This OpMode attempts to fetch the GOAL tag. If the camera isn't attached or streaming, we
- *   speak/telemetry warnings and try to resume streaming where appropriate to keep driving safe.
- * - Units: {@code tag.ftcPose.range} is in inches (FTC SDK). {@code tag.ftcPose.x} is also in inches
- *   left/right from the camera centerline, but this code treats {@code xTolerance} as "pixels".
- *   Consider calibrating to inches or computing a pixel offset from the detection center to avoid mismatch.
- * - Shooter RPM math is a placeholder (see TODO). Expect to replace with a calibrated mapping from range
- *   to velocity based on your launcher and game element aerodynamics.
- */
 public class DecodePattern extends OpMode {
   /** Aggregate access to drivetrain and mechanisms. */
   public Robot robot;
   /** Camera/vision wrapper for AprilTag via VisionPortal. */
   public Camera camera;
 
+  /** The Motif Pattern for the match (set by the autonomous program) */
   private Camera.OBELISK_MOTIF obeliskMotif = Camera.OBELISK_MOTIF.PURPLE_PURPLE_GREEN;
 
-  // Lifecycle: init -> init_loop -> start -> loop (repeats) -> stop
-
+  /**
+   * Init:
+   * configure hardware --> configure camera --> load obelisk motif from blackboard
+   */
   @Override
   public void init() {
     // Basic UI feedback while hardware is constructed
@@ -53,8 +34,6 @@ public class DecodePattern extends OpMode {
     telemetry.update();
 
     // Instantiate our robot hardware abstraction and camera wrapper.
-    // - Robot uses the hardwareMap to find motors/servos/sensors.
-    // - Camera sets up the VisionPortal and AprilTag processors.
     this.robot = new Robot(hardwareMap);
     this.camera = new Camera(hardwareMap);
     try {
@@ -73,24 +52,36 @@ public class DecodePattern extends OpMode {
   }
 
   /**
-   * Repeated during INIT (before PLAY):
-   * - Displays the camera state
-   * - Surfaces AprilTag telemetry for on-field alignment checks
+   * Init Loop:
+   * log motif --> log AprilTag telemetry
    */
   @Override
   public void init_loop() {
-    // Also show AprilTag telemetry while waiting on start so you can verify detections.
+    telemetry.addData("Status", "Initialized");
+
+    if (gamepad2.left_bumper) {
+      this.obeliskMotif = Camera.OBELISK_MOTIF.GREEN_PURPLE_PURPLE;
+    } else if (gamepad2.right_bumper) {
+      this.obeliskMotif = Camera.OBELISK_MOTIF.PURPLE_PURPLE_GREEN;
+    } else if (gamepad2.back) {
+      this.obeliskMotif = Camera.OBELISK_MOTIF.PURPLE_GREEN_PURPLE;
+    }
+    telemetry.addData("Obelisk Motif", obeliskMotif);
+
     camera.telemetryAprilTag(telemetry);
+    telemetry.update();
   }
 
   /**
-   * One-time start hook. Currently no additional actions are required.
+   * Start:
+   * Pause the camera
    */
   @Override
   public void start() {
     try {
       //Pause the camera to save resources during active driving.
       camera.pause();
+      //camera.visionPortal.stopLiveView(); - Enable to save a few resources
     } catch (Camera.CameraNotAttachedException e) {
       telemetry.speak("WARNING: Camera not attached!");
     }
@@ -107,14 +98,25 @@ public class DecodePattern extends OpMode {
    */
   @Override
   public void loop() {
-    telemetries();
     operatorLoop();
+    cameraLoop();
+    driverLoop();
+    telemetries();
   }
 
   private boolean aPressed = false;
   private boolean bPressed = false;
   private boolean yPressed = false;
+  private boolean dpadLeftPressed = false;
+  private boolean dpadRightPressed = false;
 
+  /**
+   * Operator control loop:
+   * - 'A' to increment classified artifacts
+   * - 'B' to decrement classified artifacts
+   * - 'Y' to reset classified artifacts to 0
+   * - DPad Left/Right to adjust base shooter RPM
+   */
   public void operatorLoop() {
     if (gamepad2.a && !aPressed) {
       classifiedArtifacts = Math.max(0, Math.min(9, classifiedArtifacts + 1));
@@ -135,16 +137,38 @@ public class DecodePattern extends OpMode {
     if (!gamepad2.y) {
       yPressed = false;
     }
+
+    if (gamepad2.dpad_left && !dpadLeftPressed) {
+      baseRPM = Math.max(2000, baseRPM - 50);
+      dpadLeftPressed = true;
+    }
+    if (!gamepad2.dpad_left) {
+      dpadLeftPressed = false;
+    }
+
+    if (gamepad2.dpad_right && !dpadRightPressed) {
+      baseRPM = Math.min(4000, baseRPM + 50);
+      dpadRightPressed = true;
+    }
+    if (!gamepad2.dpad_right) {
+      dpadRightPressed = false;
+    }
   }
 
   private double xTolerance = 5;
-  private double rangeTolerance = 5;
-  private double targetRange = 85;
   private boolean cameraActive = false;
   private boolean tagFound = false;
   private double tagX = 0;
   private double tagRange = 85;
 
+  /**
+   * Camera control loop:
+   * - While RB is held, read GOAL AprilTag and update tagX and tagRange
+   *   - If camera is paused or unavailable, try to resume streaming
+   *   - If tag not found, keep last known tagX and tagRange
+   * - While RB is not held, pause the camera to save resources
+   *   - Reset tagX and tagRange to defaults
+   */
   public void cameraLoop() {
     if (gamepad1.right_bumper) {
       try {
@@ -179,6 +203,18 @@ public class DecodePattern extends OpMode {
     }
   }
 
+  /**
+   * Driver control loop:
+   * - Standard mecanum drive from left/right sticks and triggers
+   * - While LB is held, set drivetrain motors to BRAKE mode and load indexer
+   *  - While LB is not held, set drivetrain motors to FLOAT mode
+   * - While RB is held, apply alignment assist using tagX to adjust rotation (z)
+   *   - Also adjust forward (y) based on tagRange to approach target range
+   *   - Provide driver rumble until within xTolerance
+   * - While RT is held, auto-shoot based on classified artifacts and vision data
+   *   - Set shooter RPM based on tagRange
+   *   - When aligned (x within tolerance), at speed, and in range, auto-feed balls
+   */
   public void driverLoop() {
     double x = 0;
     double y = 0;
@@ -188,6 +224,9 @@ public class DecodePattern extends OpMode {
       robot.frontRight.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
       robot.rearLeft.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
       robot.rearRight.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
+      if (!gamepad1.right_bumper && gamepad1.right_trigger < 0.5) {
+        robot.indexer.load();
+      }
     } else {
       robot.frontLeft.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.FLOAT);
       robot.frontRight.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.FLOAT);
@@ -267,20 +306,38 @@ public class DecodePattern extends OpMode {
     } else if (gamepad1.right_bumper) {
       robot.intake.setPowerAll(0);
     } else {
-      robot.indexer.load();
+      robot.indexer.reset();
     }
   }
 
+  /**
+   * Publish telemetry:
+   * - Status
+   * - Classified Artifacts
+   * - Obelisk Motif
+   * - Next Ball Color
+   * - Target Shooter RPM
+   * - Current Shooter RPM
+   * - Tag Found
+   * - Tag X and Range
+   * - Drivetrain RPMs (per-wheel), shooter speed, and vision-derived alignment/shooting info
+   * - Camera helper will add its own telemetry (detections, pose, etc.).
+   */
   public void telemetries() {
-    // Drivetrain RPMs (per-wheel), shooter speed, and vision-derived alignment/shooting info
-    telemetry.addLine(String.format("FL (%6.1f) (%6.1f) FR", robot.frontLeft.getRPM(), robot.frontRight.getRPM()));
-    telemetry.addLine(String.format("RL (%6.1f) (%6.1f) RR", robot.rearLeft.getRPM(), robot.rearRight.getRPM()));
-    telemetry.addData("Target Shooter RPM", baseRPM);
+    telemetry.addData("Status", "Running");
+    telemetry.addData("Classified Artifacts", classifiedArtifacts);
+    telemetry.addData("Obelisk Motif", obeliskMotif);
+    telemetry.addData("Next Ball Color",
+        classifiedArtifacts < 9 ? obeliskMotif.getPattern()[classifiedArtifacts % 3] : Indexer.BallColor.UNKNOWN);
+    telemetry.addData("Base Shooter RPM", baseRPM);
     telemetry.addLine(String.format("Shooter RPM: %6.1f", robot.shooter.getRPM()));
     telemetry.addData("Tag Found", tagFound);
     telemetry.addLine(String.format("Tag X: (%6.1f) Tag Range: (%6.1f)", tagX, tagRange));
     //telemetry.addLine(String.format("Intake Power: (%6.1f)", robot.intake.getPowers()));
     telemetry.addLine(String.format("Indexer Position: (%s)", robot.indexer.getCurrentPosition()));
+    // Drivetrain RPMs (per-wheel), shooter speed, and vision-derived alignment/shooting info
+    telemetry.addLine(String.format("FL (%6.1f) (%6.1f) FR", robot.frontLeft.getRPM(), robot.frontRight.getRPM()));
+    telemetry.addLine(String.format("RL (%6.1f) (%6.1f) RR", robot.rearLeft.getRPM(), robot.rearRight.getRPM()));
     // Camera helper will add its own telemetry (detections, pose, etc.).
     camera.telemetryAprilTag(telemetry);
   }
