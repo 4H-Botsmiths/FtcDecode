@@ -46,38 +46,22 @@ public class ColorTester extends LinearOpMode {
    * Mirrors Indexer.detectColor logic, but works directly on a sensor.
    */
   private Indexer.BallColor detectColor(RevColorSensorV3 sensor) {
-    int red = sensor.red();
     int green = sensor.green();
     int blue = sensor.blue();
 
-    int total = red + green + blue;
-
-    if (sensor.getDistance(DistanceUnit.MM) > 50 || total < 150) {
+    if (sensor.getDistance(DistanceUnit.MM) > 50) {
       return Indexer.BallColor.NONE;
     }
 
-    double r = red;
-    double g = green;
-    double b = blue;
-
-    boolean isGreenDominant = g > r * 1.4 &&
-        g > b * 1.4 &&
-        g > 80;
-
-    boolean isPurpleDominant = r > g * 1.2 &&
-        b > g * 1.2 &&
-        Math.abs(r - b) < 0.5 * Math.max(r, b) &&
-        r > 80 && b > 80;
-
-    if (isPurpleDominant && !isGreenDominant) {
+    if (blue > green) {
       return Indexer.BallColor.PURPLE;
     }
 
-    if (isGreenDominant && !isPurpleDominant) {
+    if (green > blue) {
       return Indexer.BallColor.GREEN;
     }
 
-    return Indexer.BallColor.NONE;
+    return Indexer.BallColor.UNKNOWN;
   }
 
   private void logSensor(String label, RevColorSensorV3 sensor, Indexer.BallColor interpreted) {
