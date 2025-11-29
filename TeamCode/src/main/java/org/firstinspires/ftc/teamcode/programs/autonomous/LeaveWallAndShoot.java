@@ -171,7 +171,7 @@ public class LeaveWallAndShoot extends OpMode {
       }
     } else if (patternIndex >= obeliskMotif.getPattern().length && !robot.indexer.isShooting()) {
       // All done shooting
-      robot.indexer.setPosition(Indexer.Position.RESET);
+      //robot.indexer.setPosition(Indexer.Position.RESET);
     }
   }
 
