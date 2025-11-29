@@ -174,6 +174,10 @@ public class ShootFromBack extends OpMode {
 
   void telemetries() {
     telemetry.addData("Obelisk Motif", obeliskMotif.toString());
+    telemetry.addData("Pattern Index", patternIndex);
+    telemetry.addData("Balls in Indexer", "Left: %s | Top: %s | Right: %s",
+        robot.indexer.getBallColor(Indexer.Position.LEFT), robot.indexer.getBallColor(Indexer.Position.TOP),
+        robot.indexer.getBallColor(Indexer.Position.RIGHT));
     telemetry.addLine(String.format("FL (%6.1f) (%6.1f) FR", robot.frontLeft.getRPM(), robot.frontRight.getRPM()));
     telemetry.addLine(String.format("RL (%6.1f) (%6.1f) RR", robot.rearLeft.getRPM(), robot.rearRight.getRPM()));
     telemetry.addData("Target Shooter RPM", shooterRpm);
