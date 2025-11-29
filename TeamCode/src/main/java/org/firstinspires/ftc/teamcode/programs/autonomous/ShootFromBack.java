@@ -14,7 +14,7 @@ public class ShootFromBack extends OpMode {
   public Camera camera;
 
   private final ElapsedTime timer = new ElapsedTime();
-  private int baseRPM = 3000;
+  private int baseRPM = 2500;
   private int shooterRpm = 0;
   private double tagRange = 85;
   private double tagX = 0;
@@ -117,11 +117,7 @@ public class ShootFromBack extends OpMode {
       }
       return;
     }
-    if (timer.milliseconds() > 21000) {
-      requestOpModeStop();
-      return;
-    }
-    if (timer.milliseconds() > 20000) {
+    if (timer.milliseconds() > 29000) {
       // Brief pause to stabilize
       robot.drive(0, 0.33, 0);
       return;
@@ -165,7 +161,7 @@ public class ShootFromBack extends OpMode {
         robot.indexer.setPosition(obeliskMotif.getPattern()[patternIndex], true);
         patternIndex++;
       }
-    } else if (patternIndex >= obeliskMotif.getPattern().length) {
+    } else if (patternIndex >= obeliskMotif.getPattern().length && !robot.indexer.isShooting()) {
       // All done shooting
       robot.indexer.setPosition(Indexer.Position.RESET);
     }

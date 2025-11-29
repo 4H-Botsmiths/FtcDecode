@@ -43,7 +43,7 @@ public class Indexer {
   private final int MOVE_TIME = 1250;
   /** How long it takes to move between positions and get the ball into the intake in milliseconds */
   private final int MOVE_DROP_TIME = MOVE_TIME + 1750;
-  private final int MOVE_DROP_SHOOT_TIME = MOVE_DROP_TIME + 2500;
+  private final int MOVE_DROP_SHOOT_TIME = MOVE_DROP_TIME + 1500;
   ElapsedTime positionTimer = new ElapsedTime();
 
   /**
