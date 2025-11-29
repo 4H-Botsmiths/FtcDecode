@@ -6,7 +6,7 @@ public class Light {
   private final LED ledGreen;
   private final LED ledRed;
 
-  public Light(LED ledGreen, LED ledRed) {
+  public Light(LED ledRed, LED ledGreen) {
     this.ledGreen = ledGreen;
     this.ledRed = ledRed;
   }
