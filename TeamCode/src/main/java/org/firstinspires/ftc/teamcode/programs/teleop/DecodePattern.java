@@ -216,6 +216,10 @@ public class DecodePattern extends OpMode {
     }
   }
 
+  private boolean xReady = false;
+  private boolean rangeReady = false;
+  private boolean shooterReady = false;
+
   /**
    * Driver control loop:
    * - Standard mecanum drive from left/right sticks and triggers
@@ -269,9 +273,9 @@ public class DecodePattern extends OpMode {
       r -= gamepad1.left_trigger * (gamepad1.right_stick_x / 3);
     }
 
-    boolean xReady = false;
-    boolean rangeReady = false;
-    boolean shooterReady = false;
+    xReady = false;
+    rangeReady = false;
+    shooterReady = false;
     double shooterRpm = 0;
     if (gamepad1.right_bumper) {
       //-----------------------------------------Align-Assist-----------------------------------------
@@ -366,6 +370,8 @@ public class DecodePattern extends OpMode {
     telemetry.addData("Balls in Indexer", "Left: %s | Top: %s | Right: %s",
         robot.indexer.getBallColor(Indexer.Position.LEFT), robot.indexer.getBallColor(Indexer.Position.TOP),
         robot.indexer.getBallColor(Indexer.Position.RIGHT));
+    telemetry.addData("Shooting Ready", "Aligned: %s | In Range: %s | At Speed: %s",
+        xReady ? "Yes" : "No", rangeReady ? "Yes" : "No", shooterReady ? "Yes" : "No");
     telemetry.addData("Base Shooter RPM", baseRPM);
     telemetry.addLine(String.format("Shooter RPM: %6.1f", robot.shooter.getRPM()));
     telemetry.addData("Tag Found", tagFound);
