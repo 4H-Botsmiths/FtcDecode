@@ -221,44 +221,24 @@ public class Indexer {
       default:
         return BallColor.NONE;
     }
-    int red = sensor.red();
     int green = sensor.green();
     int blue = sensor.blue();
 
-    // Total intensity to filter out very dark / no-ball cases
-    int total = red + green + blue;
-
     // If it's too dark overall, treat it as no ball
-    if (sensor.getDistance(DistanceUnit.MM) > 50 || total < 150) {
+    if (sensor.getDistance(DistanceUnit.MM) > 50) {
       return BallColor.NONE;
     }
 
-    // Avoid division by zero and normalize a bit
-    double r = red;
-    double g = green;
-    double b = blue;
-
-    // Detect green: green should dominate and be reasonably strong
-    boolean isGreenDominant = g > r * 1.4 && // noticeably more green than red
-        g > b * 1.4 && // and more green than blue
-        g > 80; // not just noise
-
-    // Detect purple: red and blue both high relative to green, and comparable to each other
-    boolean isPurpleDominant = r > g * 1.2 && // red higher than green
-        b > g * 1.2 && // blue higher than green
-        Math.abs(r - b) < 0.5 * Math.max(r, b) && // red and blue roughly same magnitude
-        r > 80 && b > 80; // not just noise
-
-    if (isPurpleDominant && !isGreenDominant) {
+    if (blue > green) {
       return BallColor.PURPLE;
     }
 
-    if (isGreenDominant && !isPurpleDominant) {
+    if (green > blue) {
       return BallColor.GREEN;
     }
 
     // Ambiguous or background
-    return BallColor.NONE;
+    return BallColor.UNKNOWN;
   }
 
   /**
