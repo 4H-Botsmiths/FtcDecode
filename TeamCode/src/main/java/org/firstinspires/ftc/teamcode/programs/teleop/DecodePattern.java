@@ -272,11 +272,12 @@ public class DecodePattern extends OpMode {
     boolean xReady = false;
     boolean rangeReady = false;
     boolean shooterReady = false;
+    double shooterRpm = 0;
     if (gamepad1.right_bumper) {
       //-----------------------------------------Align-Assist-----------------------------------------
       // Align-assist: while RB is held, read the GOAL AprilTag and adjust rotation (z)
       // to center the tag. Also provide driver rumble until within tolerance.
-      r += (tagX / 30) * (tagFound ? 0.33 : 0.15);
+      r += (tagX / 30) * (tagFound ? 0.66 : 0.33);
       y += tagRange < 50 ? -0.4 : 0;
       if (tagRange > 50) {
         rangeReady = true;
@@ -287,7 +288,6 @@ public class DecodePattern extends OpMode {
       }
 
       //-----------------------------------------Shooter-----------------------------------------
-      double shooterRpm = 0;
       if (gamepad1.right_bumper) {
         if (tagRange < 60) {
           shooterRpm = baseRPM; //2500;
@@ -301,7 +301,6 @@ public class DecodePattern extends OpMode {
           shooterRpm = baseRPM + 200; //2700;
         }
       }
-      robot.shooter.setRPM(shooterRpm);
       if (robot.shooter.atSpeedRPM(shooterRpm)) {
         shooterReady = true;
       }
@@ -311,6 +310,7 @@ public class DecodePattern extends OpMode {
         vibrate = true;
       }
     }
+    robot.shooter.setRPM(shooterRpm);
     robot.drive(x, y, r);
 
     if (gamepad1.right_trigger > 0.5) {
@@ -321,10 +321,14 @@ public class DecodePattern extends OpMode {
       if (!robot.indexer.isShooting()) {
         boolean success = robot.indexer.setPosition(desiredColor, true);
         if (!success) {
-          robot.indexer.setPosition(Indexer.BallColor.UNKNOWN, true);
-          telemetry.speak("Unknown ball color!");
+          success = robot.indexer.setPosition(Indexer.BallColor.UNKNOWN, true);
+          if (success) {
+            telemetry.speak("Unknown ball color!");
+          }
         }
-        classifiedArtifacts++;
+        if (success) {
+          classifiedArtifacts = Math.max(0, Math.min(9, classifiedArtifacts + 1));
+        }
       }
     } else if (gamepad1.right_bumper) {
       robot.intake.setPowerAll(0);
