@@ -8,7 +8,7 @@ import com.qualcomm.robotcore.hardware.DcMotorEx;
 import com.qualcomm.robotcore.util.ElapsedTime;
 import org.firstinspires.ftc.teamcode.hardware.Robot;
 
-@Autonomous(name = "Drive Forward", group = "A", preselectTeleOp = "Decode Camera TeleOp")
+@Autonomous(name = "Drive Forward", group = "A", preselectTeleOp = "Decode Pattern TeleOp")
 public class LeaveWall extends OpMode {
   public Robot robot;
 

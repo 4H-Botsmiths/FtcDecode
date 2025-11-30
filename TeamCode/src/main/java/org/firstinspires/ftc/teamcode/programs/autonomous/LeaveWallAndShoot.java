@@ -8,7 +8,7 @@ import org.firstinspires.ftc.teamcode.hardware.Camera;
 import org.firstinspires.ftc.teamcode.hardware.Robot;
 import org.firstinspires.ftc.teamcode.hardware.Indexer;
 
-@Autonomous(name = "Leave Wall and Shoot", group = "A", preselectTeleOp = "Decode Camera TeleOp")
+@Autonomous(name = "Leave Wall and Shoot", group = "A", preselectTeleOp = "Decode Pattern TeleOp")
 public class LeaveWallAndShoot extends OpMode {
   public Robot robot;
   public Camera camera;

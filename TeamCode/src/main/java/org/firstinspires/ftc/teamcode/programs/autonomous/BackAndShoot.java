@@ -11,7 +11,7 @@ import com.qualcomm.robotcore.util.Range;
 import org.firstinspires.ftc.teamcode.hardware.Camera;
 import org.firstinspires.ftc.teamcode.hardware.Robot;
 
-@Autonomous(name = "Back and Shoot", group = "A", preselectTeleOp = "Decode Camera TeleOp")
+@Autonomous(name = "Back and Shoot", group = "A", preselectTeleOp = "Decode Pattern TeleOp")
 public class BackAndShoot extends OpMode {
   public Robot robot;
   public Camera camera;
