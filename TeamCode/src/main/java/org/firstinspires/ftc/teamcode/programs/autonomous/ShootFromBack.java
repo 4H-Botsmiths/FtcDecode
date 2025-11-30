@@ -8,7 +8,7 @@ import org.firstinspires.ftc.teamcode.hardware.Camera;
 import org.firstinspires.ftc.teamcode.hardware.Robot;
 import org.firstinspires.ftc.teamcode.hardware.Indexer;
 
-@Autonomous(name = "Shoot From Back", group = "A", preselectTeleOp = "Decode Camera TeleOp")
+@Autonomous(name = "Shoot From Back", group = "A", preselectTeleOp = "Decode Pattern TeleOp")
 public class ShootFromBack extends OpMode {
   public Robot robot;
   public Camera camera;
