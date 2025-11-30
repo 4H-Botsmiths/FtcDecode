@@ -221,8 +221,6 @@ public class DecodePattern extends OpMode {
   private boolean rangeReady = false;
   private boolean shooterReady = false;
 
-  private ElapsedTime shootDelay = new ElapsedTime();
-
   /**
    * Driver control loop:
    * - Standard mecanum drive from left/right sticks and triggers
@@ -264,15 +262,15 @@ public class DecodePattern extends OpMode {
       robot.rearRight.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.FLOAT);
       x = gamepad1.left_stick_x / 3;
       x *= 2;
-      x += gamepad1.right_trigger * (gamepad1.left_stick_x / 3);
+      //x += gamepad1.right_trigger * (gamepad1.left_stick_x / 3);
       x -= gamepad1.left_trigger * (gamepad1.left_stick_x / 3);
       y = -gamepad1.left_stick_y / 3;
       y *= 2;
-      y += gamepad1.right_trigger * (-gamepad1.left_stick_y / 3);
+      //y += gamepad1.right_trigger * (-gamepad1.left_stick_y / 3);
       y -= gamepad1.left_trigger * (-gamepad1.left_stick_y / 3);
       r = gamepad1.right_stick_x / 3;
       r *= 2;
-      r += gamepad1.right_trigger * (gamepad1.right_stick_x / 3);
+      //r += gamepad1.right_trigger * (gamepad1.right_stick_x / 3);
       r -= gamepad1.left_trigger * (gamepad1.right_stick_x / 3);
     }
 
@@ -284,7 +282,7 @@ public class DecodePattern extends OpMode {
       //-----------------------------------------Align-Assist-----------------------------------------
       // Align-assist: while RB is held, read the GOAL AprilTag and adjust rotation (z)
       // to center the tag. Also provide driver rumble until within tolerance.
-      r += (tagX / 30) * (tagFound ? 0.66 : 0.33);
+      r += (tagX / 30) * (tagFound ? 0.5 : 0.2);
       y += tagRange < 50 ? -0.4 : 0;
       if (tagRange > 50) {
         rangeReady = true;
