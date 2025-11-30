@@ -164,6 +164,7 @@ public class LeaveWallAndShoot extends OpMode {
     }
     robot.shooter.setRPM(shooterRpm);
     boolean xReady = Math.abs(tagX) <= xTolerance;
+    robot.intake.setPowerAll(1);
     if (robot.shooter.atSpeedRPM(shooterRpm) && xReady && patternIndex < obeliskMotif.getPattern().length) {
       if (!robot.indexer.isBlocked() || patternIndex == 0) {
         robot.indexer.setPosition(obeliskMotif.getPattern()[patternIndex], true);
