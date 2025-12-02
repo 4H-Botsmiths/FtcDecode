@@ -3,7 +3,6 @@ package org.firstinspires.ftc.teamcode.programs.diagnostics;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.util.Range;
-import org.firstinspires.ftc.robotcore.external.Telemetry;
 import org.firstinspires.ftc.teamcode.hardware.Camera;
 import org.firstinspires.ftc.teamcode.hardware.Indexer;
 import org.firstinspires.ftc.teamcode.hardware.Robot;
