@@ -115,8 +115,7 @@ public class ShooterSpeedCalibrator extends LinearOpMode {
         if (!robot.indexer.isShooting() && !aligning) {
           telemetry.addData("Status", "Indexing...");
           boolean ballsLoaded = robot.indexer.setPosition(Indexer.BallColor.UNKNOWN, true);
-          if (ballsLoaded) {
-          } else {
+          if (!ballsLoaded) {
             loading = true;
           }
         }
