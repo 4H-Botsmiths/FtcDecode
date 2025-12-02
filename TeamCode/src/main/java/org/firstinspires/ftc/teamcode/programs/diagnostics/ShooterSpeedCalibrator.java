@@ -128,6 +128,7 @@ public class ShooterSpeedCalibrator extends LinearOpMode {
             telemetry.addData("Status", "Aligning...");
           } else {
             aligning = false;
+            robot.drive(0, 0, 0);
           }
           telemetry.addData("Distance to Target (in)", tag.ftcPose.range);
           telemetry.addData("Tag X (in)", tag.ftcPose.x);
