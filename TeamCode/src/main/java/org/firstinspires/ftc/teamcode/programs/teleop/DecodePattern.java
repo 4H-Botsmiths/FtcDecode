@@ -267,16 +267,16 @@ public class DecodePattern extends OpMode {
       robot.rearRight.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.FLOAT);
       x = gamepad1.left_stick_x / 3;
       x *= 2;
-      //x += gamepad1.right_trigger * (gamepad1.left_stick_x / 3);
-      x -= gamepad1.left_trigger * (gamepad1.left_stick_x / 3);
+      x += !gamepad1.right_bumper ? gamepad1.right_trigger * (gamepad1.left_stick_x / 3) : 0;
+      x -= !gamepad1.right_bumper ? gamepad1.left_trigger * (gamepad1.left_stick_x / 3) : 0;
       y = -gamepad1.left_stick_y / 3;
       y *= 2;
-      //y += gamepad1.right_trigger * (-gamepad1.left_stick_y / 3);
-      y -= gamepad1.left_trigger * (-gamepad1.left_stick_y / 3);
+      y += !gamepad1.right_bumper ? gamepad1.right_trigger * (-gamepad1.left_stick_y / 3) : 0;
+      y -= !gamepad1.right_bumper ? gamepad1.left_trigger * (-gamepad1.left_stick_y / 3) : 0;
       r = gamepad1.right_stick_x / 3;
       r *= 2;
-      //r += gamepad1.right_trigger * (gamepad1.right_stick_x / 3);
-      r -= gamepad1.left_trigger * (gamepad1.right_stick_x / 3);
+      r += !gamepad1.right_bumper ? gamepad1.right_trigger * (gamepad1.right_stick_x / 3) : 0;
+      r -= !gamepad1.right_bumper ? gamepad1.left_trigger * (gamepad1.right_stick_x / 3) : 0;
     }
 
     xReady = false;
@@ -323,7 +323,11 @@ public class DecodePattern extends OpMode {
     robot.drive(x, y, r);
 
     //-----------------------------------------Intake-----------------------------------------
-    robot.intake.setPowerAll(gamepad1.right_trigger);
+    if (gamepad1.right_bumper) {
+      robot.intake.setPowerAll(gamepad1.right_trigger - gamepad1.left_trigger);
+    } else {
+      robot.intake.setPowerAll(0);
+    }
     if (gamepad1.a) {
       //-----------------------------------------Indexer-----------------------------------------
       int patternIndex = classifiedArtifacts % 3;
