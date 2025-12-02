@@ -104,10 +104,7 @@ public class ShooterSpeedCalibrator extends LinearOpMode {
         robot.statusLed.setRed(true);
         boolean loaded = robot.indexer.load();
         if (loaded) {
-          robot.statusLed.setRed(true);
           loading = false;
-        } else {
-          robot.statusLed.setRed(false);
         }
       } else {
         telemetry.addData("Status", "Shooting...");
