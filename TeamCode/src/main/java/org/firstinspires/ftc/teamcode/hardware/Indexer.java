@@ -8,7 +8,6 @@ public class Indexer {
   private final PositionServo indexerServo;
   private final RevColorSensorV3 leftColorSensor;
   private final RevColorSensorV3 rightColorSensor;
-  private final Intake intake;
 
   /**
    * Creates a new Indexer.
@@ -17,12 +16,10 @@ public class Indexer {
    * @param rightColorSensor the color sensor on the right side
    */
 
-  public Indexer(PositionServo indexerServo, RevColorSensorV3 leftColorSensor, RevColorSensorV3 rightColorSensor,
-      Intake intake) {
+  public Indexer(PositionServo indexerServo, RevColorSensorV3 leftColorSensor, RevColorSensorV3 rightColorSensor) {
     this.indexerServo = indexerServo;
     this.leftColorSensor = leftColorSensor;
     this.rightColorSensor = rightColorSensor;
-    this.intake = intake;
   }
 
   /** Enum for the positions of the indexer. */
@@ -65,26 +62,25 @@ public class Indexer {
     }
     switch (position) {
       case RESET:
-        indexerServo.setPosition(80); //Our servo can't do a full rotation, so we have to use 100/6 instead of 0.
-        // indexerServo.setPosition(0); // Full Rotation Servo Version
+        //indexerServo.setPosition(80); //Our servo can't do a full rotation, so we have to use 100/6 instead of 0.
+        indexerServo.setPosition(0); // Full Rotation Servo Version
         break;
       case LEFT:
-        indexerServo.setPosition(0);
+        // indexerServo.setPosition(0);
+        indexerServo.setPosition(-60); // Full Rotation Servo Version
         leftBallColor = BallColor.NONE;
-        // indexerServo.setPosition(-60); // Full Rotation Servo Version
         break;
       case RIGHT:
-        indexerServo.setPosition(120);
+        //indexerServo.setPosition(120);
+        indexerServo.setPosition(60); // Full Rotation Servo Version
         rightBallColor = BallColor.NONE;
-        // indexerServo.setPosition(60); // Full Rotation Servo Version
         break;
       case TOP:
-        indexerServo.setPosition(-120);
-        topBallColor = BallColor.NONE;
-        /* Full Rotation Servo Version:
+        //indexerServo.setPosition(-120);
+        // Full Rotation Servo Version:
         switch (currentPosition) {
           case TOP:
-            return; // Already at top, do nothing
+            break; // Already at top, do nothing
           case LEFT:
             indexerServo.setPosition(-180);
             break;
@@ -102,18 +98,13 @@ public class Indexer {
             }
             break;
         }
-        */
+        topBallColor = BallColor.NONE;
+        break;
     }
     if (position != currentPosition) {
       positionTimer.reset();
     }
     currentPosition = position;
-    if (currentPosition == Position.RESET) {
-      intake.setPowerAll(0);
-    } else {
-      loading = false;
-      intake.setPowerAll(1.0);
-    }
   }
 
   /**
@@ -266,9 +257,9 @@ public class Indexer {
           left();
         } else if (rightBallColor == BallColor.PURPLE) {
           right();
-        } else if ((leftBallColor == BallColor.NONE /*|| rightBallColor == BallColor.NONE //Add this back in if we get a continuous rotation servo*/)
-            && allowUnknown
-            && topBallColor != BallColor.NONE) {
+        } else if ((leftBallColor == BallColor.NONE
+            || rightBallColor == BallColor.NONE /*Add this back in if we get a continuous rotation servo*/) &&
+            (topBallColor == BallColor.PURPLE || (topBallColor == BallColor.UNKNOWN && allowUnknown))) {
           top();
         } else {
           return false;
@@ -279,9 +270,9 @@ public class Indexer {
           left();
         } else if (rightBallColor == BallColor.GREEN) {
           right();
-        } else if ((leftBallColor == BallColor.NONE /*|| rightBallColor == BallColor.NONE //Add this back in if we get a continuous rotation servo*/)
-            && allowUnknown
-            && topBallColor != BallColor.NONE) {
+        } else if ((leftBallColor == BallColor.NONE
+            || rightBallColor == BallColor.NONE /*Add this back in if we get a continuous rotation servo*/) &&
+            (topBallColor == BallColor.GREEN || (topBallColor == BallColor.UNKNOWN && allowUnknown))) {
           top();
         } else {
           return false;

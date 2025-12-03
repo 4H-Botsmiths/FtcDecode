@@ -195,7 +195,7 @@ public class Robot {
         PositionServo.ServoMode.CENTERED);
     this.leftColorSensor = hardwareMap.get(RevColorSensorV3.class, DeviceNames.EH_I2C_0.getDeviceName());
     this.rightColorSensor = hardwareMap.get(RevColorSensorV3.class, DeviceNames.CH_I2C_0.getDeviceName());
-    this.indexer = new Indexer(this.indexerServo, this.leftColorSensor, this.rightColorSensor, this.intake);
+    this.indexer = new Indexer(this.indexerServo, this.leftColorSensor, this.rightColorSensor);
 
     this.leftLift = new Motor(hardwareMap.get(DcMotorEx.class, DeviceNames.EH_MOTOR_2.getDeviceName()), 28);
     this.rightLift = new Motor(hardwareMap.get(DcMotorEx.class, DeviceNames.EH_MOTOR_3.getDeviceName()), 28);
