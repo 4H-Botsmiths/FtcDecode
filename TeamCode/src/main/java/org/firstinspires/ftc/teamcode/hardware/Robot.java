@@ -191,7 +191,7 @@ public class Robot {
     // For detailed tuning instructions, see: TeamDocs/PIDF_Tuning_Guide.md
     // ==================================================================================
 
-    this.indexerServo = new PositionServo(hardwareMap.get(Servo.class, DeviceNames.CH_SERVO_1.getDeviceName()), 300,
+    this.indexerServo = new PositionServo(hardwareMap.get(Servo.class, DeviceNames.CH_SERVO_1.getDeviceName()), 1800,
         PositionServo.ServoMode.CENTERED);
     this.leftColorSensor = hardwareMap.get(RevColorSensorV3.class, DeviceNames.EH_I2C_0.getDeviceName());
     this.rightColorSensor = hardwareMap.get(RevColorSensorV3.class, DeviceNames.CH_I2C_0.getDeviceName());
