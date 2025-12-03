@@ -128,6 +128,11 @@ public class DecodePattern extends OpMode {
     if (!gamepad2.a) {
       aPressed = false;
     }
+    if (gamepad2.a) {
+      gamepad1.rumble(1, 1, Gamepad.RUMBLE_DURATION_CONTINUOUS);
+    } else {
+      gamepad1.stopRumble();
+    }
 
     if (gamepad2.b && !bPressed) {
       classifiedArtifacts = Math.max(0, Math.min(9, classifiedArtifacts - 1));
@@ -262,16 +267,16 @@ public class DecodePattern extends OpMode {
       robot.rearRight.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.FLOAT);
       x = gamepad1.left_stick_x / 3;
       x *= 2;
-      //x += gamepad1.right_trigger * (gamepad1.left_stick_x / 3);
-      x -= gamepad1.left_trigger * (gamepad1.left_stick_x / 3);
+      x += !gamepad1.right_bumper ? gamepad1.right_trigger * (gamepad1.left_stick_x / 3) : 0;
+      x -= !gamepad1.right_bumper ? gamepad1.left_trigger * (gamepad1.left_stick_x / 3) : 0;
       y = -gamepad1.left_stick_y / 3;
       y *= 2;
-      //y += gamepad1.right_trigger * (-gamepad1.left_stick_y / 3);
-      y -= gamepad1.left_trigger * (-gamepad1.left_stick_y / 3);
+      y += !gamepad1.right_bumper ? gamepad1.right_trigger * (-gamepad1.left_stick_y / 3) : 0;
+      y -= !gamepad1.right_bumper ? gamepad1.left_trigger * (-gamepad1.left_stick_y / 3) : 0;
       r = gamepad1.right_stick_x / 3;
       r *= 2;
-      //r += gamepad1.right_trigger * (gamepad1.right_stick_x / 3);
-      r -= gamepad1.left_trigger * (gamepad1.right_stick_x / 3);
+      r += !gamepad1.right_bumper ? gamepad1.right_trigger * (gamepad1.right_stick_x / 3) : 0;
+      r -= !gamepad1.right_bumper ? gamepad1.left_trigger * (gamepad1.right_stick_x / 3) : 0;
     }
 
     xReady = false;
@@ -291,7 +296,6 @@ public class DecodePattern extends OpMode {
         // Centered enough: mark alignment ready for operator auto-feed.
         xReady = true;
       }
-
       //-----------------------------------------Shooter-----------------------------------------
       if (gamepad1.right_bumper) {
         if (tagRange < 60) {
@@ -318,33 +322,34 @@ public class DecodePattern extends OpMode {
     robot.shooter.setRPM(shooterRpm);
     robot.drive(x, y, r);
 
-    if (gamepad1.right_trigger > 0.5) {
-      robot.intake.setPowerAll(1.0);
+    //-----------------------------------------Intake-----------------------------------------
+    if (gamepad1.right_bumper) {
+      robot.intake.setPowerAll(gamepad1.right_trigger - gamepad1.left_trigger);
+    } else {
+      robot.intake.setPowerAll(0);
+    }
+    if (gamepad1.a) {
       //-----------------------------------------Indexer-----------------------------------------
       int patternIndex = classifiedArtifacts % 3;
       Indexer.BallColor desiredColor = classifiedArtifacts < 9 ? obeliskMotif.getPattern()[patternIndex]
           : Indexer.BallColor.UNKNOWN;
-      if (!robot.indexer.isShooting()) {
-        boolean success = robot.indexer.setPosition(desiredColor, true);
-        if (!success) {
-          success = robot.indexer.setPosition(Indexer.BallColor.UNKNOWN, true);
-          if (success) {
-            telemetry.speak("Unknown ball color!");
-          }
+      boolean success = robot.indexer.setPosition(desiredColor, true);
+      if (!success) {
+        success = robot.indexer.setPosition(Indexer.BallColor.UNKNOWN, true);
+        if (success) {
+          telemetry.speak("Unknown ball color!");
         }
       }
-    } else if (gamepad1.right_bumper) {
-      robot.intake.setPowerAll(0);
     } else {
       robot.indexer.reset();
     }
 
     //-----------------------------------------Rumble-----------------------------------------
-    if (vibrate) {
+    /*if (vibrate) {
       gamepad1.rumble(1, 1, Gamepad.RUMBLE_DURATION_CONTINUOUS);
     } else {
       gamepad1.stopRumble();
-    }
+    }*/
   }
 
   /**
