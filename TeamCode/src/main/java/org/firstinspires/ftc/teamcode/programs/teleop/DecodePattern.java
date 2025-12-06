@@ -299,6 +299,8 @@ public class DecodePattern extends OpMode {
       }
       //-----------------------------------------Shooter-----------------------------------------
       if (gamepad1.right_bumper) {
+        shooterRpm = robot.shooter.calculateRPM(tagRange);
+        /* Legacy Logic
         if (tagRange < 60) {
           shooterRpm = baseRPM; //2500;
         } else if (tagRange < 70) {
@@ -309,7 +311,7 @@ public class DecodePattern extends OpMode {
           shooterRpm = baseRPM - 50; //2450;
         } else {
           shooterRpm = baseRPM + 200; //2700;
-        }
+        }*/
       }
       if (robot.shooter.atSpeedRPM(shooterRpm)) {
         shooterReady = true;

@@ -151,6 +151,7 @@ public class LeaveWallAndShoot extends OpMode {
     robot.drive(0, 0, turn);
 
     // Spin up and feed when at speed using range-based RPM
+    /* Legacy Logic
     if (tagRange < 60) {
       shooterRpm = baseRPM;
     } else if (tagRange < 70) {
@@ -161,7 +162,8 @@ public class LeaveWallAndShoot extends OpMode {
       shooterRpm = baseRPM - 50;
     } else {
       shooterRpm = baseRPM + 200;
-    }
+    } */
+    shooterRpm = (int) robot.shooter.calculateRPM(tagRange);
     robot.shooter.setRPM(shooterRpm);
     boolean xReady = Math.abs(tagX) <= xTolerance;
     robot.intake.setPowerAll(1);
