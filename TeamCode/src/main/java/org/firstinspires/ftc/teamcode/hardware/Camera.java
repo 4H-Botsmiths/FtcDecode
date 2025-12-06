@@ -149,6 +149,14 @@ public class Camera {
         if (detection.metadata != null) {
           telemetry.addLine(String.format("\n==== (ID %d) %s", detection.id, detection.metadata.name));
           telemetry.addLine(String.format("Location: %s", detection.position.toString()));
+          telemetry.addLine(String.format("Backboard Pose: %s",
+              detection.backboardPose != null
+                  ? detection.backboardPose.range + " inch, " + detection.backboardPose.bearing + " deg"
+                  : "N/A"));
+          telemetry.addLine(String.format("Target Pose: %s",
+              detection.targetPose != null
+                  ? detection.targetPose.range + " inch, " + detection.targetPose.bearing + " deg"
+                  : "N/A"));
           telemetry.addLine(String.format("XYZ >>%6.1f<< %6.1f %6.1f  (inch)", detection.ftcPose.x, detection.ftcPose.y,
               detection.ftcPose.z));
           telemetry
@@ -201,6 +209,9 @@ public class Camera {
 
     public GOAL_COLOR goalColor = null;
 
+    public TargetPose backboardPose = null;
+    public TargetPose targetPose = null;
+
     public AprilTag(AprilTagDetection detection) {
       super(detection.id, detection.hamming, detection.decisionMargin, detection.center, detection.corners,
           detection.metadata, detection.ftcPose, detection.rawPose, detection.robotPose,
@@ -211,11 +222,34 @@ public class Camera {
       if (detection.id == 20 || detection.id == 24) {
         position = AprilTagPosition.GOAL;
         goalColor = detection.id == 20 ? GOAL_COLOR.BLUE : GOAL_COLOR.RED;
+        if (detection.ftcPose != null) {
+          double A = 180 - detection.ftcPose.yaw - 90;
+          double B = 180 - A - detection.ftcPose.bearing;
+          double C = 90 + B;
+          double L = Math.sqrt(Math.pow(detection.ftcPose.range, 2) + Math.pow(18, 2)
+              - 2 * detection.ftcPose.range * 18 * Math.cos(Math.toRadians(C)));
+          double D = detection.ftcPose.bearing
+              - Math.toDegrees(Math.acos((Math.pow(L, 2) + Math.pow(detection.ftcPose.range, 2) - Math.pow(18, 2))
+                  / (2 * L * detection.ftcPose.range)));
+          double g = detection.ftcPose.bearing - D;
+          backboardPose = new TargetPose(L, g);
+          targetPose = new TargetPose((L + detection.ftcPose.range) / 2, (g + detection.ftcPose.bearing) / 2);
+        }
       }
       if (detection.id == 21 || detection.id == 22 || detection.id == 23) {
         position = AprilTagPosition.OBELISK;
         obeliskMotif = OBELISK_MOTIF.fromId(detection.id);
       }
+    }
+  }
+
+  public class TargetPose {
+    public double range;
+    public double bearing;
+
+    public TargetPose(double range, double bearing) {
+      this.range = range;
+      this.bearing = bearing;
     }
   }
 
