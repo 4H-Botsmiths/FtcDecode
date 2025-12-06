@@ -82,16 +82,16 @@ public class Indexer {
           case TOP:
             break; // Already at top, do nothing
           case LEFT:
-            indexerServo.setPosition(-180);
+            indexerServo.setPosition(-185);
             break;
           case RIGHT:
-            indexerServo.setPosition(180);
+            indexerServo.setPosition(185);
             break;
           default:
             if (rightBallColor == BallColor.NONE) {
-              indexerServo.setPosition(180);
+              indexerServo.setPosition(185);
             } else if (leftBallColor == BallColor.NONE) {
-              indexerServo.setPosition(-180);
+              indexerServo.setPosition(-185);
             } else {
               // Both sides are full, don't do anything
               return;
