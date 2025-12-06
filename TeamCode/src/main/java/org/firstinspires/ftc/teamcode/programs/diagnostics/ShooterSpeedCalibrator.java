@@ -84,7 +84,7 @@ public class ShooterSpeedCalibrator extends LinearOpMode {
       telemetry.addData("Target RPM", RPM);
       telemetry.addData("Target Distance", distance);
 
-      double xSpeed = gamepad1.right_stick_x * 0.5;
+      double xSpeed = gamepad1.left_stick_x * 0.5;
 
       if (!active) {
         robot.shooter.setRPM(0);
