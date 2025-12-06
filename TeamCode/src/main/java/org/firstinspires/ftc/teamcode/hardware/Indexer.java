@@ -349,8 +349,8 @@ public class Indexer {
    * This should be called when initializing autonomous programs if the robot starts with preloaded balls.
    */
   public void forcePreload() {
-    indexerServo.setPosition(60); //Our servo can't do a full rotation, so we have to use 100/6 instead of 0.
-    // indexerServo.setPosition(0); // Full Rotation Servo Version
+    // indexerServo.setPosition(60); //Our servo can't do a full rotation, so we have to use 100/6 instead of 0.
+    indexerServo.setPosition(0); // Full Rotation Servo Version
     leftBallColor = BallColor.PURPLE;
     rightBallColor = BallColor.GREEN;
     topBallColor = BallColor.PURPLE;
