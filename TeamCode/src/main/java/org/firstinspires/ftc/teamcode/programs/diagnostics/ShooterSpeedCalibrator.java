@@ -39,7 +39,7 @@ public class ShooterSpeedCalibrator extends LinearOpMode {
     boolean aPressed = false;
     boolean bPressed = false;
     boolean active = false;
-    boolean alignActive = false;
+    boolean alignActive = true;
     boolean aligning = false;
     boolean loading = false;
     while (opModeIsActive()) {
@@ -164,6 +164,7 @@ public class ShooterSpeedCalibrator extends LinearOpMode {
       telemetry.addLine("D-Pad Left/Right: Decrease/Increase Target Distance by 5 inches");
       telemetry.addLine("A: Toggle Shooter On/Off");
       telemetry.addLine("B: Toggle Auto-Align On/Off");
+      camera.telemetryAprilTag(telemetry);
       telemetry.update();
     }
   }
