@@ -83,12 +83,15 @@ public class ShooterSpeedCalibrator extends LinearOpMode {
       }
       telemetry.addData("Target RPM", RPM);
       telemetry.addData("Target Distance", distance);
+
+      double xSpeed = gamepad1.right_stick_x * 0.5;
+
       if (!active) {
         robot.shooter.setRPM(0);
         robot.intake.setPowerAll(0);
         robot.statusLed.setGreen(false);
         robot.statusLed.setRed(false);
-        robot.drive(0, 0, 0);
+        robot.drive(xSpeed, 0, 0);
         telemetry.addData("Status", "Paused");
         telemetry.update();
         continue;
@@ -126,13 +129,13 @@ public class ShooterSpeedCalibrator extends LinearOpMode {
             telemetry.addData("Status", "Aligning...");
           } else {
             aligning = false;
-            robot.drive(0, 0, 0);
+            robot.drive(xSpeed, 0, 0);
           }
           telemetry.addData("Distance to Target (in)", tag.ftcPose.range);
           telemetry.addData("Tag X (in)", tag.ftcPose.x);
           telemetry.addData("Tag Yaw (deg)", tag.ftcPose.yaw);
           if (aligning) {
-            robot.drive(0, -Range.clip((distance - tag.ftcPose.range) * 0.1, -0.15, 0.15),
+            robot.drive(xSpeed, -Range.clip((distance - tag.ftcPose.range) * 0.1, -0.15, 0.15),
                 Range.clip(tag.ftcPose.x * 0.025, -0.15, 0.15));
           }
 
@@ -142,11 +145,11 @@ public class ShooterSpeedCalibrator extends LinearOpMode {
           telemetry.addLine("Camera not streaming.");
         } catch (Camera.TagNotFoundException e) {
           telemetry.addLine("Tag not found.");
-          robot.drive(0, 0, 0);
+          robot.drive(xSpeed, 0, 0);
         }
       } else {
         aligning = false;
-        robot.drive(0, 0, 0);
+        robot.drive(xSpeed, 0, 0);
       }
       telemetry.addData("Current RPM", robot.shooter.getRPM());
       telemetry.addData("Shooter At Speed", robot.shooter.atSpeedRPM(RPM));
