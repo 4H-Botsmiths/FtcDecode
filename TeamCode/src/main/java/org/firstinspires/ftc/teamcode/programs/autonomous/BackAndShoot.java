@@ -122,6 +122,7 @@ public class BackAndShoot extends OpMode {
       boolean xReady = Math.abs(x) <= xTolerance;
       robot.drive(0, 0, turn);
       int shooterRpm;
+      /* Legacy Logic
       if (range < 60) {
         shooterRpm = baseRPM;
       } else if (range < 70) {
@@ -132,7 +133,8 @@ public class BackAndShoot extends OpMode {
         shooterRpm = baseRPM - 50;
       } else {
         shooterRpm = baseRPM + 200;
-      }
+      } */
+      shooterRpm = (int) robot.shooter.calculateRPM(range);
       robot.shooter.setRPM(shooterRpm);
       if (robot.shooter.atSpeedRPM(shooterRpm) && xReady) {
         if (!robot.indexer.isShooting()) {

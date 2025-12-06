@@ -95,4 +95,16 @@ public class Shooter {
     return left.atSpeedRPM(targetRPM) && right.atSpeedRPM(targetRPM);
   }
 
+  /**
+   * Calculates the required RPM for the shooter to hit a target at the given distance.
+   * @param distance The distance to the target in inches.
+   * @return The calculated RPM.
+   * @apiNote See the desmos graph here: https://www.desmos.com/calculator/xu4hd5q78y
+   */
+  public double calculateRPM(double distance) {
+    return 0.0000038436 * Math.pow(distance, 5) + -0.00148844 * Math.pow(distance, 4) +
+        0.220217 * Math.pow(distance, 3) + -15.32687 * Math.pow(distance, 2) +
+        495.37699 * distance + -3472.17911;
+  }
+
 }
