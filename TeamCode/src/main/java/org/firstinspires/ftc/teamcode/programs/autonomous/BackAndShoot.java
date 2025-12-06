@@ -115,7 +115,7 @@ public class BackAndShoot extends OpMode {
     } catch (Camera.TagNotFoundException e) {
       telemetry.addData("Range", "Tag not found");
     }
-    if (range < 60) {
+    if (range < 55) {
       robot.drive(0, -0.25, 0);
     } else {
       double turn = Range.clip(bearing / -60, -0.15, 0.15);
