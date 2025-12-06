@@ -124,19 +124,18 @@ public class ShooterSpeedCalibrator extends LinearOpMode {
       if (alignActive) {
         try {
           Camera.AprilTag tag = camera.getAprilTag(Camera.AprilTagPosition.GOAL);
-          if (Math.abs(distance - tag.ftcPose.range) > 1 || Math.abs(tag.ftcPose.x) > 5) {
+          if (Math.abs(distance - tag.targetPose.range) > 1 || Math.abs(tag.targetPose.bearing) > 1) {
             aligning = true;
             telemetry.addData("Status", "Aligning...");
           } else {
             aligning = false;
             robot.drive(xSpeed, 0, 0);
           }
-          telemetry.addData("Distance to Target (in)", tag.ftcPose.range);
-          telemetry.addData("Tag X (in)", tag.ftcPose.x);
-          telemetry.addData("Tag Yaw (deg)", tag.ftcPose.yaw);
+          telemetry.addData("Distance to Target (in)", tag.targetPose.range);
+          telemetry.addData("Tag Bearing (in)", tag.targetPose.bearing);
           if (aligning) {
-            robot.drive(xSpeed, -Range.clip((distance - tag.ftcPose.range) * 0.1, -0.15, 0.15),
-                Range.clip(tag.ftcPose.x * 0.025, -0.15, 0.15));
+            robot.drive(xSpeed, -Range.clip((distance - tag.targetPose.range) * 0.1, -0.15, 0.15),
+                Range.clip(tag.targetPose.bearing / -60, -0.15, 0.15));
           }
 
         } catch (CameraNotAttachedException e) {
