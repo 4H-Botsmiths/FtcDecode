@@ -288,7 +288,7 @@ public class DecodePattern extends OpMode {
       //-----------------------------------------Align-Assist-----------------------------------------
       // Align-assist: while RB is held, read the GOAL AprilTag and adjust rotation (z)
       // to center the tag. Also provide driver rumble until within tolerance.
-      r += (targetBearing / 50) * (tagFound ? 0.5 : 0.2);
+      r += (targetBearing / -30) * (tagFound ? 0.5 : 0.2);
       y += tagRange < 50 ? -0.4 : 0;
       if (tagRange > 50) {
         rangeReady = true;
