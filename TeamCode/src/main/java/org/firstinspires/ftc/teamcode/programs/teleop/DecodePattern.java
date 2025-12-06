@@ -177,7 +177,7 @@ public class DecodePattern extends OpMode {
   private double xTolerance = 5;
   private boolean cameraActive = false;
   private boolean tagFound = false;
-  private double tagX = 0;
+  private double targetBearing = 0;
   private double tagRange = 85;
 
   /**
@@ -193,7 +193,7 @@ public class DecodePattern extends OpMode {
       try {
         try {
           Camera.AprilTag tag = camera.getAprilTag(Camera.AprilTagPosition.GOAL);
-          tagX = tag.ftcPose.x;
+          targetBearing = tag.targetPose.bearing;
           tagRange = tag.ftcPose.range;
           tagFound = true;
           cameraActive = true;
@@ -214,7 +214,7 @@ public class DecodePattern extends OpMode {
         camera.pause();
         cameraActive = false;
         tagFound = false;
-        tagX = 0;
+        targetBearing = 0;
         tagRange = 85;
       } catch (Camera.CameraNotAttachedException e) {
         telemetry.speak("WARNING: Camera not attached!");
@@ -288,12 +288,12 @@ public class DecodePattern extends OpMode {
       //-----------------------------------------Align-Assist-----------------------------------------
       // Align-assist: while RB is held, read the GOAL AprilTag and adjust rotation (z)
       // to center the tag. Also provide driver rumble until within tolerance.
-      r += (tagX / 30) * (tagFound ? 0.5 : 0.2);
+      r += (targetBearing / 50) * (tagFound ? 0.5 : 0.2);
       y += tagRange < 50 ? -0.4 : 0;
       if (tagRange > 50) {
         rangeReady = true;
       }
-      if (Math.abs(tagX) > xTolerance) {
+      if (Math.abs(targetBearing) > xTolerance) {
         // Centered enough: mark alignment ready for operator auto-feed.
         xReady = true;
       }
@@ -384,7 +384,7 @@ public class DecodePattern extends OpMode {
     telemetry.addData("Base Shooter RPM", baseRPM);
     telemetry.addLine(String.format("Shooter RPM: %6.1f", robot.shooter.getRPM()));
     telemetry.addData("Tag Found", tagFound);
-    telemetry.addLine(String.format("Tag X: (%6.1f) Tag Range: (%6.1f)", tagX, tagRange));
+    telemetry.addLine(String.format("Tag Bearing: (%6.1fº) Tag Range: (%6.1f)", targetBearing, tagRange));
     //telemetry.addLine(String.format("Intake Power: (%6.1f)", robot.intake.getPowers()));
     telemetry.addLine(String.format("Indexer Position: (%s)", robot.indexer.getCurrentPosition()));
     // Drivetrain RPMs (per-wheel), shooter speed, and vision-derived alignment/shooting info
