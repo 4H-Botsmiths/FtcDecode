@@ -2,7 +2,10 @@
 // README at: https://github.com/devcontainers/templates/tree/main/src/java
 {
 	"name": "Android Java",
-	"image": "mcr.microsoft.com/devcontainers/java:17", //Java 17 for sure works, 8 & 11 don't. I didn't test any others
+	"build": {
+		"dockerfile": "Dockerfile" //Java 17 & 21
+	},
+	//"image": "mcr.microsoft.com/devcontainers/java:17", //Java 17 for sure works, 8 & 11 don't. I didn't test any others
 	"features": {
 		"ghcr.io/nordcominc/devcontainer-features/android-sdk:1": {
 			/*"build_tools": "30.0.3", //gradlew requires this version

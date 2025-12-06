@@ -226,6 +226,8 @@ public class DecodePattern extends OpMode {
   private boolean rangeReady = false;
   private boolean shooterReady = false;
 
+  double shooterRpm = 0;
+
   /**
    * Driver control loop:
    * - Standard mecanum drive from left/right sticks and triggers
@@ -282,7 +284,6 @@ public class DecodePattern extends OpMode {
     xReady = false;
     rangeReady = false;
     shooterReady = false;
-    double shooterRpm = 0;
     if (gamepad1.right_bumper) {
       //-----------------------------------------Align-Assist-----------------------------------------
       // Align-assist: while RB is held, read the GOAL AprilTag and adjust rotation (z)
@@ -318,6 +319,8 @@ public class DecodePattern extends OpMode {
       if (!rangeReady || !xReady || !shooterReady) {
         vibrate = true;
       }
+    } else {
+      shooterRpm = 0;
     }
     robot.shooter.setRPM(shooterRpm);
     robot.drive(x, y, r);
