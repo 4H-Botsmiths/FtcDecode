@@ -89,9 +89,9 @@ public class Indexer {
             break;
           default:
             if (rightBallColor == BallColor.NONE) {
-              indexerServo.setPosition(185);
+              indexerServo.setPosition(190);
             } else if (leftBallColor == BallColor.NONE) {
-              indexerServo.setPosition(-185);
+              indexerServo.setPosition(-190);
             } else {
               // Both sides are full, don't do anything
               return;
