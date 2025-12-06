@@ -17,10 +17,10 @@ public class ShootFromBack extends OpMode {
   private int baseRPM = 2500;
   private int shooterRpm = 0;
   private double tagRange = 85;
-  private double tagX = 0;
+  private double tagBearing = 0;
   private boolean upPressed = false;
   private boolean downPressed = false;
-  private double xTolerance = 5;
+  private double bearingTolerance = 1;
   boolean blueTeam = false;
   boolean redTeam = false;
   Camera.OBELISK_MOTIF obeliskMotif = Camera.OBELISK_MOTIF.PURPLE_PURPLE_GREEN;
@@ -130,11 +130,10 @@ public class ShootFromBack extends OpMode {
 
     try {
       Camera.AprilTag tag = camera.getAprilTag(Camera.AprilTagPosition.GOAL);
-      double x = tag.ftcPose.x;
-      tagX = x;
+      tagBearing = tag.ftcPose.bearing;
       tagRange = tag.ftcPose.range;
-      telemetry.addData("X", x);
-      turn = Range.clip(x / 30, -0.15, 0.15);
+      telemetry.addData("Bearing", tagBearing);
+      turn = Range.clip(tagBearing / -60, -0.15, 0.15);
     } catch (Camera.CameraNotAttachedException e) {
       telemetry.addData("Camera", "Not attached");
     } catch (Camera.CameraNotStreamingException e) {
@@ -162,7 +161,7 @@ public class ShootFromBack extends OpMode {
     } */
     shooterRpm = (int) robot.shooter.calculateRPM(tagRange);
     robot.shooter.setRPM(shooterRpm);
-    boolean xReady = Math.abs(tagX) <= xTolerance;
+    boolean xReady = Math.abs(tagBearing) <= bearingTolerance;
     robot.intake.setPowerAll(1);
     if (robot.shooter.atSpeedRPM(shooterRpm) && xReady && patternIndex < obeliskMotif.getPattern().length) {
       if (!robot.indexer.isShooting() || patternIndex == 0) {

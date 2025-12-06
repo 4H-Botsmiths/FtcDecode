@@ -174,7 +174,7 @@ public class DecodePattern extends OpMode {
     }
   }
 
-  private double xTolerance = 5;
+  private double bearingTolerance = 1;
   private boolean cameraActive = false;
   private boolean tagFound = false;
   private double targetBearing = 0;
@@ -222,7 +222,7 @@ public class DecodePattern extends OpMode {
     }
   }
 
-  private boolean xReady = false;
+  private boolean bearingReady = false;
   private boolean rangeReady = false;
   private boolean shooterReady = false;
 
@@ -281,7 +281,7 @@ public class DecodePattern extends OpMode {
       r -= !gamepad1.right_bumper ? gamepad1.left_trigger * (gamepad1.right_stick_x / 3) : 0;
     }
 
-    xReady = false;
+    bearingReady = false;
     rangeReady = false;
     shooterReady = false;
     if (gamepad1.right_bumper) {
@@ -293,9 +293,9 @@ public class DecodePattern extends OpMode {
       if (tagRange > 50) {
         rangeReady = true;
       }
-      if (Math.abs(targetBearing) > xTolerance) {
+      if (Math.abs(targetBearing) > bearingTolerance) {
         // Centered enough: mark alignment ready for operator auto-feed.
-        xReady = true;
+        bearingReady = true;
       }
       //-----------------------------------------Shooter-----------------------------------------
       if (gamepad1.right_bumper) {
@@ -318,7 +318,7 @@ public class DecodePattern extends OpMode {
       }
 
       //-----------------------------------------Feedback-----------------------------------------
-      if (!rangeReady || !xReady || !shooterReady) {
+      if (!rangeReady || !bearingReady || !shooterReady) {
         vibrate = true;
       }
     } else {
@@ -380,7 +380,7 @@ public class DecodePattern extends OpMode {
         robot.indexer.getBallColor(Indexer.Position.LEFT), robot.indexer.getBallColor(Indexer.Position.TOP),
         robot.indexer.getBallColor(Indexer.Position.RIGHT));
     telemetry.addData("Shooting Ready", "Aligned: %s | In Range: %s | At Speed: %s",
-        xReady ? "Yes" : "No", rangeReady ? "Yes" : "No", shooterReady ? "Yes" : "No");
+        bearingReady ? "Yes" : "No", rangeReady ? "Yes" : "No", shooterReady ? "Yes" : "No");
     telemetry.addData("Base Shooter RPM", baseRPM);
     telemetry.addLine(String.format("Shooter RPM: %6.1f", robot.shooter.getRPM()));
     telemetry.addData("Tag Found", tagFound);
