@@ -167,7 +167,7 @@ public class DecodePattern extends OpMode {
       dpadRightPressed = false;
     }
 
-    if (Math.abs(gamepad2.right_stick_y) > 0.2) {
+    if (Math.abs(gamepad2.right_stick_y) > 0.2 && gamepad2.back) {
       robot.lift.setPower(-gamepad2.right_stick_y);
     } else {
       robot.lift.setPower(0);
