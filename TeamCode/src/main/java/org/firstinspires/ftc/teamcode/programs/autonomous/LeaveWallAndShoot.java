@@ -17,10 +17,10 @@ public class LeaveWallAndShoot extends OpMode {
   private int baseRPM = 2500;
   private int shooterRpm = 0;
   private double tagRange = 85;
-  private double tagX = 0;
+  private double tagBearing = 0;
   private boolean upPressed = false;
   private boolean downPressed = false;
-  private double xTolerance = 5;
+  private double bearingTolerance = 1;
   boolean blueTeam = false;
   boolean redTeam = false;
   Camera.OBELISK_MOTIF obeliskMotif = Camera.OBELISK_MOTIF.PURPLE_PURPLE_GREEN;
@@ -133,11 +133,11 @@ public class LeaveWallAndShoot extends OpMode {
 
     try {
       Camera.AprilTag tag = camera.getAprilTag(Camera.AprilTagPosition.GOAL);
-      double x = tag.ftcPose.x;
-      tagX = x;
+      double bearing = tag.targetPose.bearing;
+      tagBearing = bearing;
       tagRange = tag.ftcPose.range;
-      telemetry.addData("X", x);
-      turn = Range.clip(x / 30, -0.15, 0.15);
+      telemetry.addData("Bearing", bearing);
+      turn = Range.clip(bearing / -60, -0.15, 0.15);
     } catch (Camera.CameraNotAttachedException e) {
       telemetry.addData("Camera", "Not attached");
     } catch (Camera.CameraNotStreamingException e) {
@@ -165,9 +165,9 @@ public class LeaveWallAndShoot extends OpMode {
     } */
     shooterRpm = (int) robot.shooter.calculateRPM(tagRange);
     robot.shooter.setRPM(shooterRpm);
-    boolean xReady = Math.abs(tagX) <= xTolerance;
+    boolean bearingReady = Math.abs(tagBearing) <= bearingTolerance;
     robot.intake.setPowerAll(1);
-    if (robot.shooter.atSpeedRPM(shooterRpm) && xReady && patternIndex < obeliskMotif.getPattern().length) {
+    if (robot.shooter.atSpeedRPM(shooterRpm) && bearingReady && patternIndex < obeliskMotif.getPattern().length) {
       if (!robot.indexer.isShooting() || patternIndex == 0) {
         robot.indexer.setPosition(obeliskMotif.getPattern()[patternIndex], true);
         patternIndex++;
@@ -184,6 +184,7 @@ public class LeaveWallAndShoot extends OpMode {
     telemetry.addLine(String.format("RL (%6.1f) (%6.1f) RR", robot.rearLeft.getRPM(), robot.rearRight.getRPM()));
     telemetry.addData("Target Shooter RPM", shooterRpm);
     telemetry.addData("Tag Range", tagRange);
+    telemetry.addData("Tag Bearing", tagBearing);
     telemetry.addLine(String.format("Shooter RPM: (%6.1f)", robot.shooter.getRPM()));
     telemetry.addData("At Speed", robot.shooter.atSpeedRPM(shooterRpm));
     telemetry.addData("Indexer Position", robot.indexer.getCurrentPosition());

@@ -80,11 +80,11 @@ public class BackAndShoot extends OpMode {
   }
 
   double range = 0;
-  double x = 0;
+  double bearing = 0;
   int baseRPM = 2500;
   boolean upPressed = false;
   boolean downPressed = false;
-  double xTolerance = 5;
+  double bearingTolerance = 1;
 
   /*
    * Code to run REPEATEDLY after the driver hits PLAY but before they hit STOP
@@ -105,9 +105,9 @@ public class BackAndShoot extends OpMode {
     try {
       Camera.AprilTag tag = camera.getAprilTag(Camera.AprilTagPosition.GOAL);
       range = tag.ftcPose.range;
-      x = tag.ftcPose.x;
+      bearing = tag.targetPose.bearing;
       telemetry.addData("Range", range);
-      telemetry.addData("X", x);
+      telemetry.addData("Bearing", bearing);
     } catch (Camera.CameraNotAttachedException e) {
       telemetry.addData("Range", "Camera not attached");
     } catch (Camera.CameraNotStreamingException e) {
@@ -118,8 +118,8 @@ public class BackAndShoot extends OpMode {
     if (range < 60) {
       robot.drive(0, -0.25, 0);
     } else {
-      double turn = Range.clip(x / 30, -0.15, 0.15);
-      boolean xReady = Math.abs(x) <= xTolerance;
+      double turn = Range.clip(bearing / -60, -0.15, 0.15);
+      boolean bearingReady = Math.abs(bearing) <= bearingTolerance;
       robot.drive(0, 0, turn);
       int shooterRpm;
       /* Legacy Logic
@@ -136,7 +136,7 @@ public class BackAndShoot extends OpMode {
       } */
       shooterRpm = (int) robot.shooter.calculateRPM(range);
       robot.shooter.setRPM(shooterRpm);
-      if (robot.shooter.atSpeedRPM(shooterRpm) && xReady) {
+      if (robot.shooter.atSpeedRPM(shooterRpm) && bearingReady) {
         if (!robot.indexer.isShooting()) {
           //We don't care if this returns false, it just means that it's out of balls but we want to just keep running the program so that it doesn't stop before the ball is actually shot
           robot.indexer.unknown();
