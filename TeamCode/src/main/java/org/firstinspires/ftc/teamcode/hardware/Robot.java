@@ -1,10 +1,12 @@
 package org.firstinspires.ftc.teamcode.hardware;
 
+import com.qualcomm.hardware.rev.RevColorSensorV3;
 import com.qualcomm.robotcore.hardware.ColorSensor;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.DcMotorEx;
 import com.qualcomm.robotcore.hardware.DcMotorSimple;
 import com.qualcomm.robotcore.hardware.HardwareMap;
+import com.qualcomm.robotcore.hardware.LED;
 import com.qualcomm.robotcore.hardware.PIDFCoefficients;
 import com.qualcomm.robotcore.hardware.Servo;
 import com.qualcomm.robotcore.util.Range;
@@ -20,14 +22,20 @@ public class Robot {
   public final Motor rearLeft;
   public final Motor rearRight;
 
+  public final Motor leftLift;
+  public final Motor rightLift;
+  public final Lift lift;
+
   public final CRServo intakeServoLeft;
   public final CRServo intakeServoRight;
   public final Intake intake;
 
-  public final Servo indexerServo;
-  public final ColorSensor leftColorSensor;
-  public final ColorSensor rightColorSensor;
+  public final PositionServo indexerServo;
+  public final RevColorSensorV3 leftColorSensor;
+  public final RevColorSensorV3 rightColorSensor;
   public final Indexer indexer;
+
+  public final Light statusLed;
 
   public Robot(HardwareMap hardwareMap) {
     // Initialize hardware here
@@ -183,10 +191,19 @@ public class Robot {
     // For detailed tuning instructions, see: TeamDocs/PIDF_Tuning_Guide.md
     // ==================================================================================
 
-    this.indexerServo = hardwareMap.get(Servo.class, DeviceNames.CH_SERVO_1.getDeviceName());
-    this.leftColorSensor = hardwareMap.get(ColorSensor.class, DeviceNames.CH_I2C_0.getDeviceName());
-    this.rightColorSensor = hardwareMap.get(ColorSensor.class, DeviceNames.EH_I2C_0.getDeviceName());
+    this.indexerServo = new PositionServo(hardwareMap.get(Servo.class, DeviceNames.CH_SERVO_1.getDeviceName()), 1800,
+        PositionServo.ServoMode.CENTERED);
+    this.leftColorSensor = hardwareMap.get(RevColorSensorV3.class, DeviceNames.EH_I2C_0.getDeviceName());
+    this.rightColorSensor = hardwareMap.get(RevColorSensorV3.class, DeviceNames.CH_I2C_0.getDeviceName());
     this.indexer = new Indexer(this.indexerServo, this.leftColorSensor, this.rightColorSensor);
+
+    this.leftLift = new Motor(hardwareMap.get(DcMotorEx.class, DeviceNames.EH_MOTOR_2.getDeviceName()), 28);
+    this.rightLift = new Motor(hardwareMap.get(DcMotorEx.class, DeviceNames.EH_MOTOR_3.getDeviceName()), 28);
+    this.lift = new Lift(this.leftLift, this.rightLift);
+    lift.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
+
+    this.statusLed = new Light(hardwareMap.get(LED.class, DeviceNames.CH_DIGITAL_0.getDeviceName()),
+        hardwareMap.get(LED.class, DeviceNames.CH_DIGITAL_1.getDeviceName()));
   }
 
   public static final int DRIVE_MAX_RPM = 300;

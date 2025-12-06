@@ -8,8 +8,8 @@ import org.firstinspires.ftc.teamcode.hardware.Camera;
 import org.firstinspires.ftc.teamcode.hardware.Robot;
 import org.firstinspires.ftc.teamcode.hardware.Indexer;
 
-@Autonomous(name = "Shoot From Back", group = "A", preselectTeleOp = "Decode Pattern TeleOp")
-public class ShootFromBack extends OpMode {
+@Autonomous(name = "Leave Wall and Shoot", group = "A", preselectTeleOp = "Decode Pattern TeleOp")
+public class LeaveWallAndShoot extends OpMode {
   public Robot robot;
   public Camera camera;
 
@@ -54,7 +54,6 @@ public class ShootFromBack extends OpMode {
     try {
       Camera.AprilTag tag = camera.getAprilTag(Camera.AprilTagPosition.OBELISK);
       obeliskMotif = tag.obeliskMotif;
-      blackboard.put(Camera.OBELISK_STORAGE_KEY, obeliskMotif.id);
     } catch (Camera.CameraNotAttachedException e) {
       telemetry.addData("Camera", "Not attached");
     } catch (Camera.CameraNotStreamingException e) {
@@ -104,27 +103,31 @@ public class ShootFromBack extends OpMode {
   @Override
   public void loop() {
     telemetries();
-    if (timer.milliseconds() < 250) {
-      robot.drive(0, 0.33, 0);
+    if (timer.milliseconds() < 4000) {
+      // Drive forward for the first ~2.5 seconds (no backing up)
+      robot.drive(0, 0.25, 0);
       return;
     }
-    if (timer.milliseconds() < 1250) {
+    if (timer.milliseconds() < 4500) {
+      // Brief pause to stabilize and rotate based on alliance
       if (redTeam) {
-        robot.drive(0, 0, 0.1);
+        robot.drive(0, 0, 0.25);
       } else if (blueTeam) {
-        robot.drive(0, 0, -0.1);
+        robot.drive(0, 0, -0.25);
       } else {
         robot.drive(0, 0, 0);
       }
       return;
     }
-    if (timer.milliseconds() > 24000) {
-      requestOpModeStop();
-      return;
-    }
-    if (timer.milliseconds() > 23000) {
-      // Brief pause to stabilize
-      robot.drive(0, 0.33, 0);
+    if (timer.milliseconds() > 29000) {
+      // Late-match park/retreat based on alliance
+      if (redTeam) {
+        robot.drive(0.33, 0, 0);
+      } else if (blueTeam) {
+        robot.drive(-0.33, 0, 0);
+      } else {
+        robot.drive(0, 0, 0);
+      }
       return;
     }
 
@@ -175,10 +178,6 @@ public class ShootFromBack extends OpMode {
 
   void telemetries() {
     telemetry.addData("Obelisk Motif", obeliskMotif.toString());
-    telemetry.addData("Pattern Index", patternIndex);
-    telemetry.addData("Balls in Indexer", "Left: %s | Top: %s | Right: %s",
-        robot.indexer.getBallColor(Indexer.Position.LEFT), robot.indexer.getBallColor(Indexer.Position.TOP),
-        robot.indexer.getBallColor(Indexer.Position.RIGHT));
     telemetry.addLine(String.format("FL (%6.1f) (%6.1f) FR", robot.frontLeft.getRPM(), robot.frontRight.getRPM()));
     telemetry.addLine(String.format("RL (%6.1f) (%6.1f) RR", robot.rearLeft.getRPM(), robot.rearRight.getRPM()));
     telemetry.addData("Target Shooter RPM", shooterRpm);

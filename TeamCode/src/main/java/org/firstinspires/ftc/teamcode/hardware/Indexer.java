@@ -1,13 +1,13 @@
 package org.firstinspires.ftc.teamcode.hardware;
 
-import com.qualcomm.robotcore.hardware.ColorSensor;
-import com.qualcomm.robotcore.hardware.Servo;
+import com.qualcomm.hardware.rev.RevColorSensorV3;
 import com.qualcomm.robotcore.util.ElapsedTime;
+import org.firstinspires.ftc.robotcore.external.navigation.DistanceUnit;
 
 public class Indexer {
-  private final Servo indexerServo;
-  private final ColorSensor leftColorSensor;
-  private final ColorSensor rightColorSensor;
+  private final PositionServo indexerServo;
+  private final RevColorSensorV3 leftColorSensor;
+  private final RevColorSensorV3 rightColorSensor;
 
   /**
    * Creates a new Indexer.
@@ -15,7 +15,8 @@ public class Indexer {
    * @param leftColorSensor the color sensor on the left side
    * @param rightColorSensor the color sensor on the right side
    */
-  public Indexer(Servo indexerServo, ColorSensor leftColorSensor, ColorSensor rightColorSensor) {
+
+  public Indexer(PositionServo indexerServo, RevColorSensorV3 leftColorSensor, RevColorSensorV3 rightColorSensor) {
     this.indexerServo = indexerServo;
     this.leftColorSensor = leftColorSensor;
     this.rightColorSensor = rightColorSensor;
@@ -39,56 +40,65 @@ public class Indexer {
 
   private Position currentPosition = Position.RESET;
   /** How long it takes to move between positions in milliseconds */
-  private final int MOVE_TIME = 500;
+  private final int MOVE_TIME = 1000;
   /** How long it takes to move between positions and get the ball into the intake in milliseconds */
-  private final int MOVE_DROP_TIME = MOVE_TIME + 500;
+  private final int MOVE_DROP_TIME = MOVE_TIME + 1500;
+  private final int MOVE_DROP_SHOOT_TIME = MOVE_DROP_TIME + 2500;
   ElapsedTime positionTimer = new ElapsedTime();
 
   /**
    * Sets the position of the indexer.
+   * With the current servo being limited to 300 degrees of rotation, the positions are as follows:
+   * 0º - LEFT
+   * 60º - RESET (1/6 of a circle)
+   * 120º - RIGHT (1/3 of a circle)
+   * -120º - TOP (-1/3 of a circle)
    * @apiNote This method will not change the position if the indexer is currently blocked (i.e., has not yet had enough time to move and drop a ball). However, it will still move if it was set to a previous position but has not had enough time to get there yet.
    * @param position desired position
    */
   public void setPosition(Position position) {
-    if (!isBusy() && isBlocked()) {
-      switch (currentPosition) {
-        case LEFT:
-          leftBallColor = BallColor.NONE;
-          break;
-        case RIGHT:
-          rightBallColor = BallColor.NONE;
-          break;
-        case TOP:
-          topBallColor = BallColor.NONE;
-          break;
-        default:
-          break;
-      }
+    if (isBlocked()) {
       return; // Don't allow changing position while blocked
     }
     switch (position) {
       case RESET:
-        indexerServo.setPosition(convertPosition(0));
+        //indexerServo.setPosition(80); //Our servo can't do a full rotation, so we have to use 100/6 instead of 0.
+        indexerServo.setPosition(0); // Full Rotation Servo Version
         break;
       case LEFT:
-        indexerServo.setPosition(convertPosition(-0.6));
+        // indexerServo.setPosition(0);
+        indexerServo.setPosition(-60); // Full Rotation Servo Version
+        leftBallColor = BallColor.NONE;
         break;
       case RIGHT:
-        indexerServo.setPosition(convertPosition(0.6));
+        //indexerServo.setPosition(120);
+        indexerServo.setPosition(60); // Full Rotation Servo Version
+        rightBallColor = BallColor.NONE;
         break;
       case TOP:
-        if (currentPosition == Position.LEFT) {
-          indexerServo.setPosition(convertPosition(-1));
-        } else if (currentPosition == Position.RIGHT) {
-          indexerServo.setPosition(convertPosition(1));
-        } else if (rightBallColor == BallColor.NONE) {
-          indexerServo.setPosition(convertPosition(1));
-        } else if (leftBallColor == BallColor.NONE) {
-          indexerServo.setPosition(convertPosition(-1));
-        } else {
-          // Both sides are full, don't do anything
-          return;
+        //indexerServo.setPosition(-120);
+        // Full Rotation Servo Version:
+        switch (currentPosition) {
+          case TOP:
+            break; // Already at top, do nothing
+          case LEFT:
+            indexerServo.setPosition(-180);
+            break;
+          case RIGHT:
+            indexerServo.setPosition(180);
+            break;
+          default:
+            if (rightBallColor == BallColor.NONE) {
+              indexerServo.setPosition(180);
+            } else if (leftBallColor == BallColor.NONE) {
+              indexerServo.setPosition(-180);
+            } else {
+              // Both sides are full, don't do anything
+              return;
+            }
+            break;
         }
+        topBallColor = BallColor.NONE;
         break;
     }
     if (position != currentPosition) {
@@ -103,15 +113,6 @@ public class Indexer {
    */
   public Position getCurrentPosition() {
     return currentPosition;
-  }
-
-  /**
-   * Converts a -1 to 1 range to a 0 to 1 range for servo positioning.
-   * @param position -1 to 1 range
-   * @return 0 to 1 range
-   */
-  private double convertPosition(double position) {
-    return (position + 1) / 2;
   }
 
   /**
@@ -139,13 +140,15 @@ public class Indexer {
    * Alias for `setPosition(Position.RESET)`
    * @apiNote This method is only used internally, use `load()` instead.
    */
-  private void reset() {
+  public void reset() {
     setPosition(Position.RESET);
   }
 
   private BallColor leftBallColor = BallColor.NONE;
   private BallColor rightBallColor = BallColor.NONE;
   private BallColor topBallColor = BallColor.NONE;
+
+  private boolean loading = false;
 
   /**
    * Loads balls into the indexer and detects their colors.
@@ -156,18 +159,43 @@ public class Indexer {
     // Reset the indexer to prepare for loading
     reset();
     // Wait a little bit for the indexer to reach the position
-    if (!isBusy()) {
+    if (!isBusy() && loading) {
       // Check the colors of the balls
       BallColor instantaneousLeftBallColor = detectColor(Position.LEFT);
-      leftBallColor = instantaneousLeftBallColor != BallColor.NONE ? instantaneousLeftBallColor : leftBallColor;
+      switch (instantaneousLeftBallColor) {
+        case PURPLE:
+        case GREEN:
+          leftBallColor = instantaneousLeftBallColor;
+          break;
+        case UNKNOWN:
+          if (leftBallColor != BallColor.GREEN && leftBallColor != BallColor.PURPLE) {
+            leftBallColor = BallColor.UNKNOWN;
+          }
+          break;
+        default:
+          break;
+      }
       BallColor instantaneousRightBallColor = detectColor(Position.RIGHT);
-      rightBallColor = instantaneousRightBallColor != BallColor.NONE ? instantaneousRightBallColor : rightBallColor;
+      switch (instantaneousRightBallColor) {
+        case PURPLE:
+        case GREEN:
+          rightBallColor = instantaneousRightBallColor;
+          break;
+        case UNKNOWN:
+          if (rightBallColor != BallColor.GREEN && rightBallColor != BallColor.PURPLE) {
+            rightBallColor = BallColor.UNKNOWN;
+          }
+          break;
+        default:
+          break;
+      }
       BallColor instantaneousTopBallColor = detectColor(Position.TOP);
       topBallColor = instantaneousTopBallColor != BallColor.NONE ? instantaneousTopBallColor : topBallColor;
       if (leftBallColor != BallColor.NONE && rightBallColor != BallColor.NONE && topBallColor != BallColor.NONE) {
         return true;
       }
     } else {
+      loading = true;
       leftBallColor = BallColor.NONE;
       rightBallColor = BallColor.NONE;
       topBallColor = BallColor.NONE;
@@ -181,7 +209,7 @@ public class Indexer {
    * @return detected ball color
    */
   public BallColor detectColor(Position position) {
-    ColorSensor sensor;
+    RevColorSensorV3 sensor;
     switch (position) {
       case LEFT:
         sensor = leftColorSensor;
@@ -196,21 +224,24 @@ public class Indexer {
       default:
         return BallColor.NONE;
     }
-    int red = sensor.red();
     int green = sensor.green();
     int blue = sensor.blue();
 
-    // Detect purple (high red and blue, low green)
-    if (red > green && blue > green && red > 100 && blue > 100) {
+    // If it's too dark overall, treat it as no ball
+    if (sensor.getDistance(DistanceUnit.MM) > 50) {
+      return BallColor.NONE;
+    }
+
+    if (blue > green) {
       return BallColor.PURPLE;
     }
 
-    // Detect green (high green, lower red and blue)
-    if (green > red && green > blue && green > 100) {
+    if (green > blue) {
       return BallColor.GREEN;
     }
 
-    return BallColor.NONE;
+    // Ambiguous or background
+    return BallColor.UNKNOWN;
   }
 
   /**
@@ -226,8 +257,9 @@ public class Indexer {
           left();
         } else if (rightBallColor == BallColor.PURPLE) {
           right();
-        } else if ((leftBallColor != BallColor.NONE || rightBallColor != BallColor.NONE) && allowUnknown
-            && topBallColor != BallColor.NONE) {
+        } else if ((leftBallColor == BallColor.NONE
+            || rightBallColor == BallColor.NONE /*Add this back in if we get a continuous rotation servo*/) &&
+            (topBallColor == BallColor.PURPLE || (topBallColor == BallColor.UNKNOWN && allowUnknown))) {
           top();
         } else {
           return false;
@@ -238,18 +270,19 @@ public class Indexer {
           left();
         } else if (rightBallColor == BallColor.GREEN) {
           right();
-        } else if ((leftBallColor != BallColor.NONE || rightBallColor != BallColor.NONE) && allowUnknown
-            && topBallColor != BallColor.NONE) {
+        } else if ((leftBallColor == BallColor.NONE
+            || rightBallColor == BallColor.NONE /*Add this back in if we get a continuous rotation servo*/) &&
+            (topBallColor == BallColor.GREEN || (topBallColor == BallColor.UNKNOWN && allowUnknown))) {
           top();
         } else {
           return false;
         }
         return true;
       case UNKNOWN:
-        if (leftBallColor != BallColor.NONE) {
-          left();
-        } else if (rightBallColor != BallColor.NONE) {
+        if (rightBallColor != BallColor.NONE) {
           right();
+        } else if (leftBallColor != BallColor.NONE) {
+          left();
         } else if (topBallColor != BallColor.NONE) {
           top();
         } else {
@@ -304,12 +337,35 @@ public class Indexer {
   }
 
   /**
+   * Checks if the indexer is currently in the shooting phase (i.e., has not yet had enough time to move, drop, and shoot a ball).  
+   * @return true if the indexer is currently shooting, false otherwise
+   */
+  public boolean isShooting() {
+    return positionTimer.milliseconds() < MOVE_DROP_SHOOT_TIME;
+  }
+
+  /**
    * Forces the indexer to assume it has preloaded balls of specific colors.
    * This should be called when initializing autonomous programs if the robot starts with preloaded balls.
    */
   public void forcePreload() {
+    // indexerServo.setPosition(60); //Our servo can't do a full rotation, so we have to use 100/6 instead of 0.
+    indexerServo.setPosition(0); // Full Rotation Servo Version
     leftBallColor = BallColor.PURPLE;
     rightBallColor = BallColor.GREEN;
     topBallColor = BallColor.PURPLE;
+  }
+
+  public BallColor getBallColor(Position position) {
+    switch (position) {
+      case LEFT:
+        return leftBallColor;
+      case RIGHT:
+        return rightBallColor;
+      case TOP:
+        return topBallColor;
+      default:
+        return BallColor.NONE;
+    }
   }
 }
