@@ -14,7 +14,7 @@ public class ShooterSpeedCalibrator extends LinearOpMode {
   public Robot robot;
   public Camera camera;
 
-  public int RPM = 1500;
+  public int RPM = 2500;
   public int distance = 50;
 
   @Override
