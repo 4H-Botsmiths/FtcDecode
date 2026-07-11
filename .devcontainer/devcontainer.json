@@ -7,11 +7,11 @@
 	},
 	//"image": "mcr.microsoft.com/devcontainers/java:17", //Java 17 for sure works, 8 & 11 don't. I didn't test any others
 	"features": {
-		"ghcr.io/nordcominc/devcontainer-features/android-sdk:1": {
-			/*"build_tools": "30.0.3", //gradlew requires this version
+		//"ghcr.io/nordcominc/devcontainer-features/android-sdk:1": {
+		/*"build_tools": "30.0.3", //gradlew requires this version
 			"platform": "android-29", //This is the version of Android that the SDK will target
 			"extra_packages": "emulator"*/
-		}, //This is the Android SDK
+		//}, //This is the Android SDK
 		"ghcr.io/devcontainers/features/github-cli:1": {}
 	},
 	"onCreateCommand": "if ! sdkmanager --list | grep -q 'emulator'; then echo '\n\n!!!          emulator not available via sdkmanager. Installing it manually          !!!\n\n'; ./.devcontainer/install-emulator.sh; fi && ./gradlew assembleDebug ; echo Done.", //This will handle downloading gradle and setting up the dependencies (it also checks to see if the emulator tool is available via `sdkmanager`, and installs it manually if it isn't (Arm-based devices))
