@@ -7,6 +7,8 @@ env:
 on:
   pull_request: 
   workflow_dispatch: 
+  push:
+    branches: testing
 
 jobs:
   build:
@@ -59,3 +61,11 @@ jobs:
         name: ${{ steps.buildnumber.outputs.buildnumber }}
         path: |
           ./${{ steps.buildnumber.outputs.buildnumber }}.apk
+
+  deploy:
+    needs: build
+    name: Deploy (Testing)
+    if: ${{ github.event_name == 'push' }}
+    uses: ./.github/workflows/deploy.yml
+    with:
+      runid: ${{ needs.build.outputs.buildnumber }}
