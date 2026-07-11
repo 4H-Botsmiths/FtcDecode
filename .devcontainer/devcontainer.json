@@ -14,7 +14,7 @@
 		//}, //This is the Android SDK
 		"ghcr.io/devcontainers/features/github-cli:1": {}
 	},
-	"onCreateCommand": "if ! sdkmanager --list | grep -q 'emulator'; then echo '\n\n!!!          emulator not available via sdkmanager. Installing it manually          !!!\n\n'; ./.devcontainer/install-emulator.sh; fi && ./gradlew assembleDebug ; echo Done.", //This will handle downloading gradle and setting up the dependencies (it also checks to see if the emulator tool is available via `sdkmanager`, and installs it manually if it isn't (Arm-based devices))
+	//"onCreateCommand": "if ! sdkmanager --list | grep -q 'emulator'; then echo '\n\n!!!          emulator not available via sdkmanager. Installing it manually          !!!\n\n'; ./.devcontainer/install-emulator.sh; fi && ./gradlew assembleDebug ; echo Done.", //This will handle downloading gradle and setting up the dependencies (it also checks to see if the emulator tool is available via `sdkmanager`, and installs it manually if it isn't (Arm-based devices))
 	"customizations": {
 		"codespaces": {
 			"openFiles": [
@@ -27,7 +27,7 @@
 				"-dbaeumer.vscode-eslint",
 				"GitHub.copilot",
 				"GitHub.vscode-github-actions",
-				"antonydalmiere.android-support",
+				//"antonydalmiere.android-support",
 				"redhat.java",
 				"aaron-bond.better-comments",
 				"eamodio.gitlens",
@@ -37,8 +37,9 @@
 				"streetsidesoftware.code-spell-checker"
 			],
 			"settings": {
-				"java.server.launchMode": "LightWeight", //Make sure `redhat.java` dosen't try to start a server, it just needs to do syntax highlighting
-				"android.sdkLocation": "${ANDROID_SDK_ROOT}" //This is the path to the Android SDK, which is set by the image
+				"java.server.launchMode": "Standard", //Make sure `redhat.java` dosen't try to start a server, it just needs to do syntax highlighting
+				"android.sdkLocation": "${ANDROID_SDK_ROOT}", //This is the path to the Android SDK, which is set by the image,
+				"java.jdt.ls.androidSupport.enabled": "on"
 			}
 		}
 	}
