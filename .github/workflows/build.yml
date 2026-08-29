@@ -11,6 +11,11 @@ on:
     branches: 
       - testing
       - test/**/*
+      
+concurrency:
+  group: deploy-${{ github.ref }}
+  cancel-in-progress: true
+  
 
 jobs:
   build:
