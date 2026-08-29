@@ -42,6 +42,7 @@ public class FairAuto extends OpMode {
    */
   @Override
   public void init_loop() {
+    camera();
     telemetries();
   }
 
