@@ -80,6 +80,7 @@ public class FairAuto extends OpMode {
   @Override
   public void loop() {
     telemetries();
+    camera();
 
     double driveX = 0;
     double driveY = 0;
