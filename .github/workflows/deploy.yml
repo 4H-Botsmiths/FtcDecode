@@ -68,7 +68,7 @@ jobs:
 
       # Run adb commands to install the new APK
       - name: Install New APK
-        run: adb install "./${{ steps.buildnumber.outputs.buildnumber }}/${{ steps.buildnumber.outputs.buildnumber }}.apk"
+        run: adb install "./${{ steps.buildnumber.outputs.buildnumber }}"
       
       # Run adb commands to start the new APK
       - name: Run APK
