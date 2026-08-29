@@ -16,7 +16,7 @@ public class FairAuto extends OpMode {
   public Robot robot;
   public Camera camera;
 
-  private final ElapsedTime tagTimer = new ElapsedTime();
+  private final ElapsedTime timer = new ElapsedTime();
 
   /*
    * Code to run ONCE when the driver hits INIT
@@ -50,7 +50,7 @@ public class FairAuto extends OpMode {
    */
   @Override
   public void start() {
-    tagTimer.reset();
+    timer.reset();
   }
 
   double tagBearing = 0;
@@ -58,6 +58,7 @@ public class FairAuto extends OpMode {
   double tagX = 0;
   double tagY = 0;
 
+  double lastTagTime = 0;
   boolean tagLost = true;
   Status status = Status.LOADING;
 
@@ -65,9 +66,10 @@ public class FairAuto extends OpMode {
   double targetY = 0;
 
   final double fieldX = 12 * 5;
-  final double fieldY = 12 * 5;
+  final double fieldY = 12 * 10;
 
   boolean enableShooter = false;
+  double loadingTime = 0;
 
   double shooterRpm() {
     return robot.shooter.calculateRPM(tagRange);
@@ -86,10 +88,13 @@ public class FairAuto extends OpMode {
     switch (status) {
       case LOADING:
         boolean loaded = robot.indexer.load();
-        if (loaded) {
+        ballsShot = 0;
+        if (!loaded) {
+          loadingTime = timer.seconds();
+        }
+        if (loaded && tagRange > 0 && timer.seconds() - loadingTime > 3) {
           status = Status.PICK_POSITION;
         }
-        ballsShot = 0;
         break;
       case PICK_POSITION:
         targetX = Math.random() * fieldX;
@@ -148,14 +153,14 @@ public class FairAuto extends OpMode {
   void camera() {
     try {
       AprilTag tag = camera.getAprilTag(AprilTagPosition.GOAL);
-      tagTimer.reset();
+      lastTagTime = timer.seconds();
       tagLost = false;
       tagBearing = tag.targetPose.bearing;
       tagRange = tag.targetPose.range;
       tagX = tag.ftcPose.x;
       tagY = tag.ftcPose.y;
     } catch (Camera.TagNotFoundException e) {
-      if (tagTimer.seconds() > 0.5) {
+      if (timer.seconds() - lastTagTime > 0.5) {
         tagLost = true;
       }
     } catch (Camera.CameraNotAttachedException | Camera.CameraNotStreamingException e) {
