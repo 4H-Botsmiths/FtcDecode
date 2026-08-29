@@ -167,9 +167,11 @@ public class FairAuto extends OpMode {
       if (timer.seconds() - lastTagTime > 0.5) {
         tagLost = true;
       }
-    } catch (Camera.CameraNotAttachedException | Camera.CameraNotStreamingException e) {
-      telemetry.speak("Camera not Working.");
+    } catch (Camera.CameraNotAttachedException e) {
+      telemetry.speak("Camera not Attached.");
       requestOpModeStop();
+    } catch (Camera.CameraNotStreamingException e) {
+      telemetry.addLine("Camera not streaming.");
     }
   }
 
