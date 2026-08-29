@@ -78,4 +78,4 @@ jobs:
     if: ${{ github.event_name == 'push' }}
     uses: ./.github/workflows/deploy.yml
     with:
-      runid: ${{ needs.build.outputs.buildnumber }}
+      runid: ${{ github.run_id }}
