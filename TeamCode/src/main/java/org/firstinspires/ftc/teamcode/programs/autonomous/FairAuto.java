@@ -58,6 +58,7 @@ public class FairAuto extends OpMode {
   double tagRange = 0;
   double tagX = 0;
   double tagY = 0;
+  double computedYaw = 0;
 
   double lastTagTime = 0;
   boolean tagLost = true;
@@ -141,9 +142,9 @@ public class FairAuto extends OpMode {
     }
 
     if (tagLost) {
-      robot.drive(driveX * 0.5, driveY * 0.5, driveR * 0.5);
+      robot.drive(driveX * 0.5, driveY * 0.5, driveR * 0.5, Math.toRadians(computedYaw));
     } else {
-      robot.drive(driveX, driveY, driveR);
+      robot.drive(driveX, driveY, driveR, Math.toRadians(computedYaw));
     }
     if (enableShooter) {
       robot.shooter.setRPM(shooterRpm());
@@ -161,6 +162,7 @@ public class FairAuto extends OpMode {
       tagRange = tag.targetPose.range;
       tagX = tag.ftcPose.x;
       tagY = tag.ftcPose.y;
+      computedYaw = tag.ftcPose.yaw - 45;
     } catch (Camera.TagNotFoundException e) {
       if (timer.seconds() - lastTagTime > 0.5) {
         tagLost = true;
@@ -183,6 +185,7 @@ public class FairAuto extends OpMode {
     telemetry.addData("Tag Bearing", tagBearing);
     telemetry.addLine(String.format("Tag X %6.1f/%6.1f", tagX, targetX));
     telemetry.addLine(String.format("Tag Y %6.1f/%6.1f", tagY, targetY));
+    telemetry.addLine(String.format("Computed Yaw %6.1f", computedYaw));
     telemetry.addData("Tag Y", tagY);
     telemetry.addLine(String.format("Shooter RPM: (%6.1f)", robot.shooter.getRPM()));
     telemetry.addData("At Speed", robot.shooter.atSpeedRPM(shooterRpm()));
