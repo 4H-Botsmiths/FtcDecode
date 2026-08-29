@@ -103,8 +103,8 @@ public class FairAuto extends OpMode {
         status = Status.MOVING;
         break;
       case MOVING:
-        driveX = Range.clip((targetX - tagX) * 0.025, -0.15, 0.15);
-        driveY = Range.clip((targetY - tagY) * 0.025, -0.15, 0.15);
+        driveX = Range.clip(-(targetX - tagX) * 0.025, -0.15, 0.15);
+        driveY = Range.clip(-(targetY - tagY) * 0.025, -0.15, 0.15);
 
         if (Math.abs(targetX - tagX) < 1 && Math.abs(targetY - tagY) < 1 && Math.abs(tagBearing) < 5) {
           status = Status.SHOOT;
@@ -117,8 +117,8 @@ public class FairAuto extends OpMode {
           status = Status.SHOOTING;
         }
       case SHOOTING:
-        driveX = Range.clip((targetX - tagX) * 0.025, -0.15, 0.15);
-        driveY = Range.clip((targetY - tagY) * 0.025, -0.15, 0.15);
+        driveX = Range.clip(-(targetX - tagX) * 0.025, -0.15, 0.15);
+        driveY = Range.clip(-(targetY - tagY) * 0.025, -0.15, 0.15);
 
         if (!robot.indexer.isShooting()) {
           ballsShot++;
@@ -131,8 +131,8 @@ public class FairAuto extends OpMode {
         break;
       case DONE:
         enableShooter = false;
-        driveX = Range.clip((fieldX - tagX) * 0.025, -0.15, 0.15);
-        driveY = Range.clip((0 - tagY) * 0.025, -0.15, 0.15);
+        driveX = Range.clip(-(fieldX - tagX) * 0.025, -0.15, 0.15);
+        driveY = Range.clip(-(0 - tagY) * 0.025, -0.15, 0.15);
         if (Math.abs(fieldX - tagX) < 1 && Math.abs(0 - tagY) < 1 && Math.abs(tagBearing) < 5) {
           status = Status.LOADING;
         }
