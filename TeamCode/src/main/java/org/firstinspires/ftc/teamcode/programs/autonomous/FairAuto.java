@@ -98,8 +98,8 @@ public class FairAuto extends OpMode {
         }
         break;
       case PICK_POSITION:
-        targetX = Math.random() * fieldX;
-        targetY = Math.random() * fieldY;
+        targetX = 4 * 12;//Math.random() * fieldX;
+        targetY = 6 * 12; // Math.random() * fieldY;
         status = Status.MOVING;
         break;
       case MOVING:
@@ -171,6 +171,7 @@ public class FairAuto extends OpMode {
   }
 
   void telemetries() {
+    telemetry.addData("Status", status);
     telemetry.addData("Balls in Indexer", "Left: %s | Top: %s | Right: %s",
         robot.indexer.getBallColor(Indexer.Position.LEFT), robot.indexer.getBallColor(Indexer.Position.TOP),
         robot.indexer.getBallColor(Indexer.Position.RIGHT));
@@ -178,6 +179,10 @@ public class FairAuto extends OpMode {
     telemetry.addLine(String.format("RL (%6.1f) (%6.1f) RR", robot.rearLeft.getRPM(), robot.rearRight.getRPM()));
     telemetry.addData("Target Shooter RPM", shooterRpm());
     telemetry.addData("Tag Range", tagRange);
+    telemetry.addData("Tag Bearing", tagBearing);
+    telemetry.addLine(String.format("Tag X %6.1f/%6.1f", tagX, targetX));
+    telemetry.addLine(String.format("Tag Y %6.1f/%6.1f", tagY, targetY));
+    telemetry.addData("Tag Y", tagY);
     telemetry.addLine(String.format("Shooter RPM: (%6.1f)", robot.shooter.getRPM()));
     telemetry.addData("At Speed", robot.shooter.atSpeedRPM(shooterRpm()));
     telemetry.addData("Indexer Position", robot.indexer.getCurrentPosition());
