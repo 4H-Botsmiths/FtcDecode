@@ -148,7 +148,7 @@ public class FairAuto extends OpMode {
     if (tagLost) {
       robot.drive(driveX * 0.5, driveY * 0.5, driveR * 0.5, Math.toRadians(computedYaw));
     } else {
-      robot.drive(0, driveY, driveR, Math.toRadians(computedYaw));
+      robot.drive(driveX, driveY, driveR, Math.toRadians(computedYaw));
     }
     if (enableShooter) {
       robot.shooter.setRPM(shooterRpm());
