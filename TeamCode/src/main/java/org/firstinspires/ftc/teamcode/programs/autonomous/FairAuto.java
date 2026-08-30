@@ -115,7 +115,11 @@ public class FairAuto extends OpMode {
         break;
       case PICK_POSITION:
         targetRange = Math.random() * (MAX_RANGE - MIN_RANGE) + MIN_RANGE;
-        targetYaw = Math.random() * (MAX_YAW - MIN_YAW) + MIN_YAW;
+        if (targetRange < 65) {
+          targetYaw = Math.random() * (15 - MIN_YAW) + MIN_YAW;
+        } else {
+          targetYaw = Math.random() * (MAX_YAW - MIN_YAW) + MIN_YAW;
+        }
         status = Status.MOVING;
         break;
       case MOVING:
