@@ -60,14 +60,23 @@ public class FairAuto extends OpMode {
   double tagY = 0;
   double computedYaw = 0;
 
-  // The field corner is our origin. If the AprilTag is mounted on a goal in the corner,
-  // the tag itself is not necessarily exactly at the origin, so keep the measured offset
-  // from the tag center to the corner in inches. Set these to the actual measured values
-  // for your field layout. The 45 degree mount rotation is applied below when converting
-  // camera-relative coordinates into a corner-relative X/Y frame.
-  final double TAG_TO_CORNER_OFFSET_X_IN = 0.0;
-  final double TAG_TO_CORNER_OFFSET_Y_IN = 0.0;
+  // The field corner is our origin. The AprilTag itself is mounted on the goal, so its center
+  // is not exactly on the corner. Measure the offset from the tag center to the field corner and
+  // enter those values here. The 45 degree mount angle tells us how to rotate the camera frame
+  // into the corner-aligned frame without introducing the wraparound you were seeing around X = 0.
+  final double TAG_TO_CORNER_OFFSET_X_IN = 12;
+  final double TAG_TO_CORNER_OFFSET_Y_IN = 12;
   final double TAG_MOUNT_ANGLE_DEG = 45.0;
+
+  double cornerRelativeX(double cameraX, double cameraY) {
+    double theta = Math.toRadians(-TAG_MOUNT_ANGLE_DEG);
+    return cameraX * Math.cos(theta) - cameraY * Math.sin(theta) - TAG_TO_CORNER_OFFSET_X_IN;
+  }
+
+  double cornerRelativeY(double cameraX, double cameraY) {
+    double theta = Math.toRadians(-TAG_MOUNT_ANGLE_DEG);
+    return cameraX * Math.sin(theta) + cameraY * Math.cos(theta) - TAG_TO_CORNER_OFFSET_Y_IN;
+  }
 
   double lastTagTime = 0;
   boolean tagLost = true;
@@ -177,21 +186,14 @@ public class FairAuto extends OpMode {
       tagBearing = tag.targetPose.bearing;
       tagRange = tag.targetPose.range;
 
-      double angle = Math.toRadians(-TAG_MOUNT_ANGLE_DEG);
       double cameraX = tag.ftcPose.x;
       double cameraY = tag.ftcPose.y;
 
-      // The tag is mounted at 45 degrees in the corner, so rotate the camera frame into the
-      // field-aligned corner frame. The negative angle is required here because the tag's local
-      // axes are rotated clockwise relative to the field axes; using the positive angle mirrors the
-      // X coordinate and drives it negative when it should be near zero.
-      double cornerRelativeX = Math.cos(angle) * cameraX - Math.sin(angle) * cameraY;
-      double cornerRelativeY = Math.sin(angle) * cameraX + Math.cos(angle) * cameraY;
-
-      // If the tag's center is not exactly at the field corner, add the known offset from the
-      // tag center to the corner. Set TAG_TO_CORNER_OFFSET_X_IN/Y_IN to your actual measured values.
-      tagX = cornerRelativeX + TAG_TO_CORNER_OFFSET_X_IN;
-      tagY = cornerRelativeY + TAG_TO_CORNER_OFFSET_Y_IN;
+      // The goal tag is mounted at 45 degrees relative to the corner axes. Use the inverse of that
+      // rotation to convert the camera frame into the field-aligned corner frame. The corner offset
+      // is then subtracted so the origin is truly at the corner, not at the tag center.
+      tagX = cornerRelativeX(cameraX, cameraY);
+      tagY = cornerRelativeY(cameraX, cameraY);
       computedYaw = tag.ftcPose.yaw + TAG_MOUNT_ANGLE_DEG;
     } catch (Camera.TagNotFoundException e) {
       if (timer.seconds() - lastTagTime > 0.5) {
