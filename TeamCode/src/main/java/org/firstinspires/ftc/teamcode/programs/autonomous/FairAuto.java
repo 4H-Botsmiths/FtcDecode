@@ -101,14 +101,14 @@ public class FairAuto extends OpMode {
         break;
       case PICK_POSITION:
         targetX = 4 * 12;//Math.random() * fieldX;
-        targetY = 6 * 12; // Math.random() * fieldY;
+        targetY = Math.random() * fieldY;
         status = Status.MOVING;
         break;
       case MOVING:
         driveX = Range.clip(-(targetX - tagX) * 0.025, -0.15, 0.15);
         driveY = Range.clip(-(targetY - tagY) * 0.025, -0.15, 0.15);
 
-        if (Math.abs(targetX - tagX) < 1 && Math.abs(targetY - tagY) < 1 && Math.abs(tagBearing) < 5) {
+        if (/*Math.abs(targetX - tagX) < 1 && */Math.abs(targetY - tagY) < 1 && Math.abs(tagBearing) < 5) {
           status = Status.SHOOT;
           enableShooter = true;
         }
@@ -135,7 +135,7 @@ public class FairAuto extends OpMode {
         enableShooter = false;
         driveX = Range.clip(-(fieldX - tagX) * 0.025, -0.15, 0.15);
         driveY = Range.clip(-(0 - tagY) * 0.025, -0.15, 0.15);
-        if (Math.abs(fieldX - tagX) < 1 && Math.abs(0 - tagY) < 1 && Math.abs(tagBearing) < 5) {
+        if (/*Math.abs(fieldX - tagX) < 1 && */Math.abs(0 - tagY) < 1 && Math.abs(tagBearing) < 5) {
           status = Status.LOADING;
         }
         break;
@@ -144,7 +144,7 @@ public class FairAuto extends OpMode {
     if (tagLost) {
       robot.drive(driveX * 0.5, driveY * 0.5, driveR * 0.5, Math.toRadians(computedYaw));
     } else {
-      robot.drive(driveX, driveY, driveR, Math.toRadians(computedYaw));
+      robot.drive(0, driveY, driveR, Math.toRadians(computedYaw));
     }
     if (enableShooter) {
       robot.shooter.setRPM(shooterRpm());
@@ -162,7 +162,7 @@ public class FairAuto extends OpMode {
       tagRange = tag.targetPose.range;
       tagX = tag.ftcPose.x;
       tagY = tag.ftcPose.y;
-      computedYaw = tag.ftcPose.yaw - 45;
+      computedYaw = -(tag.ftcPose.yaw - 45);
     } catch (Camera.TagNotFoundException e) {
       if (timer.seconds() - lastTagTime > 0.5) {
         tagLost = true;
