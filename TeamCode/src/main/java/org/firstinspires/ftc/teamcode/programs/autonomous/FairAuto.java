@@ -58,19 +58,19 @@ public class FairAuto extends OpMode {
   double tagRange = 0;
   double tagYaw = 0;
 
-  final int MAX_YAW = 180;
-  final int MIN_YAW = -180;
+  final int MAX_YAW = 0;
+  final int MIN_YAW = -55;
 
   final int MIN_RANGE = 60;
-  final int MAX_RANGE = 100;
+  final int MAX_RANGE = 90;
 
   final double MAX_SPEED = 0.15;
   final double SENSITIVITY = 0.015;
   final int YAW_ERROR = 5;
   final int RANGE_ERROR = 2;
 
-  final int PARK_YAW = 0;
-  final int PARK_RANGE = 20;
+  final int PARK_YAW = -58;
+  final int PARK_RANGE = 82;
 
   double lastTagTime = 0;
   boolean tagLost = true;
