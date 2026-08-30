@@ -1,8 +1,9 @@
 package org.firstinspires.ftc.teamcode.hardware;
 
+import org.firstinspires.ftc.robotcore.external.navigation.DistanceUnit;
+
 import com.qualcomm.hardware.rev.RevColorSensorV3;
 import com.qualcomm.robotcore.util.ElapsedTime;
-import org.firstinspires.ftc.robotcore.external.navigation.DistanceUnit;
 
 public class Indexer {
   private final PositionServo indexerServo;
@@ -82,10 +83,10 @@ public class Indexer {
           case TOP:
             break; // Already at top, do nothing
           case LEFT:
-            indexerServo.setPosition(-185);
+            indexerServo.setPosition(-190);
             break;
           case RIGHT:
-            indexerServo.setPosition(185);
+            indexerServo.setPosition(190);
             break;
           default:
             if (rightBallColor == BallColor.NONE) {
