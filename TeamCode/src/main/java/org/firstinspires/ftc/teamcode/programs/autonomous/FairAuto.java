@@ -64,7 +64,7 @@ public class FairAuto extends OpMode {
   final int MIN_RANGE = 60;
   final int MAX_RANGE = 90;
 
-  final double MAX_SPEED = 0.15;
+  final double MAX_SPEED = 0.30;
   final double SENSITIVITY = 0.015;
   final int YAW_ERROR = 5;
   final int RANGE_ERROR = 2;
