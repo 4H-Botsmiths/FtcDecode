@@ -114,8 +114,8 @@ public class FairAuto extends OpMode {
         status = Status.MOVING;
         break;
       case MOVING:
-        driveX = Range.clip((targetYaw - tagYaw) * SENSITIVITY, -MAX_SPEED, MAX_SPEED);
-        driveY = Range.clip((targetRange - tagRange) * SENSITIVITY, -MAX_SPEED, MAX_SPEED);
+        driveX = Range.clip((tagYaw - targetYaw) * SENSITIVITY, -MAX_SPEED, MAX_SPEED);
+        driveY = Range.clip((tagRange - targetRange) * SENSITIVITY, -MAX_SPEED, MAX_SPEED);
 
         if (Math.abs(targetYaw - tagYaw) < YAW_ERROR && Math.abs(targetRange - tagRange) < RANGE_ERROR
             && Math.abs(tagBearing) < 5) {
@@ -144,8 +144,8 @@ public class FairAuto extends OpMode {
         robot.intake.setPowerAll(0);
         targetYaw = PARK_YAW;
         targetRange = PARK_RANGE;
-        driveX = Range.clip((targetYaw - tagYaw) * SENSITIVITY, -MAX_SPEED, MAX_SPEED);
-        driveY = Range.clip((targetRange - tagRange) * SENSITIVITY, -MAX_SPEED, MAX_SPEED);
+        driveX = Range.clip((tagYaw - targetYaw) * SENSITIVITY, -MAX_SPEED, MAX_SPEED);
+        driveY = Range.clip((tagRange - targetRange) * SENSITIVITY, -MAX_SPEED, MAX_SPEED);
         if (Math.abs(targetYaw - tagYaw) < YAW_ERROR && Math.abs(targetRange - tagRange) < RANGE_ERROR
             && Math.abs(tagBearing) < 5) {
           status = Status.LOADING;
