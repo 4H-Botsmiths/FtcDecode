@@ -56,9 +56,12 @@ public class FairAuto extends OpMode {
 
   double tagBearing = 0;
   double tagRange = 0;
-  double tagX = 0;
   double tagY = 0;
   double computedYaw = 0;
+
+  double tagX() {
+    return tagY * Math.sin(Math.toRadians(computedYaw));
+  }
 
   double lastTagTime = 0;
   boolean tagLost = true;
@@ -100,15 +103,15 @@ public class FairAuto extends OpMode {
         }
         break;
       case PICK_POSITION:
-        targetX = 4 * 12;//Math.random() * fieldX;
+        targetX = Math.random() * fieldX;
         targetY = Math.random() * (fieldY * 0.75) + (fieldY * 0.25);
         status = Status.MOVING;
         break;
       case MOVING:
-        driveX = Range.clip(-(targetX - tagX) * 0.025, -0.15, 0.15);
+        driveX = Range.clip(-(targetX - tagX()) * 0.025, -0.15, 0.15);
         driveY = Range.clip(-(targetY - tagY) * 0.025, -0.15, 0.15);
 
-        if (/*Math.abs(targetX - tagX) < 1 && */Math.abs(targetY - tagY) < 1 && Math.abs(tagBearing) < 5) {
+        if (Math.abs(targetX - tagX()) < 1 && Math.abs(targetY - tagY) < 1 && Math.abs(tagBearing) < 5) {
           status = Status.SHOOT;
           enableShooter = true;
         }
@@ -120,9 +123,8 @@ public class FairAuto extends OpMode {
         }
         break;
       case SHOOTING:
-        driveX = Range.clip(-(targetX - tagX) * 0.025, -0.15, 0.15);
+        driveX = Range.clip(-(targetX - tagX()) * 0.025, -0.15, 0.15);
         driveY = Range.clip(-(targetY - tagY) * 0.025, -0.15, 0.15);
-
         if (!robot.indexer.isShooting()) {
           ballsShot++;
           if (ballsShot >= 3) {
@@ -134,9 +136,10 @@ public class FairAuto extends OpMode {
         break;
       case DONE:
         enableShooter = false;
-        driveX = Range.clip(-(fieldX - tagX) * 0.025, -0.15, 0.15);
+        robot.intake.setPowerAll(0);
+        driveX = Range.clip(-(fieldX - tagX()) * 0.025, -0.15, 0.15);
         driveY = Range.clip(-(0 - tagY) * 0.025, -0.15, 0.15);
-        if (/*Math.abs(fieldX - tagX) < 1 && */Math.abs(0 - tagY) < 1 && Math.abs(tagBearing) < 5) {
+        if (Math.abs(fieldX - tagX()) < 1 && Math.abs(0 - tagY) < 1 && Math.abs(tagBearing) < 5) {
           status = Status.LOADING;
         }
         break;
@@ -149,8 +152,10 @@ public class FairAuto extends OpMode {
     }
     if (enableShooter) {
       robot.shooter.setRPM(shooterRpm());
+      robot.intake.setPowerAll(1);
     } else {
       robot.shooter.setRPM(0);
+      robot.intake.setPowerAll(0);
     }
   }
 
@@ -161,7 +166,6 @@ public class FairAuto extends OpMode {
       tagLost = false;
       tagBearing = tag.targetPose.bearing;
       tagRange = tag.targetPose.range;
-      tagX = tag.ftcPose.x;
       tagY = tag.ftcPose.y;
       computedYaw = tag.ftcPose.yaw + 45;
     } catch (Camera.TagNotFoundException e) {
@@ -186,7 +190,7 @@ public class FairAuto extends OpMode {
     telemetry.addData("Target Shooter RPM", shooterRpm());
     telemetry.addData("Tag Range", tagRange);
     telemetry.addData("Tag Bearing", tagBearing);
-    telemetry.addLine(String.format("Tag X %6.1f/%6.1f", tagX, targetX));
+    telemetry.addLine(String.format("Tag X %6.1f/%6.1f", tagX(), targetX));
     telemetry.addLine(String.format("Tag Y %6.1f/%6.1f", tagY, targetY));
     telemetry.addLine(String.format("Computed Yaw %6.1f", computedYaw));
     telemetry.addData("Tag Y", tagY);
