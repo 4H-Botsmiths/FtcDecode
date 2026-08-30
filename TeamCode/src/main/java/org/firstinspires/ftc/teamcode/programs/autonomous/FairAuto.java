@@ -177,12 +177,14 @@ public class FairAuto extends OpMode {
       tagBearing = tag.targetPose.bearing;
       tagRange = tag.targetPose.range;
 
-      double angle = Math.toRadians(TAG_MOUNT_ANGLE_DEG);
+      double angle = Math.toRadians(-TAG_MOUNT_ANGLE_DEG);
       double cameraX = tag.ftcPose.x;
       double cameraY = tag.ftcPose.y;
 
-      // The tag is mounted at 45 degrees in the corner, so rotate the tag-local camera frame
-      // into a corner-relative X/Y frame before driving toward points in that coordinate system.
+      // The tag is mounted at 45 degrees in the corner, so rotate the camera frame into the
+      // field-aligned corner frame. The negative angle is required here because the tag's local
+      // axes are rotated clockwise relative to the field axes; using the positive angle mirrors the
+      // X coordinate and drives it negative when it should be near zero.
       double cornerRelativeX = Math.cos(angle) * cameraX - Math.sin(angle) * cameraY;
       double cornerRelativeY = Math.sin(angle) * cameraX + Math.cos(angle) * cameraY;
 
