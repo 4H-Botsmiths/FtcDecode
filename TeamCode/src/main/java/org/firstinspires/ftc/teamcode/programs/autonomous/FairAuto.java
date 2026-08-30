@@ -118,6 +118,7 @@ public class FairAuto extends OpMode {
           robot.indexer.unknown();
           status = Status.SHOOTING;
         }
+        break;
       case SHOOTING:
         driveX = Range.clip(-(targetX - tagX) * 0.025, -0.15, 0.15);
         driveY = Range.clip(-(targetY - tagY) * 0.025, -0.15, 0.15);
