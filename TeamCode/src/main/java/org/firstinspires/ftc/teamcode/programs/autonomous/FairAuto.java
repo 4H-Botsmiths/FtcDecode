@@ -137,9 +137,9 @@ public class FairAuto extends OpMode {
       case DONE:
         enableShooter = false;
         robot.intake.setPowerAll(0);
-        driveX = Range.clip(-(fieldX - tagX()) * 0.01, -0.15, 0.15);
+        driveX = Range.clip(-(0 - tagX()) * 0.01, -0.15, 0.15);
         driveY = Range.clip(-(0 - tagY) * 0.01, -0.15, 0.15);
-        if (Math.abs(fieldX - tagX()) < 1 && Math.abs(0 - tagY) < 1 && Math.abs(tagBearing) < 5) {
+        if (Math.abs(0 - tagX()) < 1 && Math.abs(0 - tagY) < 1 && Math.abs(tagBearing) < 5) {
           status = Status.LOADING;
         }
         break;
