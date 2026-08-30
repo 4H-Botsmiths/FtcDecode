@@ -56,37 +56,28 @@ public class FairAuto extends OpMode {
 
   double tagBearing = 0;
   double tagRange = 0;
-  double tagX = 0;
-  double tagY = 0;
-  double computedYaw = 0;
+  double tagYaw = 0;
 
-  // The field corner is our origin. The AprilTag itself is mounted on the goal, so its center
-  // is not exactly on the corner. Measure the offset from the tag center to the field corner and
-  // enter those values here. The 45 degree mount angle tells us how to rotate the camera frame
-  // into the corner-aligned frame without introducing the wraparound you were seeing around X = 0.
-  final double TAG_TO_CORNER_OFFSET_X_IN = 12;
-  final double TAG_TO_CORNER_OFFSET_Y_IN = 12;
-  final double TAG_MOUNT_ANGLE_DEG = 45.0;
+  final int MAX_YAW = 180;
+  final int MIN_YAW = -180;
 
-  double cornerRelativeX(double cameraX, double cameraY) {
-    double theta = Math.toRadians(-TAG_MOUNT_ANGLE_DEG);
-    return cameraX * Math.cos(theta) - cameraY * Math.sin(theta) - TAG_TO_CORNER_OFFSET_X_IN;
-  }
+  final int MIN_RANGE = 60;
+  final int MAX_RANGE = 100;
 
-  double cornerRelativeY(double cameraX, double cameraY) {
-    double theta = Math.toRadians(-TAG_MOUNT_ANGLE_DEG);
-    return cameraX * Math.sin(theta) + cameraY * Math.cos(theta) - TAG_TO_CORNER_OFFSET_Y_IN;
-  }
+  final double MAX_SPEED = 0.15;
+  final double SENSITIVITY = 0.015;
+  final int YAW_ERROR = 5;
+  final int RANGE_ERROR = 2;
+
+  final int PARK_YAW = 0;
+  final int PARK_RANGE = 20;
 
   double lastTagTime = 0;
   boolean tagLost = true;
   Status status = Status.LOADING;
 
-  double targetX = 0;
-  double targetY = 0;
-
-  final double fieldX = 12 * 5;
-  final double fieldY = 12 * 8;
+  double targetYaw = 0;
+  double targetRange = 0;
 
   boolean enableShooter = false;
   double loadingTime = 0;
@@ -118,19 +109,16 @@ public class FairAuto extends OpMode {
         }
         break;
       case PICK_POSITION:
-        targetY = Math.random() * (fieldY * 0.75) + (fieldY * 0.25);
-        if (targetY < fieldY / 2) {
-          targetX = Math.random() * (fieldX * 0.75) + (fieldX * 0.25);
-        } else {
-          targetX = Math.random() * fieldX;
-        }
+        targetRange = Math.random() * (MAX_RANGE - MIN_RANGE) + MIN_RANGE;
+        targetYaw = Math.random() * (MAX_YAW - MIN_YAW) + MIN_YAW;
         status = Status.MOVING;
         break;
       case MOVING:
-        driveX = Range.clip(-(targetX - tagX) * 0.015, -0.15, 0.15);
-        driveY = Range.clip(-(targetY - tagY) * 0.015, -0.15, 0.15);
+        driveX = Range.clip((targetYaw - tagYaw) * SENSITIVITY, -MAX_SPEED, MAX_SPEED);
+        driveY = Range.clip((targetRange - tagRange) * SENSITIVITY, -MAX_SPEED, MAX_SPEED);
 
-        if (Math.abs(targetX - tagX) < 1 && Math.abs(targetY - tagY) < 1 && Math.abs(tagBearing) < 5) {
+        if (Math.abs(targetYaw - tagYaw) < YAW_ERROR && Math.abs(targetRange - tagRange) < RANGE_ERROR
+            && Math.abs(tagBearing) < 5) {
           status = Status.SHOOT;
           enableShooter = true;
         }
@@ -142,8 +130,6 @@ public class FairAuto extends OpMode {
         }
         break;
       case SHOOTING:
-        driveX = Range.clip(-(targetX - tagX) * 0.005, -0.15, 0.15);
-        driveY = Range.clip(-(targetY - tagY) * 0.005, -0.15, 0.15);
         if (!robot.indexer.isShooting()) {
           ballsShot++;
           if (ballsShot >= 3) {
@@ -156,18 +142,21 @@ public class FairAuto extends OpMode {
       case DONE:
         enableShooter = false;
         robot.intake.setPowerAll(0);
-        driveX = Range.clip(-(0 - tagX) * 0.015, -0.15, 0.15);
-        driveY = Range.clip(-(fieldY - tagY) * 0.015, -0.15, 0.15);
-        if (Math.abs(0 - tagX) < 1 && Math.abs(0 - tagY) < 1 && Math.abs(tagBearing) < 5) {
+        targetYaw = PARK_YAW;
+        targetRange = PARK_RANGE;
+        driveX = Range.clip((targetYaw - tagYaw) * SENSITIVITY, -MAX_SPEED, MAX_SPEED);
+        driveY = Range.clip((targetRange - tagRange) * SENSITIVITY, -MAX_SPEED, MAX_SPEED);
+        if (Math.abs(targetYaw - tagYaw) < YAW_ERROR && Math.abs(targetRange - tagRange) < RANGE_ERROR
+            && Math.abs(tagBearing) < 5) {
           status = Status.LOADING;
         }
         break;
     }
 
     if (tagLost) {
-      robot.drive(driveX * 0.5, driveY * 0.5, driveR * 0.5, Math.toRadians(computedYaw));
+      robot.drive(driveX * 0.5, driveY * 0.5, driveR * 0.5);
     } else {
-      robot.drive(driveX, driveY, driveR, Math.toRadians(computedYaw));
+      robot.drive(driveX, driveY, driveR);
     }
     if (enableShooter) {
       robot.shooter.setRPM(shooterRpm());
@@ -185,16 +174,7 @@ public class FairAuto extends OpMode {
       tagLost = false;
       tagBearing = tag.targetPose.bearing;
       tagRange = tag.targetPose.range;
-
-      double cameraX = tag.ftcPose.x;
-      double cameraY = tag.ftcPose.y;
-
-      // The goal tag is mounted at 45 degrees relative to the corner axes. Use the inverse of that
-      // rotation to convert the camera frame into the field-aligned corner frame. The corner offset
-      // is then subtracted so the origin is truly at the corner, not at the tag center.
-      tagX = cornerRelativeX(cameraX, cameraY);
-      tagY = cornerRelativeY(cameraX, cameraY);
-      computedYaw = tag.ftcPose.yaw + TAG_MOUNT_ANGLE_DEG;
+      tagYaw = tag.ftcPose.yaw;
     } catch (Camera.TagNotFoundException e) {
       if (timer.seconds() - lastTagTime > 0.5) {
         tagLost = true;
@@ -212,15 +192,12 @@ public class FairAuto extends OpMode {
     telemetry.addData("Balls in Indexer", "Left: %s | Top: %s | Right: %s",
         robot.indexer.getBallColor(Indexer.Position.LEFT), robot.indexer.getBallColor(Indexer.Position.TOP),
         robot.indexer.getBallColor(Indexer.Position.RIGHT));
+    telemetry.addData("Target Shooter RPM", shooterRpm());
+    telemetry.addData("Tag Bearing: %6.1f / %6.1f", tagBearing);
+    telemetry.addLine(String.format("Tag Range: %6.1f / %6.1f", tagRange, targetRange));
+    telemetry.addLine(String.format("Tag Yaw: %6.1f / %6.1f", tagYaw, targetYaw));
     telemetry.addLine(String.format("FL (%6.1f) (%6.1f) FR", robot.frontLeft.getRPM(), robot.frontRight.getRPM()));
     telemetry.addLine(String.format("RL (%6.1f) (%6.1f) RR", robot.rearLeft.getRPM(), robot.rearRight.getRPM()));
-    telemetry.addData("Target Shooter RPM", shooterRpm());
-    telemetry.addData("Tag Range", tagRange);
-    telemetry.addData("Tag Bearing", tagBearing);
-    telemetry.addLine(String.format("Corner X %6.1f/%6.1f", tagX, targetX));
-    telemetry.addLine(String.format("Corner Y %6.1f/%6.1f", tagY, targetY));
-    telemetry.addLine(String.format("Computed Yaw %6.1f", computedYaw));
-    telemetry.addData("Corner Y", tagY);
     telemetry.addLine(String.format("Shooter RPM: (%6.1f)", robot.shooter.getRPM()));
     telemetry.addData("At Speed", robot.shooter.atSpeedRPM(shooterRpm()));
     telemetry.addData("Indexer Position", robot.indexer.getCurrentPosition());
