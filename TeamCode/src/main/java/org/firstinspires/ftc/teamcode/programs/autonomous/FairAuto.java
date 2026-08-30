@@ -162,7 +162,7 @@ public class FairAuto extends OpMode {
       tagRange = tag.targetPose.range;
       tagX = tag.ftcPose.x;
       tagY = tag.ftcPose.y;
-      computedYaw = -(tag.ftcPose.yaw - 45);
+      computedYaw = tag.ftcPose.yaw + 45;
     } catch (Camera.TagNotFoundException e) {
       if (timer.seconds() - lastTagTime > 0.5) {
         tagLost = true;
