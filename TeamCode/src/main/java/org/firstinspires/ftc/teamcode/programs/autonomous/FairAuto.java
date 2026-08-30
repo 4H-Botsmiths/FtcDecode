@@ -103,14 +103,14 @@ public class FairAuto extends OpMode {
         ballsShot = 0;
         if (!loaded) {
           loadingTime = timer.seconds();
+          robot.statusLed.setRed(true);
+          robot.statusLed.setGreen(false);
+        } else {
+          robot.statusLed.setRed(false);
+          robot.statusLed.setGreen(false);
         }
         if (loaded && tagRange > 0 && timer.seconds() - loadingTime > 3) {
           status = Status.PICK_POSITION;
-          robot.statusLed.setRed(false);
-          robot.statusLed.setGreen(false);
-        } else {
-          robot.statusLed.setRed(true);
-          robot.statusLed.setGreen(false);
         }
         break;
       case PICK_POSITION:
