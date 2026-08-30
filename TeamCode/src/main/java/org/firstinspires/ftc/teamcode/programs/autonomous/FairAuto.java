@@ -101,7 +101,7 @@ public class FairAuto extends OpMode {
         break;
       case PICK_POSITION:
         targetX = 4 * 12;//Math.random() * fieldX;
-        targetY = Math.random() * fieldY;
+        targetY = Math.random() * (fieldY * 0.75) + (fieldY * 0.25);
         status = Status.MOVING;
         break;
       case MOVING:
