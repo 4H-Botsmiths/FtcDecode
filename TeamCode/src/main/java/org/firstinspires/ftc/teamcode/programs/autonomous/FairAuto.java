@@ -61,9 +61,6 @@ public class FairAuto extends OpMode {
 
   double tagX() {
     double x = tagY * Math.sin(Math.toRadians(computedYaw));
-    if (computedYaw > 90 && computedYaw < 270) {
-      x = -x;
-    }
     return x;
   }
 
