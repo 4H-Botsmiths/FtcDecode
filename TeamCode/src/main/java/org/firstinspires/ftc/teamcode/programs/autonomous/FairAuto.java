@@ -75,7 +75,7 @@ public class FairAuto extends OpMode {
   double targetY = 0;
 
   final double fieldX = 12 * 5;
-  final double fieldY = 12 * 10;
+  final double fieldY = 12 * 8;
 
   boolean enableShooter = false;
   double loadingTime = 0;
@@ -107,8 +107,12 @@ public class FairAuto extends OpMode {
         }
         break;
       case PICK_POSITION:
-        targetX = Math.random() * fieldX;
         targetY = Math.random() * (fieldY * 0.75) + (fieldY * 0.25);
+        if (targetY < fieldY / 2) {
+          targetX = Math.random() * (fieldX * 0.75) + (fieldX * 0.25);
+        } else {
+          targetX = Math.random() * fieldX;
+        }
         status = Status.MOVING;
         break;
       case MOVING:
