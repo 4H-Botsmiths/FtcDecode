@@ -74,6 +74,7 @@ public class FairAuto extends OpMode {
 
   double lastTagTime = 0;
   boolean tagLost = true;
+  boolean tagReallyLost = true;
   Status status = Status.LOADING;
 
   double targetYaw = 0;
@@ -169,7 +170,11 @@ public class FairAuto extends OpMode {
     }
 
     if (tagLost) {
-      robot.drive(driveX * 0.5, driveY * 0.5, driveR * 0.5);
+      if (tagReallyLost) {
+        robot.drive(driveX * -0.5, driveY * -0.5, driveR * -0.5);
+      } else {
+        robot.drive(driveX * 0.5, driveY * 0.5, driveR * 0.5);
+      }
     } else {
       robot.drive(driveX, driveY, driveR);
     }
@@ -193,6 +198,9 @@ public class FairAuto extends OpMode {
     } catch (Camera.TagNotFoundException e) {
       if (timer.seconds() - lastTagTime > 0.5) {
         tagLost = true;
+      }
+      if (timer.seconds() - lastTagTime > 2) {
+        tagReallyLost = true;
       }
     } catch (Camera.CameraNotAttachedException e) {
       telemetry.speak("Camera not Attached.");
