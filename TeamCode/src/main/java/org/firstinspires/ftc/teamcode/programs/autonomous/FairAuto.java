@@ -106,6 +106,11 @@ public class FairAuto extends OpMode {
         }
         if (loaded && tagRange > 0 && timer.seconds() - loadingTime > 3) {
           status = Status.PICK_POSITION;
+          robot.statusLed.setRed(false);
+          robot.statusLed.setGreen(false);
+        } else {
+          robot.statusLed.setRed(true);
+          robot.statusLed.setGreen(false);
         }
         break;
       case PICK_POSITION:
@@ -122,6 +127,8 @@ public class FairAuto extends OpMode {
           status = Status.SHOOT;
           enableShooter = true;
         }
+        robot.statusLed.setRed(true);
+        robot.statusLed.setGreen(true);
         break;
       case SHOOT:
         if (robot.shooter.atSpeedRPM(shooterRpm())) {
@@ -130,6 +137,8 @@ public class FairAuto extends OpMode {
         }
         break;
       case SHOOTING:
+        robot.statusLed.setRed(false);
+        robot.statusLed.setGreen(true);
         if (!robot.indexer.isShooting()) {
           ballsShot++;
           if (ballsShot >= 3) {
@@ -140,6 +149,8 @@ public class FairAuto extends OpMode {
         }
         break;
       case DONE:
+        robot.statusLed.setRed(false);
+        robot.statusLed.setGreen(false);
         enableShooter = false;
         robot.intake.setPowerAll(0);
         targetYaw = PARK_YAW;
