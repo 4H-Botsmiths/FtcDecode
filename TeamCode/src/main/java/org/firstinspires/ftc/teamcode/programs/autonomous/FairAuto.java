@@ -58,8 +58,8 @@ public class FairAuto extends OpMode {
   double tagRange = 0;
   double tagYaw = 0;
 
-  final int MAX_YAW = 0;
-  final int MIN_YAW = -55;
+  final int MAX_YAW = 20;
+  final int MIN_YAW = -35;
 
   final int MIN_RANGE = 60;
   final int MAX_RANGE = 90;
@@ -115,11 +115,11 @@ public class FairAuto extends OpMode {
         }
         break;
       case PICK_POSITION:
-        targetRange = Math.random() * (MAX_RANGE - MIN_RANGE) + MIN_RANGE;
-        if (targetRange < 65) {
-          targetYaw = Math.random() * (15 - MIN_YAW) + MIN_YAW;
+        targetYaw = Math.random() * (MAX_YAW - MIN_YAW) + MIN_YAW;
+        if (targetYaw > 0) {
+          targetRange = Math.random() * (70 - MIN_RANGE) + MIN_RANGE;
         } else {
-          targetYaw = Math.random() * (MAX_YAW - MIN_YAW) + MIN_YAW;
+          targetRange = Math.random() * (MAX_RANGE - MIN_RANGE) + MIN_RANGE;
         }
         status = Status.MOVING;
         break;
