@@ -25,7 +25,7 @@ import com.qualcomm.robotcore.util.ElapsedTime;
  * Station OpMode list
  */
 
-@TeleOp(name = "Daniels Program, square",)
+@TeleOp(name = "Daniels Program, square")
 @Disabled
 public class DanielsProgram extends OpMode {
   public Robot robot;
@@ -50,7 +50,8 @@ public class DanielsProgram extends OpMode {
   @Override
   public void init_loop() {
   }
- ElapsedTime timer = new ElapsedTime();
+
+  ElapsedTime timer = new ElapsedTime();
 
   /*
    * Code to run ONCE when the driver hits PLAY
@@ -65,16 +66,16 @@ public class DanielsProgram extends OpMode {
    */
   @Override
   public void loop() {
-    if(timer.seconds() < 2){
-      robot.drive(0.5,0,0);
-    } else if(timer.seconds() < 4){
-      robot.drive(0,0.5,0);
-    } else if(timer.seconds() < 6){
-      robot.drive(-0.5,0,0);
-    } else if(timer.seconds() < 8){
-      robot.drive(0,-0.5,0);
+    if (timer.seconds() < 2) {
+      robot.drive(0.5, 0, 0);
+    } else if (timer.seconds() < 4) {
+      robot.drive(0, 0.5, 0);
+    } else if (timer.seconds() < 6) {
+      robot.drive(-0.5, 0, 0);
+    } else if (timer.seconds() < 8) {
+      robot.drive(0, -0.5, 0);
     } else {
-      robot.drive(0,0,0);
+      robot.drive(0, 0, 0);
       requestOpModeStop();
     }
   }
