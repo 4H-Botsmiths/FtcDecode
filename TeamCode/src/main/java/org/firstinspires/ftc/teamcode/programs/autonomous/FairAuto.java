@@ -118,6 +118,8 @@ public class FairAuto extends OpMode {
         targetYaw = Math.random() * (MAX_YAW - MIN_YAW) + MIN_YAW;
         if (targetYaw > 0) {
           targetRange = Math.random() * (70 - MIN_RANGE) + MIN_RANGE;
+        } else if (targetYaw < -25) {
+          targetRange = Math.random() * (110 - MIN_RANGE) + MIN_RANGE;
         } else {
           targetRange = Math.random() * (MAX_RANGE - MIN_RANGE) + MIN_RANGE;
         }
