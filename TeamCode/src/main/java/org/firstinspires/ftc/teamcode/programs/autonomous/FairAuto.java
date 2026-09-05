@@ -70,7 +70,7 @@ public class FairAuto extends OpMode {
   final int RANGE_ERROR = 2;
 
   final int PARK_YAW = -58;
-  final int PARK_RANGE = 82;
+  final int PARK_RANGE = 70;
 
   double lastTagTime = 0;
   boolean tagLost = true;
