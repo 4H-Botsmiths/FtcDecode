@@ -194,7 +194,7 @@ public class FairAuto extends OpMode {
       AprilTag tag = camera.getAprilTag(AprilTagPosition.GOAL);
       lastTagTime = timer.seconds();
       tagLost = false;
-      tagBearing = tag.targetPose.bearing;
+      tagBearing = tag.backboardPose.bearing;
       tagRange = tag.targetPose.range;
       tagYaw = tag.ftcPose.yaw;
     } catch (Camera.TagNotFoundException e) {
